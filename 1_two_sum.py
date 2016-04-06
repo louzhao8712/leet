@@ -5,6 +5,7 @@ class Solution(object):
         :type target: int
         :rtype: List[int]
         """
+	# add one cmd
 	tb={}
 	for i in xrange(len(nums)):
 		tmp = target = nums[i]
