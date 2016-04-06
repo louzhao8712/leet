@@ -20,7 +20,7 @@ class HashTable:
 
     # going to use hashlib md5
     def hashing(self, key):
-        return hashlib.md5(key).hexdigest() % self.tablesize
+        return int(hashlib.md5(key).hexdigest(),16 )% self.tablesize
 
     def insert(self, item):
         hashKey = self.hashing(item.key)
