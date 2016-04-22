@@ -8,3 +8,5 @@ HDFS: file system
 Spark: in cluster computing, not tiles to 2 stage mapreduce, based on HDFS, faster than hadoop
 
 [RAID 0, RAID 1, RAID 5, RAID 10 Explained with Diagrams](http://www.thegeekstuff.com/2010/08/raid-levels-tutorial/)
+
+[Inverted index](https://www.quora.com/Information-Retrieval-What-is-inverted-index)
