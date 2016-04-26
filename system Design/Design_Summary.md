@@ -1,9 +1,9 @@
 [cyandtery Summary](https://github.com/cyandterry/Python-Study/blob/master/system_design.md)
 
 [Intro to HDFS](https://www.youtube.com/watch?v=ziqx2hJY8Hg)
-mapreduce: algorithm
+mapreduce: algorithm,pattern
 hadoop: framework using mapreduce
-HDFS: file system
+HDFS: distributed file system
 
 Spark: in cluster computing, not tiles to 2 stage mapreduce, based on HDFS, faster than hadoop
 
