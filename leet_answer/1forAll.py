@@ -386,14 +386,84 @@ class Solution10(object):
                         dp[i][j] = dp[i][j-2]  #delete the x* to match
         return dp[-1][-1]
 
-#-----------------------------------
-class Solution10(object):
-#-----------------------------------
+#---------two pointer--------------------------
+#11. Container With Most Water
+"""
+Given n non-negative integers a1, a2, ..., an, where each represents a point at coordinate (i, ai). 
+n vertical lines are drawn such that the two endpoints of line i is at (i, ai) and (i, 0). Find two lines, which together with x-axis forms a container, such that the container contains the most water.
+
+Note: You may not slant the container. 
+"""
 class Solution11(object):
+    def maxArea(self, height):
+        """
+        :type height: List[int]
+        :rtype: int
+        """
+        lh = len(height)
+        if lh <= 1 : return 0
+        ret =0
+        left = 0
+        right = lh -1
+        while left < right:
+            if height[left] < height[right]:
+                area = height[left] * (right - left)
+                left +=1
+            else:
+                area = height[right] * (right - left)
+                right -=1
+            if area > ret:
+                ret = area
+        return ret
 #-----------------------------------
+#12. Integer to Roman 
+"""
+Given an integer, convert it to a roman numeral.
+
+Input is guaranteed to be within the range from 1 to 3999.
+"""
 class Solution12(object):
+    def intToRoman(self, num):
+        """
+        :type num: int
+        :rtype: str
+        """
+        digits = [(1000, 'M'), (900, 'CM'), (500, 'D'), (400, 'CD' ),
+                  (100, 'C'), (90, 'XC'), (50, 'L'), (40, 'XL'),
+                  (10, 'X'), (9, 'IX'), (5, 'V'), (4, 'IV'), (1, 'I')]
+        result = ""
+        for digit in digits:
+            while num >= digit[0]:
+                result += digit[1]
+                num -= digit[0]
+            if num == 0:
+                break
+        return result
 #-----------------------------------
+#13. Roman to Integer
+"""
+Given a roman numeral, convert it to an integer.
+
+Input is guaranteed to be within the range from 1 to 3999.
+"""
 class Solution13(object):
+    def romanToInt(self, s):
+        """
+        :type s: str
+        :rtype: int
+        """
+        if len(s) ==0 : return None
+        tb = {'I':1,'V':5,'X':10,'L':50,'C':100,'D':500,'M':1000}
+        p,q = 0,1
+        res = 0
+        while q < len(s):
+            if tb[s[p]] < tb[s[q]]:
+                res -= tb[s[p]]
+            else:
+                res += tb[s[p]]
+            p,q = q,q+1
+        res += tb[s[p]]
+        return res
 #-----------------------------------
 class Solution14(object):
 #-----------------------------------
