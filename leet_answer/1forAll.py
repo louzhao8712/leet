@@ -1,14 +1,14 @@
 #-------hash table-----------------------------
+"""
+Given an array of integers, return indices of the two numbers such that 
+they add up to a specific target.
+You may assume that each input would have exactly one solution.
+:type nums: List[int]
+:type target: int
+:rtype: List[int]
+"""
 class Solution1(object):
     def twoSum(self, nums, target):
-        """
-        Given an array of integers, return indices of the two numbers such that 
-        they add up to a specific target.
-        You may assume that each input would have exactly one solution.
-        :type nums: List[int]
-        :type target: int
-        :rtype: List[int]
-        """
         # add one cmd
         tb = {}
         for i in xrange(len(nums)):
@@ -19,16 +19,16 @@ class Solution1(object):
                 tb[nums[i]] = i
         
 #------list-----------------------------
+"""
+You are given two linked lists representing two non-negative numbers.
+The digits are stored in reverse order and each of their nodes contain a single digit.
+Add the two numbers and return it as a linked list.
 
+Input: (2 -> 4 -> 3) + (5 -> 6 -> 4)
+Output: 7 -> 0 -> 8
+"""
 class Solution2(object):
-    """
-    You are given two linked lists representing two non-negative numbers.
-    The digits are stored in reverse order and each of their nodes contain a single digit.
-    Add the two numbers and return it as a linked list.
 
-    Input: (2 -> 4 -> 3) + (5 -> 6 -> 4)
-    Output: 7 -> 0 -> 8
-    """
     def addTwoNumbers(self, l1, l2):
         """
         :type l1: ListNode
@@ -52,22 +52,24 @@ class Solution2(object):
         return dumy.next
 
 #-----hash and 2 pointer------------------------------
+"""
+Given a string, find the length of the longest substring without repeating characters.
+
+Examples:
+
+Given "abcabcbb", the answer is "abc", which the length is 3.
+
+Given "bbbbb", the answer is "b", with the length of 1.
+
+Given "pwwkew", the answer is "wke", with the length of 3.
+Note that the answer must be a substring, "pwke" is a subsequence and not a substring.
+:type s: str
+:rtype: int
+"""
 class Solution3(object):
+
     def lengthOfLongestSubstring(self, s):
-        """
-        Given a string, find the length of the longest substring without repeating characters.
 
-        Examples:
-
-        Given "abcabcbb", the answer is "abc", which the length is 3.
-
-        Given "bbbbb", the answer is "b", with the length of 1.
-
-        Given "pwwkew", the answer is "wke", with the length of 3.
-        Note that the answer must be a substring, "pwke" is a subsequence and not a substring.
-        :type s: str
-        :rtype: int
-        """
         if len(s) <=1 : return len(s)
         tb = {}
         start = -1
@@ -92,11 +94,11 @@ class Solution3(object):
         return ret
 #---------binary search, divide and con--------------------------
 # Median of Two Sorted Arrays
-class Solution4(object):
 """
 There are two sorted arrays nums1 and nums2 of size m and n respectively. 
 Find the median of the two sorted arrays. The overall run time complexity should be O(log (m+n)).
 """
+class Solution4(object):
     def helper(self,A,B,K):
         # index 0 system, kth item is array[k-1]
         lenA = len(A); lenB = len(B)
@@ -123,12 +125,12 @@ Find the median of the two sorted arrays. The overall run time complexity should
         else:
             return (self.helper(A,B,(lenA+lenB)/2 +1) + self.helper(A,B,(lenA+lenB)/2))*0.5
 #-----------------------------------
-#5. Longest Palindromic Substring
-class Solution5(object):
 """
 Given a string S, find the longest palindromic substring in S.
 You may assume that the maximum length of S is 1000, and there exists one unique longest palindromic subs
 """
+#5. Longest Palindromic Substring
+class Solution5(object):
     def longestPalindrome(self, s):
         """
         :type s: str
@@ -214,11 +216,12 @@ You may assume that the maximum length of S is 1000, and there exists one unique
             r +=1
         return s[l+1:r]
 #-----------------------------------
-#6. ZigZag Conversion
-class Solution6(object):
 """
 The string "PAYPALISHIRING" is written in a zigzag pattern on a given number of rows like this
 """
+#6. ZigZag Conversion
+class Solution6(object):
+    def convert(self, s, n):
         if n < 1: return None
         if n ==1 or n >= len(s): return s
         return self.sol2(s,n)
@@ -249,10 +252,11 @@ The string "PAYPALISHIRING" is written in a zigzag pattern on a given number of 
         return "".join(arr)
 #-----------------------------------
 #7. Reverse Integer
+"""
+Reverse digits of an integer.
+"""
 class Solution7(object):
-    """
-    Reverse digits of an integer.
-    """
+    def reverse(self, x):
         #  INT_MAX = 2147483647
         #  INT_MIN = -2147483648
         intmax = 2**31-1
@@ -270,7 +274,6 @@ class Solution7(object):
         return ret
 #-----------------------------------
 #8. String to Integer (atoi)
-class Solution8(object):
 """
 Implement atoi to convert a string to an integer.
 
@@ -280,6 +283,7 @@ If you want a challenge, please do not see below and ask yourself what are the p
 Notes: It is intended for this problem to be specified vaguely (ie, no given input specs).
 You are responsible to gather all the input requirements up front. 
 """
+class Solution8(object):
     # note this solition did not mention that we can have 'e' in the string
     def myAtoi(self, str):
         """
@@ -307,9 +311,97 @@ You are responsible to gather all the input requirements up front.
                 break
         return sign * res
 #-----------------------------------
+#9.Palindrome Number
+class Solution9(object):
+    def isPalindrome(self, x):
+        if (x < 0) or (x!=0 and x%10 == 0): return False
+        return self.sol2(x)
+        
+    def sol2(self,x):
+        div = 1
+        while (x/div >=10):
+            div *= 10
+        while x!=0:
+            l = x/div
+            r = x%10
+            if l!=r: return False
+            x = (x%div)/10
+            div /= 100
+        return True
+    def sol1(self,x):
+        # half reverse
+        # stop at the half since reverse the whole number could cause overflow
+        sum = 0
+        while x > sum:
+            sum =10 *sum + x%10
+            x /= 10
+        return sum == x or sum/10 == x
+#-----db------------------------------
+#10. Regular Expression Matching
+"""
+Implement regular expression matching with support for '.' and '*'.
+'.' Matches any single character.
+'*' Matches zero or more of the preceding element.
+The matching should cover the entire input string (not partial).
+"""
+class Solution10(object):
+    def isMatch(self, s, p):
+        """
+        :type s: str
+        :type p: str
+        :rtype: bool
+        """
+        return self.sol1(s,p)
+        #return self.dfs(s,p)
+    
+    def sol1(self,s,p):
+        #dp method
+        # Let d(i, j) = true if s[0, i - 1] matches p[0, j - 1] (i, j are string lengths).
+        #Initialize:
+        #d(0, 0) = true, 
+        #d(0, j): if p[j - 1] == '*', d(0,j) = d(0, j - 2) // deletion; else d(j) = false.
+        #Fill up the table:
+        #if         p[j - 1] matches s[i - 1],   d(i, j) = d(i - 1, j - 1);
+        #else if  p[j - 1] == '*',  two cases:
+        #       if  p[j - 2] matches s[i - 1],   d(i, j) = deletion: d(i, j - 2) || repetition: d(i - 1, j);
+        #       else                                        d(i, j) = deletion: d(i, j - 2);
+        #Note: “p[j] matches s[i]” means p[j] == s[i] || p[j] == '.'.
+        ls =len(s)
+        lp = len(p)
+        dp = [[False for j in range(len(p) + 1)] for i in range(len(s) + 1)]
+        dp[0][0] = True
+        #!! very important to set dp[0][j]
+        # this is for the case like p == "a*"
+        for j in range(1,len(p) + 1):
+                if p[j-1] == '*' and j >= 2:  
+                        dp[0][j] = dp[0][j - 2]
+        for i in xrange(1,ls+1):
+            for j in xrange(1,lp+1):
+                if p[j - 1] == '.' or s[i-1] == p[j-1]:   ## first case
+                    dp[i][j] = dp[i - 1][j - 1] 
+                elif p[j-1] == "*" :
+                    if p[j-2] == '.' or s[i-1] == p[j-2]:
+                        dp[i][j] = dp[i][j-2] or dp[i-1][j]  #delete x*to match or the * is used for repete
+                    else:
+                        dp[i][j] = dp[i][j-2]  #delete the x* to match
+        return dp[-1][-1]
+
 #-----------------------------------
+class Solution10(object):
 #-----------------------------------
+class Solution11(object):
 #-----------------------------------
+class Solution12(object):
+#-----------------------------------
+class Solution13(object):
+#-----------------------------------
+class Solution14(object):
+#-----------------------------------
+class Solution15(object):
+#-----------------------------------
+class Solution16(object):
+#-----------------------------------
+class Solution17(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------

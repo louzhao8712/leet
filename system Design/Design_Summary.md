@@ -17,3 +17,6 @@ Bloom Filter的这种高效是有一定代价的：在判断一个元素是否�
 
 [REST vs SOAP](http://searchsoa.techtarget.com/tip/REST-vs-SOAP-How-to-choose-the-best-Web-service)
 Both web services: Simple Object Access Protocol (SOAP) and Representational State Transfer (REST)
+
+[双层桶划分]（http://taop.marchtea.com/09.04.html）
+适用范围：第k大，中位数，不重复或重复的数字
