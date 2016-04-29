@@ -405,8 +405,130 @@ class Solution17(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#--------2 pointers---------------------------
+#28. Implement strStr()
+"""
+ Implement strStr().
+
+Returns the index of the first occurrence of needle in haystack, or -1 if needle is not part of haystack.
+
+Subscribe to see which companies asked this question
+
+"""
+class Solution28(object):
+    def strStr(self, haystack, needle):
+        """
+        :type haystack: str
+        :type needle: str
+        :rtype: int
+        """
+        # 2 pointer solution
+        if haystack == needle or needle == "" : return 0
+        if not haystack: return -1
+        lh = len(haystack)
+        ln = len(needle)
+        if ln > lh : return -1
+        for i in xrange(lh-ln+1):
+            for j in xrange(ln):
+                if haystack[i+j] != needle[j]:
+                    break
+                if j == ln-1: return i
+                
+        return -1
 #-----------------------------------
 #-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#39 Combination Sum
+"""
+Given a set of candidate numbers (C) and a target number (T), find all unique combinations in C where the candidate numbers sums to T.
+
+The same repeated number may be chosen from C unlimited number of times.
+
+Note:
+All numbers (including target) will be positive integers.
+Elements in a combination (a1, a2, … , ak) must be in non-descending order. (ie, a1 ≤ a2 ≤ … ≤ ak).
+The solution set must not contain duplicate combinations.
+For example, given candidate set 2,3,6,7 and target 7,
+A solution set is:
+[7]
+[2, 2, 3]
+"""
+class Solution39(object):
+    def combinationSum(self, C, T):
+        """
+        :type C: List[int]
+        :type T: int
+        :rtype: List[List[int]]
+        """
+        # C, candidates need to be sort
+        C.sort()
+        self.ret = []
+        self.lenc = len(C)
+        self.dfs(0,[],C,T)
+        return self.ret
+
+    def dfs(self,start,vlist,C,T):
+        if T == 0:
+            self.ret.append(vlist)
+            return
+        for i in xrange(start,self.lenc):
+            if C[i] >  T: continue
+            if i< self.lenc-1 and C[i] == C[i+1]: continue
+            self.dfs(i,vlist+[C[i]],C,T-C[i])
+#-----------------------------------
+#40 Combination Sum II
+"""
+Given a collection of candidate numbers (C) and a target number (T), find all unique combinations in C where the candidate numbers sums to T.
+
+Each number in C may only be used once in the combination.
+
+Note:
+All numbers (including target) will be positive integers.
+Elements in a combination (a1, a2, … , ak) must be in non-descending order. (ie, a1 ≤ a2 ≤ … ≤ ak).
+The solution set must not contain duplicate combinations.
+For example, given candidate set 10,1,2,7,6,1,5 and target 8,
+A solution set is:
+[1, 7]
+[1, 2, 5]
+[2, 6]
+[1, 1, 6]
+"""
+class Solution40(object):
+    # @param candidates, a list of integers
+    # @param target, integer
+    # @return a list of lists of integers
+    def combinationSum2(self, C, T):
+        """
+        :type C: List[int]
+        :type T: int
+        :rtype: List[List[int]]
+        """
+        C.sort()
+        self.ret = []
+        self.lenc = len(C)
+        self.dfs(0,[],C,T)
+        return self.ret
+        
+    def dfs(self,start,vlist,C,T):
+        if T == 0 and vlist not in self.ret:
+            self.ret.append(vlist)
+            return
+        for i in xrange(start,self.lenc):
+            if C[i] >  T: continue
+            self.dfs(i+1,vlist+[C[i]],C,T-C[i])
+
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------#-----------------------------------
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
