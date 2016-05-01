@@ -20,3 +20,10 @@ Both web services: Simple Object Access Protocol (SOAP) and Representational Sta
 
 [双层桶划分]（http://taop.marchtea.com/09.04.html）
 适用范围：第k大，中位数，不重复或重复的数字
+
+[Memory stack heap](http://stackoverflow.com/questions/79923/what-and-where-are-the-stack-and-heap)
+But Basically,
+Process is on Heap memory.
+Thread is on Stack memory.
+Stack is faster while heap is slower
+stackoverflow for stack while heap is for memory leak

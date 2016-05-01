@@ -465,7 +465,26 @@ class Solution13(object):
         res += tb[s[p]]
         return res
 #-----------------------------------
+#14. Longest Common Prefix
+"""
+Write a function to find the longest common prefix string amongst an array of strings. 
+"""
 class Solution14(object):
+    def longestCommonPrefix(self, strs):
+        """
+        :type strs: List[str]
+        :rtype: str
+        """
+        if len(strs) == 0: return ''
+        #base str is strs[0]
+        retlen = len(strs[0])
+        for st in strs[1:]:
+            i = 0
+            while i < retlen and i < len(st) and st[i]==strs[0][i]:
+                i +=1
+            retlen = min(retlen,i)
+        return strs[0][0:retlen]
+
 #-----------------------------------
 #15 3Sum
 """
@@ -649,7 +668,7 @@ Assume a BST is defined as follows:
 #         self.left = None
 #         self.right = None
 
-class Solution(object):
+class Solution98(object):
     def isValidBST(self, root):
         """
         :type root: TreeNode
