@@ -598,7 +598,7 @@ class Solution40(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
-#-----------------------------------#-----------------------------------
+#-----------------------------------
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
@@ -632,4 +632,71 @@ class Solution(object):
         if root == None: return True
         if root.val <= min or root.val >= max: return False
         return   self.dfs(root.left,min,root.val) and  self.dfs(root.right,root.val,max)
-        
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#215 Kth Largest Element in an Array
+"""
+Find the kth largest element in an unsorted array. Note that it is the kth largest 
+element in the sorted order, not the kth distinct element.
+
+For example,
+Given [3,2,1,5,6,4] and k = 2, return 5. 
+"""
+import random
+class Solution(object):
+    def findKthLargest(self, nums, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: int
+        """
+        # method 2 divide and conquer
+        pivot = random.choice(nums)
+        nums1,nums2 = [],[] #big ,small
+        for num in nums:
+            if num > pivot:
+                nums1.append(num)
+            elif num < pivot:
+                nums2.append(num)
+        if len(nums1) >= k:
+            return self.findKthLargest(nums1,k)
+        elif k > len(nums)-len(nums2):
+            return self.findKthLargest(nums2,k-(len(nums)-len(nums2)))
+        return pivot
+
+    def sol1(self, nums, k):
+        # method 1 using heap
+        #http://wlcoding.blogspot.com/2015/05/kth-largest-element-in-array.html?view=sidebar
+        if len(nums) < k : return False
+        if len(nums)== 0 : return False
+        h = []
+        ret = nums[0]
+        for i in xrange(len(nums)):
+            if i < k:
+                heapq.heappush(h,nums[i])
+            else:
+                ret = heapq.heappop(h)
+                if nums[i] > ret: heapq.heappush(h,nums[i])
+                else: heapq.heappush(h,ret)
+
+        return heapq.heappop(h)
