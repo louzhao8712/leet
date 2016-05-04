@@ -647,6 +647,50 @@ class Solution40(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#-------dp----------------------------
+#73 Edit Distance
+"""
+ Given two words word1 and word2, find the minimum number of steps required to convert word1 to word2. (each operation is counted as 1 step.)
+
+You have the following 3 operations permitted on a word:
+
+a) Insert a character
+b) Delete a character
+c) Replace a character
+"""
+class Solution(object):
+    def minDistance(self, word1, word2):
+        """
+        :type word1: str
+        :type word2: str
+        :rtype: int
+        """
+        # solution1 2d dp
+        #Let d(i, j) be distance between str1 (len = i) and str2 (len = j) 
+        #if min{i, j} = 0, d(i, j) = max{i, j} 
+        #else d(i, j) = min{ d(i - 1, j) + 1,  // add last char in str1
+        #                          d(i, j - 1) + 1,  // add last char in str2
+        #                          d(i - 1, j - 1) + (str1[i] == str2[j]) ? 0 : 1 // replace the last char in str1 with that in str2 when str1[i] != str2[j] }   
+        n1 = len(word1)
+        n2 = len(word2)
+        
+        dp = [ [ 0 for i in xrange(n2+1)] for j in xrange(n1+1)]
+        for i in xrange(n1+1):
+            for j in xrange(n2+1):
+                if i==0 or j == 0: dp[i][j] = max(i,j)
+                else:
+                    dp[i][j] = min( dp[i-1][j]+1,\
+                                    dp[i][j-1]+1,\
+                                    dp[i-1][j-1]+ (0 if word1[i-1]==word2[j-1] else 1))
+        return dp[n1][n2]
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
 #-----------------------------------
 #-----------------------------------
 #--------dfs---------------------------
@@ -689,6 +733,53 @@ class Solution98(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------bfs------------------------
+#103. Binary Tree Zigzag Level Order Traversal
+"""
+Given a binary tree, return the zigzag level order traversal of its nodes' values.
+(ie, from left to right, then right to left for the next level and alternate between).
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def zigzagLevelOrder(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[List[int]]
+
+        """
+        self.res = []
+        #self.dfs(root,0)
+        self.bfs(root)
+        return self.res
+
+    def bfs(self,root):
+        if root == None: return
+        queue = [root,'end']
+        while queue:
+            tmplist = []
+            curr = queue.pop(0)
+            while curr!= 'end':
+                tmplist.append(curr.val)
+                if curr.left: queue.append(curr.left)
+                if curr.right: queue.append(curr.right)
+                curr = queue.pop(0)
+            if len(self.res)%2 == 1: tmplist.reverse()
+            self.res.append(tmplist)
+            if queue: queue.append('end')
+
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
