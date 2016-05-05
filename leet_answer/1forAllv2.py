@@ -787,6 +787,95 @@ class Solution(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#155. Min Stack
+"""
+ Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.
+
+    push(x) -- Push element x onto stack.
+    pop() -- Removes the element on top of the stack.
+    top() -- Get the top element.
+    getMin() -- Retrieve the minimum element in the stack.
+
+"""
+class MinStack(object):
+    # two stacks, stack1 is the reg stack, stack2 is the minstack
+    def __init__(self):
+        """
+        initialize your data structure here.
+        """
+        self.stack1 = []
+        self.stack2 =[]
+        
+
+    def push(self, x):
+        """
+        :type x: int
+        :rtype: nothing
+        """
+        self.stack1.append(x)
+        if self.stack2 == [] or x <= self.stack2[-1]:
+            self.stack2.append(x)
+        
+
+    def pop(self):
+        """
+        :rtype: nothing
+        """
+
+        if self.stack2 != [] and self.stack1 != [] and self.stack1[-1] == self.stack2[-1]:
+            self.stack2.pop()
+        
+        if self.stack1 != []:
+            self.stack1.pop()
+        
+
+    def top(self):
+        """
+        :rtype: int
+        """
+        if self.stack1!=[]: return self.stack1[-1]
+        else:              return None        
+
+    def getMin(self):
+        """
+        :rtype: int
+        """
+        if self.stack2!=[]:return self.stack2[-1]
+        else: return None
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#169. Majority Element
+"""
+Given an array of size n, find the majority element. The majority element is the element that appears more than ⌊ n/2 ⌋ times.
+
+You may assume that the array is non-empty and the majority element always exist in the array.
+"""
+class Solution(object):
+    def majorityElement(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        n = len(nums)
+        if n == 0 : return None
+        ret = nums[0] ; count =1
+        for i in xrange(1,n):
+            if count == 0:
+                ret = nums[i]
+                count =1
+            elif nums[i] == ret:
+                count +=1
+            else:
+                count -=1
+        return ret
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
 #-----------------------------------
 #172. Factorial Trailing Zeroes 
 """
@@ -910,6 +999,38 @@ class Stack(object):
 #----------------------------------
 #-----------------------------------
 #-----------------------------------
+#229. Majority Element II
+"""
+Given an integer array of size n, find all elements that appear more than ⌊ n/3 ⌋ times. The algorithm should run in linear time and in O(1) space.
+"""
+class Solution(object):
+    def majorityElement(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: List[int]
+        """
+        #at most 2 maj elements
+        n = len(nums)
+        if n == 0 : return []
+        num1 = num2 = None
+        count1 = count2 = 0
+        for i in xrange(n):
+            if count1 == 0:
+                num1 = nums[i]
+                count1 = 1
+            elif count2 == 0 and nums[i]!=num1:
+                num2 = nums[i]
+                count2 =1
+            elif nums[i] == num1: count1+=1
+            elif nums[i] == num2: count2+=1
+            else:
+                count1 -=1
+                count2 -=1
+        ret = []
+
+        if num1!= None and nums.count(num1) >   n/3 : ret.append(num1)
+        if num2!=None and num2 != num1 and  nums.count(num2) >   n/3 : ret.append(num2)
+        return ret
 #-----------------------------------
 #----------------------------------
 #-----------------------------------
@@ -1034,6 +1155,12 @@ class Solution(object):
             return 1 + matches
         else:
             return matches
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
