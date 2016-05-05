@@ -788,6 +788,30 @@ class Solution(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#172. Factorial Trailing Zeroes 
+"""
+Given an integer n, return the number of trailing zeroes in n!.
+"""
+class Solution(object):
+    def trailingZeroes(self, n):
+        """
+        :type n: int
+        :rtype: int
+        """
+        ans =0
+        # num of 5 + num of 25 + num of 125
+        while n>0:
+            n = n/5
+            ans += n
+        return ans
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
@@ -838,3 +862,186 @@ class Solution(object):
                 else: heapq.heappush(h,ret)
 
         return heapq.heappop(h)
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#225. Implement Stack using Queues
+class Stack(object):
+    def __init__(self):
+        """
+        initialize your data structure here.
+        """
+        self.queue = []
+    def push(self, x):
+        """
+        :type x: int
+        :rtype: nothing
+        """
+        self.queue.append(x)
+    def pop(self):
+        """
+        :rtype: nothing
+        """
+        if not self.empty():
+            for i in xrange(len(self.queue) -1 ):
+                tmp = self.queue.pop(0)
+                self.queue.append(tmp)
+            self.queue.pop(0)
+
+    def top(self):
+        """
+        :rtype: int
+        """
+        if not self.empty():
+            for i in xrange(len(self.queue)  ):
+                tmp = self.queue.pop(0)
+                self.queue.append(tmp)
+            return tmp
+        else: return None
+    def empty(self):
+        """
+        :rtype: bool
+        """
+        return self.queue == []
+#-----------------------------------
+#----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#----------------------------------
+#-----------------------------------
+#232. Implement Queue using Stacks 
+"""
+ Implement the following operations of a queue using stacks.
+
+    push(x) -- Push element x to the back of queue.
+    pop() -- Removes the element from in front of queue.
+    peek() -- Get the front element.
+    empty() -- Return whether the queue is empt
+"""
+#push o(n)
+#pop o(1)
+class Queue(object):
+    def __init__(self):
+        """
+        initialize your data structure here.
+        """
+        self.stack = []
+    def push(self, x):
+        """
+        :type x: int
+        :rtype: nothing
+        """
+        tmp = []
+        while self.stack:
+            tmp.append(self.stack.pop())
+        tmp.append(x)
+        while tmp:
+            self.stack.append(tmp.pop())
+    def pop(self):
+        """
+        :rtype: nothing
+        """
+        self.stack.pop()
+    def peek(self):
+        """
+        :rtype: int
+        """
+        return self.stack[-1]
+    def empty(self):
+        """
+        :rtype: bool
+        """
+        return self.stack == []
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#235. Lowest Common Ancestor of a Binary Search Tree
+"""
+Given a binary search tree (BST), find the lowest common ancestor (LCA) of two given nodes in the BST. 
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def lowestCommonAncestor(self, root, p, q):
+        """
+        :type root: TreeNode
+        :type p: TreeNode
+        :type q: TreeNode
+        :rtype: TreeNode
+        """
+        if root.val < p.val and root.val < q.val : return self.lowestCommonAncestor(root.right,p,q)
+        elif root.val > p.val and root.val > q.val : return self.lowestCommonAncestor(root.left,p,q)
+        else: return root
+    def sol2(self, root, p, q):
+        while (p.val-root.val)*(q.val-root.val) > 0:
+            root = [root.left,root.right][p.val> root.val]
+        return root
+#-----------------------------------
+#236. Lowest Common Ancestor of a Binary Tree
+"""
+Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in the tree. 
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def lowestCommonAncestor(self, root, p, q):
+        """
+        :type root: TreeNode
+        :type p: TreeNode
+        :type q: TreeNode
+        :rtype: TreeNode
+        """
+        return self.sol1(root,p,q)
+    def sol1(self,root,p,q):
+        if root == None or root == p or root == q : return root
+        left = self.lowestCommonAncestor(root.left,p,q)
+        right = self.lowestCommonAncestor(root.right,p,q)
+        # left != None means p or q or both in the left tree
+        
+        if left and right: return root
+        elif left and right == None: return left
+        elif left == None and right: return right
+        else: return None
+    def sol2(self,root,p,q):
+        if root == None or root == p or root == q : return root
+        total = self.countMatchesPA(root.left,p,q)
+        if total == 1:
+            return root
+        elif total ==2:
+            return self.sol2(root.left,p,q)
+        else:
+            return self.sol2(root.right,p,q)
+        
+    def countMatchesPA(self,root,p,q):
+        #count the number of nodes that matches either p or q in the left subtree (which we call totalMatches)
+        if root == None: return 0
+        matches = self.countMatchesPA(root.left,p,q)
+        if root == p or root ==q:
+            return 1 + matches
+        else:
+            return matches
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
