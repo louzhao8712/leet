@@ -683,7 +683,70 @@ class Solution(object):
                                     dp[i][j-1]+1,\
                                     dp[i-1][j-1]+ (0 if word1[i-1]==word2[j-1] else 1))
         return dp[n1][n2]
-#-----------------------------------
+#----binary search------------------
+#74. Search a 2D Matrix
+"""
+Write an efficient algorithm that searches for a value in an m x n matrix. This matrix has the following properties:
+
+    Integers in each row are sorted from left to right.
+    The first integer of each row is greater than the last integer of the previous row.
+
+For example,
+"""
+class Solution(object):
+    def searchMatrix(self, matrix, target):
+        return self.sol2(matrix,target)
+
+    def sol1(self, matrix, target):
+        # Find the first position of target
+        if not matrix or not matrix[0]:
+            return False
+        m, n = len(matrix), len(matrix[0])
+        st, ed = 0, m * n - 1
+
+        while st + 1 < ed:
+            mid = (st + ed) / 2
+            if matrix[mid / n][mid % n] == target:
+                return True
+            elif matrix[mid / n][mid % n] < target:
+                st = mid
+            else:
+                ed = mid
+        return matrix[st / n][st % n] == target or \
+                matrix[ed / n][ed % n] == target
+            
+    def sol2(self, matrix, target):
+        if not matrix or not matrix[0]:
+            return False
+
+        # first pos >= target
+        st, ed = 0, len(matrix) - 1
+        while st + 1 < ed:
+            mid = (st + ed) / 2
+            if matrix[mid][-1] == target:
+                st = mid
+            elif matrix[mid][-1] < target:
+                st = mid
+            else:
+                ed = mid
+        if matrix[st][-1] >= target:
+            row = matrix[st]
+        elif matrix[ed][-1] >= target:
+            row = matrix[ed]
+        else:
+            return False
+
+        # binary search in row
+        st, ed = 0, len(row) - 1
+        while st + 1 < ed:
+            mid = (st + ed) / 2
+            if row[mid] == target:
+                return True
+            elif row[mid] < target:
+                st = mid
+            else:
+                ed = mid
+        return row[st] == target or row[ed] == target
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
@@ -1159,6 +1222,30 @@ class Solution(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#240. Search a 2D Matrix II
+"""
+Write an efficient algorithm that searches for a value in an m x n matrix. This matrix has the following properties:
+
+    Integers in each row are sorted in ascending from left to right.
+    Integers in each column are sorted in ascending from top to bottom.
+
+"""
+# start from upper right point
+class Solution(object):
+    def searchMatrix(self, matrix, target):
+        """
+        :type matrix: List[List[int]]
+        :type target: int
+        :rtype: bool
+        """
+        if len(matrix) == 0 or len(matrix[0]) ==0: return False
+        y = len(matrix[0])-1
+        for x in xrange(len(matrix)):
+            while y and matrix[x][y] > target:
+                y -=1
+            if matrix[x][y] == target:
+                return True
+        return False
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
@@ -1170,5 +1257,46 @@ class Solution(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#322. Coin Change
+"""
+You are given coins of different denominations and a total amount of money amount.
+Write a function to compute the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1. 
+"""
+class Solution(object):
+    def coinChange(self, coins, amount):
+        """
+        :type coins: List[int]
+        :type amount: int
+        :rtype: int
+        """
+        #dp method
+        # dp[x], number of coins to reach amount x
+        dp = [-1 for i in xrange(amount+1)]
+        dp[0] = 0
+        for x in range(amount):
+            if dp[x] <0:continue
+            for c in coins:
+                if x+c > amount: continue
+                if dp[x+c] <0 or dp[x+c] > dp[x]+1:
+                    dp[x+c] = dp[x]+1
+        return dp[amount]
+#### if we want to find out how many ways and what are the ways, then use dfs#
+# This is same to Combination Sum I
+def coin_change(value):
+    res = [0, 0, 0]                     # [num_5, num_3, num_1]
+    ret = []
+    coin_change_helper(0, value, res, ret)
+    return ret
+
+def coin_change_helper(cur_face_value, rest_value, res, ret):
+    if rest_value == 0:
+        ret.append(res[:]) #save a copy since res could change
+
+    for i in range(cur_face_value, 3):
+        if rest_value - [5, 3, 1][i] < 0:
+            continue
+        res[i] += 1
+        coin_change_helper(i, rest_value - [5, 3, 1][i], res, ret)
+        res[i] -= 1 #very important step
 #-----------------------------------
 #-----------------------------------
