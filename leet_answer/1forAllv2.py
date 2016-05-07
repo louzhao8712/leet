@@ -1019,6 +1019,58 @@ class Solution(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#224. Basic Calculator
+"""
+Implement a basic calculator to evaluate a simple expression string.
+
+The expression string may contain open ( and closing parentheses ), the plus + or minus sign -, non-negative integers and empty spaces .
+"""
+class Solution(object):
+    def calculate(self, s):
+        """
+        :type s: str
+        :rtype: int
+        """
+        # add white space between elements
+        s= re.sub(r'\d+',' \g<0> ',s)
+        s= re.sub(r'\(',' \g<0> ',s)
+        s= re.sub(r'\)',' \g<0> ',s)
+        s= s.split()
+        ans = 0
+        stack = []
+        tempS = []
+
+        for item in s:
+            if item.isdigit(): #number
+               stack.append(item)
+            else:
+                if item == ")":
+                    while stack[-1] != "(":
+                        tempS.append(stack.pop())
+                    result = self.onecalculation(tempS)
+                    stack.pop() #"("
+                    stack.append(result)
+                    tempS = []
+                else:
+                    stack.append(item)
+
+        ans = self.onecalculation(stack,fifo=True)
+        return ans
+
+    def onecalculation(self,stack,fifo=False):
+        ans = 0
+        while stack:
+            if fifo: item = stack.pop(0)
+            else: item = stack.pop()
+            if item == "+":
+                item2 = stack.pop(0) if fifo else stack.pop()
+                ans += int(item2)
+            elif item == "-":
+                item2 = stack.pop(0) if fifo else stack.pop()
+                ans -= int(item2)
+            else: #number
+                ans += int(item)
+        return ans
 #-----------------------------------
 #225. Implement Stack using Queues
 class Stack(object):
