@@ -753,6 +753,35 @@ class Solution(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#94Binary Tree Inorder Traversal
+"""
+Given a binary tree, return the inorder traversal of its nodes' values.
+"""
+class Solution(object):
+    def inorderTraversal(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[int]
+        """
+        # recursive method
+        self.ans = []
+        self.iterative(root)
+        return self.ans
+    def iterative(self,root):
+        stack = []
+        while root or stack:
+            if root:
+                stack.append(root)
+                root = root.left
+            else:
+                top = stack.pop()
+                self.ans.append(top.val)
+                root = top.right
+    def recursive(self,root):
+        if root:
+            self.recursive(root.left)
+            self.ans.append(root.val)
+            self.recursive(root.right)
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
@@ -844,6 +873,184 @@ class Solution(object):
             if queue: queue.append('end')
 
 #-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#114 Flatten Binary Tree to Linked List
+"""
+Given a binary tree, flatten it to a linked list in-place. 
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def flatten(self, root):
+        """
+        :type root: TreeNode
+        :rtype: void Do not return anything, modify root in-place instead.
+        """
+        # connect the rightmost node in curr.left to curr.right
+        # set curr.right to curr.right
+        # set curr.left to None
+        curr = root
+        while curr:
+            if curr.left:
+                if curr.right: #connect the rightmost node in curr.left to curr.right
+                    next = curr.left
+                    while next.right:
+                        next = next.right
+                    next.right = curr.right
+                
+                curr.right = curr.left
+                curr.left = None
+                    
+            curr = curr.right
+"""
+#### Flatten BST to (Doubly) linked list
+1. Leetcode上面的原题是to single, 但是traversal是pre-order
+2. 这里的doubly用的方法是in-order traversal, pre-order也是一样的思路
+3. [网上](http://cslibrary.stanford.edu/109/TreeListRecursion.html)的题目还有点差别是要变成Circular Doubly Linked List
+4. 稍微注意一下return的问题, 这两种recursion的方法都没有return值, 所以如果需要找head的话还得再处理下
+5. 千万记得这里需要用到global declaration
+
+#####Flatten思路
+1. 最方便的方法还是用recursion
+2. 先弄清需要的是preorder, inorder还是postorder的顺序
+3. 选择对应order的traversal模板, 重要的一点是要把
+   ```python
+   left = root.left
+   right = root.right
+   ```
+   提前存好，因为进行flatten之后可能会破坏树的结构，这步做好之后，XXXorder traversal的方法都是一样的了
+4. 记得```global head, last```然后对```last```进行操作
+   * Singly Linked List - 记得重置```last.left = None, last.right = root```
+   * Doubly Linked List - 如果```last.right = root, root.left = last```
+     这里有一点点差别就是如果是preorder的话，```head.left = None```需要单独处理下
+5. ```last = root```更新```last```
+6. ```head```就是初始设为None, 第一个需要处理的node就赋为```head```就行了
+
+"""
+#last = None
+#head = None
+def inorder_doubly_flatten(root):
+    global last
+    global head
+    if not root:
+        return
+    inorder_doubly_flatten(root.left)
+    if last:
+        last.right = root
+        root.left = last
+    last = root
+    if not head:                        # Used to get true HEAD
+        head = root
+    inorder_doubly_flatten(root.right)
+
+
+#last = None
+#head = None
+def preorder_doubly_flatten(root):
+    if not root:
+        return
+    global last
+    global head
+    right = root.right
+    left = root.left
+    if not head:
+        head = last
+    if last:
+        last.right = root
+        root.left = last
+    else:
+        root.left = None                # 小处理
+    last = root
+
+    preorder_doubly_flatten(left)
+    preorder_doubly_flatten(right)
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#144.Binary Tree Preorder Traversal 
+"""
+Given a binary tree, return the preorder traversal of its nodes' values.
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def preorderTraversal(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[int]
+        """
+        # recursive method
+        self.ans = []
+        self.iterative(root)
+        return self.ans
+    def iterative(self,root):
+        stack = []
+        while root or stack:
+            if root:
+                self.ans.append(root.val)
+                stack.append(root)
+                root = root.left
+            else:
+                top = stack.pop()
+                root = top.right
+    def recursive(self,root):
+        if root:
+            self.ans.append(root.val)
+            self.recursive(root.left)
+            self.recursive(root.right)
+#-----------------------------------
+#145. Binary Tree Postorder Traversal 
+class Solution(object):
+    def postorderTraversal(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[int]
+        """
+        self.ans = []
+        self.iterative(root)
+        return self.ans
+    def iterative(self,root):
+        stack = []
+        while root or stack:
+            if root:
+                self.ans.append(root.val)
+                stack.append(root)
+                root = root.right
+            else:
+                top = stack.pop()
+                root = top.left
+        # reverse mirror preorder
+        self.ans.reverse()
+
+    def recursive(self,root):
+        if root:
+            
+            self.recursive(root.left)
+            self.recursive(root.right)
+            self.ans.append(root.val)
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
