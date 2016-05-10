@@ -642,10 +642,244 @@ class Solution40(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#45. Jump Game II
+"""
+Given an array of non-negative integers, you are initially positioned at the first index of the array.
+
+Each element in the array represents your maximum jump length at that position.
+
+Your goal is to reach the last index in the minimum number of jumps. 
+"""
+class Solution(object):
+    def jump(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        # jums : the minimum number of jumps
+        # prev: the fathest index that we have reached
+        # maxv : the fathest index that we potentially reach
+        # when i > prev: we need to jump, but we don't have to jump from i, we can backward and jump from the 
+        # index which can reach maxv
+        # for each i update the maxv
+        jumps = prev = maxv = 0
+        for i in xrange(len(nums)):
+            if i > prev:
+                if maxv == prev: return -1
+                prev = maxv
+                jumps +=1
+                if prev == len(nums)-1: break
+            maxv = max(maxv,i+nums[i])
+        return jumps
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#55. Jump Game
+"""
+ Given an array of non-negative integers, you are initially positioned at the first index of the array.
+
+Each element in the array represents your maximum jump length at that position.
+
+Determine if you are able to reach the last index. 
+"""
+class Solution(object):
+    def canJump(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: bool
+        """
+        return self.sol2(nums)
+
+    def sol2(self,nums):
+        # jumps : the minimum number of jumps
+        # prev: the fathest index that we have reached
+        # maxv : the fathest index that we potentially reach
+        # when i > prev: we need to jump, but we don't have to jump from i, we can backward and jump from the 
+        # index which can reach maxv
+        # for each i update the maxv
+        jumps = prev = maxv = 0
+        for i in xrange(len(nums)):
+            if i > prev:
+                if maxv == prev: return False
+                prev = maxv
+                jumps +=1
+                if prev == len(nums)-1: break
+            maxv = max(maxv,i+nums[i])
+        return True
+
+    def sol1(self,nums):
+        d =0
+        for i in xrange(1,len(nums)):
+            d = max(d,nums[i-1])-1
+            if d < 0: return False
+        return d >= 0
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#-----------------------------------
+#62. Unique Paths
+"""
+A robot is located at the top-left corner of a m x n grid (marked 'Start' in the diagram below).
+
+The robot can only move either down or right at any point in time. The robot is trying to reach the bottom-right corner of the grid (marked 'Finish' in the diagram below).
+
+How many possible unique paths are there?
+"""
+class Solution(object):
+    def uniquePaths(self, m, n):
+        """
+        :type m: int
+        :type n: int
+        :rtype: int
+        """
+        return self.sol3(m,n)
+        
+    def sol1(self,m,n):
+        if m < 1 or n < 1 : return None
+        import math
+        a = max(m-1,n-1)
+        b= min(m-1,n-1)
+        tot = m+n-2
+        #Ctot-a
+        return math.factorial(tot)/(math.factorial(b) *math.factorial(a))
+        
+        
+    def sol2(self,m,n):
+        if m < 1 or n < 1 : return None
+        st = [[0 for i in xrange(n)] for j in xrange(m)]
+        for i in xrange(m):
+            for j in xrange(n):
+                if i== 0 or j ==0 : st[i][j] = 1
+                else:
+                    st[i][j] = st[i-1][j]+st[i][j-1]
+        return st[-1][-1]
+        
+    def sol3(self,m,n):
+        #dp but save memory
+        minv = min(m,n)
+        maxv = max(m,n)
+        st = [0 for i in xrange(minv)]
+        for i in xrange(maxv):
+            for j in xrange(minv):
+                if i== 0 or j ==0 : st[j] = 1
+                else:
+                    st[j] = st[j]+st[j-1]
+        return st[-1] 
+#-----------------------------------
+#63. Unique Paths II
+"""
+Follow up for "Unique Paths":
+
+Now consider if some obstacles are added to the grids. How many unique paths would there be?
+
+An obstacle and empty space is marked as 1 and 0 respectively in the grid.
+
+For example,
+"""
+class Solution(object):
+    def uniquePathsWithObstacles(self, obstacleGrid):
+        """
+        :type obstacleGrid: List[List[int]]
+        :rtype: int
+        """
+        
+        if obstacleGrid[0][0] == 1: return 0
+        m= len(obstacleGrid)
+        n = len(obstacleGrid[0])
+        if m < 1 or n < 1 : return None
+        list = [[0 for i in range(n)] for i in range(m)]
+
+        for i in range(0, m):
+            for j in range(0, n):
+                if obstacleGrid[i][j]==1: 
+                    list[i][j] = 0
+                    continue
+                if i==0 and j==0: list[i][j] =1
+                else:
+                    list[i][j] = \
+                        (0 if i ==0 else list[i-1][j]) + \
+                        (0 if j ==0 else list[i][j-1]) 
+        return list[m-1][n-1]
+#-----------------------------------
+#64.Minimum Path Sum
+"""
+Given a m x n grid filled with non-negative numbers, find a path from top left to bottom right which minimizes the sum of all numbers along its path.
+"""
+class Solution(object):
+    def minPathSum(self, grid):
+        """
+        :type grid: List[List[int]]
+        :rtype: int
+        """
+        return self.sol2(grid)
+        
+    def sol1(self,grid):
+        h = len(grid)
+        w = len(grid[0])
+        st = [[0 for i in xrange(w)] for j in xrange(h)]
+        for i in xrange(h):
+            for j in xrange(w):
+                if i== 0 and j ==0 : st[i][j] = grid[i][j]
+                elif i == 0: st[i][j] = st[i][j-1] + grid[i][j]
+                elif j == 0: st[i][j] = st[i-1][j] + grid[i][j]
+                else:
+                    st[i][j] = min(st[i-1][j],st[i][j-1]) + grid[i][j]
+        return st[-1][-1] 
+        
+    def sol2(self,grid):
+        #1D dp
+        h = len(grid)
+        w = len(grid[0])
+        if h==0 or w==0: return 0
+        st = [float('inf') for i in xrange(w)]
+        st[0] = 0
+        for i in xrange(h):
+            st[0] = st[0] + grid[i][0]
+            
+            for j in xrange(1,w):
+                st[j]= min(st[j-1],st[j])+grid[i][j]
+
+        return st[w-1]
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#70. Climbing Stairs
+"""
+You are climbing a stair case. It takes n steps to reach to the top.
+
+Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top? 
+"""
+class Solution(object):
+    def climbStairs(self, n):
+        """
+        :type n: int
+        :rtype: int
+        """
+        return self.sol2(n)
+    def sol2(self,n):
+        if n<=1: return n
+        a =b =c=1
+        for i in xrange(2,n+1):
+            c= a +b
+            a = b
+            b =c
+            
+        return c        
+        
+    def sol1(self,n):
+        if n<=1: return n
+        dp = [0 for i in xrange(n+1)]
+        dp[0]=1
+        dp[1] =1
+        
+        for i in xrange(2,n+1):
+            dp[i] = dp[i-1] +dp[i-2]
+        return dp[n]
+#----------------------------------
 #-----------------------------------
 #-------dp----------------------------
 #73 Edit Distance
@@ -750,6 +984,54 @@ class Solution(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#91. Decode Ways
+"""
+A message containing letters from A-Z is being encoded to numbers using the following mapping:
+'A' -> 1
+'B' -> 2
+...
+'Z' -> 26
+Given an encoded message containing digits, determine the total number of ways to decode it. 
+"""
+class Solution(object):
+    def numDecodings(self, s):
+        """
+        :type s: str
+        :rtype: int
+        """
+        return self.sol2(s)
+        
+    def sol1(self,s):
+        n = len(s)
+        if n == 0: return 0
+        if s[0] == '0' : return 0
+        prev =1
+        curr =1
+        for i in xrange(2,n+1):
+            tmp = 0
+            if s[i-1]!= '0' : tmp += curr
+            if s[i-2] == '1' or (s[i-2] == '2' and int(s[i-1]) <= 6):
+                tmp += prev
+                
+            prev = curr
+            curr = tmp
+        return curr
+        
+        
+    def sol2(self,s):
+        #dp[i]表示前i-1个数字的DW dp[i] is the ways to decode s[0:i]
+        if s=="" or s[0]=='0': return 0
+        dp=[1,1]
+        for i in range(2,len(s)+1):
+            if 10 <=int(s[i-2:i]) <=26 and s[i-1]!='0':
+                dp.append(dp[i-1]+dp[i-2])
+            elif int(s[i-2:i])==10 or int(s[i-2:i])==20:
+                dp.append(dp[i-2])
+            elif s[i-1]!='0':
+                dp.append(dp[i-1])
+            else:
+                return 0
+        return dp[len(s)]
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
@@ -1053,6 +1335,199 @@ class Solution(object):
             self.ans.append(root.val)
 #-----------------------------------
 #-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#118. Pascal's Triangle
+"""
+Given numRows, generate the first numRows of Pascal's triangle.
+
+For example, given numRows = 5,
+"""
+class Solution(object):
+    def generate(self, n):
+        """
+        :type numRows: int
+        :rtype: List[List[int]]
+        """
+        res =[]
+        if n == 0: return []
+        if n > 0 : res.append( [1])
+        if n > 1 : res.append([1,1])
+        for i in xrange(3,n+1):
+            tmp = [1]
+            for j in xrange(1,i-1):
+                tmp.append(res[i-2][j-1]+res[i-2][j])
+            tmp.append(1)
+            res.append(tmp)
+        return res
+#-----------------------------------
+#119. Pascal's Triangle II
+"""
+Given an index k, return the kth row of the Pascal's triangle.
+
+For example, given k = 3,
+Return [1,3,3,1]. 
+"""
+class Solution(object):
+    def getRow(self, rowIndex):
+        """
+        :type rowIndex: int
+        :rtype: List[int]
+        """
+        res =[]
+        if rowIndex >= 0 : res = [1]
+        if rowIndex >= 1 : res = [1,1]
+        for i in xrange(2,rowIndex+1):
+            tmp = [1]
+            for j in xrange(1,i):
+                tmp.append(res[j-1]+res[j])
+            tmp.append(1)
+            res = tmp
+        return res
+#-----------------------------------
+#120. Triangle
+"""
+Given a triangle, find the minimum path sum from top to bottom. Each step you may move to adjacent numbers on the row below.
+"""
+class Solution(object):
+    def minimumTotal(self, T):
+        """
+        :type T: List[List[int]]
+        :rtype: int
+        """
+        # method2, add from bottom to up
+        # maintain an sum array length equal to the bottom row in triangle
+        N = len(T)
+        sum = [0 for i in xrange(len(T[-1]))]
+        for r in xrange(N-1,-1,-1):
+            for c in xrange(r+1):
+                if r == N-1:
+                    sum[c] = T[r][c]
+                else:
+                    sum[c] = min(sum[c],sum[c+1]) + T[r][c]
+        return sum[0]
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-------dfs----------------------------
+#131. Palindrome Partitioning
+"""
+Given a string s, partition s such that every substring of the partition is a palindrome.
+Return all possible palindrome partitioning of s. 
+"""
+class Solution(object):
+    def partition(self, s):
+        """
+        :type s: str
+        :rtype: List[List[str]]
+        """
+        self.ans = []
+        self.dfs(s,[])
+        return self.ans
+
+    def dfs(self,s,vlist):
+        if len(s) == 0 and vlist != []:
+            self.ans.append(vlist)
+            return
+        for i in xrange(1,len(s)+1):
+            if self.isPalindrome(s[:i]):
+                self.dfs(s[i:],vlist+[s[:i]])
+
+    def isPalindrome(self, s):
+        """
+        :type s: str
+        :rtype: bool
+        """
+        lens = len(s)
+        for i in xrange(lens/2):
+            if s[i] != s[lens-1-i]: return False
+        return True
+#--------dp---------------------------
+#132. Palindrome Partitioning II
+"""
+ Given a string s, partition s such that every substring of the partition is a palindrome.
+
+Return the minimum cuts needed for a palindrome partitioning of s.
+
+For example, given s = "aab",
+Return 1 since the palindrome partitioning ["aa","b"] could be produced using 1 cut. 
+"""
+class Solution(object):
+    def minCut(self, s):
+        """
+        :type s: str
+        :rtype: int
+        """
+        #http://www.cnblogs.com/zuoyuan/p/3758783.html
+        # dp: how many palindrome substring from i to n-1, so the mincut is dp[0]-1
+        n = len(s)
+        dp = range(n,-1,-1) #max substrings have
+
+        p = [[False for i in xrange(n)] for j in xrange(n)]
+        for i in xrange(n-1,-1,-1):
+            for j in xrange(i,n):
+                if s[i]==s[j] and (j-i <3 or p[i+1][j-1]):
+                    p[i][j] = True
+                    dp[i] = min(dp[i],dp[j+1]+1)
+        return dp[0]-1
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#139. Word Break
+"""
+ Given a string s and a dictionary of words dict, determine if s can be segmented into a space-separated sequence of one or more dictionary words.
+
+For example, given
+s = "leetcode",
+dict = ["leet", "code"].
+
+Return true because "leetcode" can be segmented as "leet code". 
+"""
+class Solution(object):
+    def wordBreak(self, s, wordDict):
+        """
+        :type s: str
+        :type wordDict: Set[str]
+        :rtype: bool
+        """
+        return self.bfs(s,wordDict)
+        
+    def bfs(self, s, wordDict):
+        # 将当前单词拆分为前后两半，若前缀可以在字典dict中找到，则将后缀加入队列
+        q = [s]
+        visitSet = set([s])
+        while q:
+            item = q.pop(0)
+            # all items in this queue is suffix
+            if item in wordDict: return True
+            prefix = ''
+            for c in item:
+                prefix += c
+                suffix = item[len(prefix):]
+                if prefix in wordDict and suffix not in visitSet:
+                    q.append(suffix)
+                    visitSet.add(suffix)
+        return False
+        
+    def dpsolution(self, s, wordDict):
+        #dp[i] == True means str[0:i] is breakable
+        #dp[i] = dp[j] == True and s[j:i] in wordDict
+        #if len(wordDict) == 0 and s!="": return False
+        n = len(s)
+        dp = [False for i in xrange(n+1)]
+        dp[0] = True
+        for i in xrange(1,n+1):
+            for j in xrange(0,i):
+                if dp[j] and s[j:i] in wordDict: 
+                    dp[i] = True
+                    break
+        return dp[n]
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
