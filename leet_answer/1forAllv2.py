@@ -1,4 +1,5 @@
 #-------hash table-----------------------------
+#1 Two Sum
 """
 Given an array of integers, return indices of the two numbers such that 
 they add up to a specific target.
@@ -522,6 +523,93 @@ class Solution17(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#-----------------------------------
+#19. Remove Nth Node From End of List
+"""
+Given a linked list, remove the nth node from the end of list and return its head.
+"""
+# Definition for singly-linked list.
+# class ListNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution(object):
+    def removeNthFromEnd(self, head, n):
+        """
+        :type head: ListNode
+        :type n: int
+        :rtype: ListNode
+        """
+        dummy = ListNode(None)
+        dummy.next = head
+        prev = curr = dummy
+        for i in xrange(n):
+            curr = curr.next
+            if curr.next == None and i!=n-1:
+                return dummy.next
+        while curr.next:
+            prev = prev.next
+            curr = curr.next
+        prev.next=prev.next.next
+        return dummy.next
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#26. Remove Duplicates from Sorted Array
+"""
+ Given a sorted array, remove the duplicates in place such that each element appear only once and return the new length.
+
+Do not allocate extra space for another array, you must do this in place with constant memory.
+
+For example,
+Given input array nums = [1,1,2],
+
+Your function should return length = 2, with the first two elements of nums being 1 and 2 respectively. It doesn't matter what you leave beyond the new length.
+
+Subscribe to see which companies asked this question
+
+"""
+class Solution(object):
+    def removeDuplicates(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        ln = len(nums)
+        if ln <=1 : return ln
+        pos =0
+        for i in xrange(1,ln):
+            if nums[i] != nums[pos]:
+                pos += 1
+                nums[pos] = nums[i]
+        return pos + 1
+#-----------------------------------
+#27. Remove Element
+"""
+Given an array and a value, remove all instances of that value in place and return the new length.
+
+Do not allocate extra space for another array, you must do this in place with constant memory.
+
+The order of elements can be changed. It doesn't matter what you leave beyond the new length.
+"""
+class Solution(object):
+    def removeElement(self, nums, val):
+        """
+        :type nums: List[int]
+        :type val: int
+        :rtype: int
+        """
+        if not nums: return 0
+        ret = 0
+        for i in range(0,len(nums)):
+            if nums[i] == val:
+                continue
+            else:
+                nums[ret]=nums[i]
+                ret +=1
+        # nums[:ret]
+        return ret
 #--------2 pointers---------------------------
 #28. Implement strStr()
 """
@@ -984,6 +1072,32 @@ class Solution(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#-----------------------------------
+#83 Remove Duplicates from Sorted List 
+"""
+ Given a sorted linked list, delete all duplicates such that each element appear only once.
+
+For example,
+Given 1->1->2, return 1->2.
+Given 1->1->2->3->3, return 1->2->3. 
+"""
+class Solution(object):
+    def deleteDuplicates(self, head):
+        """
+        :type head: ListNode
+        :rtype: ListNode
+        """
+        dummy = ListNode(None)
+        dummy.next = head
+        curr = head
+        while curr and curr.next:
+            if curr.val == curr.next.val: curr.next = curr.next.next
+            else: curr = curr.next
+
+        return dummy.next
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
 #91. Decode Ways
 """
 A message containing letters from A-Z is being encoded to numbers using the following mapping:
@@ -1066,7 +1180,54 @@ class Solution(object):
             self.recursive(root.right)
 #-----------------------------------
 #-----------------------------------
-#-----------------------------------
+#---------dp--------------------------
+#97. Interleaving String
+"""
+ Given s1, s2, s3, find whether s3 is formed by the interleaving of s1 and s2.
+
+For example,
+Given:
+s1 = "aabcc",
+s2 = "dbbca",
+
+When s3 = "aadbbcbcac", return true.
+When s3 = "aadbbbaccc", return false.
+
+state: dp[i][j]表示s1的前i个字符配上s2的前j个字符在s3的前i+j个字符是不是IS
+function:
+
+dp[i][j] = True  # if dp[i-1][j] and s1[i-1] == s3[i-1+j]
+         = True  # if dp[i][j-1] and s2[j-1] == s3[i+j-1]
+         = False # else
+initialize: dp[0][0] = True
+answer: dp[M][N]
+"""
+class Solution(object):
+    def isInterleave(self, s1, s2, s3):
+        """
+        :type s1: str
+        :type s2: str
+        :type s3: str
+        :rtype: bool
+        """
+        #dp[i][j] means s1[0:i](len==i, last element is i-1) and s2[0:j] (len j) can create interleve string s3[0:i+j] (len i+j)
+        ls1 = len(s1)
+        ls2 = len(s2)
+        ls3 = len(s3)
+        if ls3 != ls1+ls2: return False
+        dp = [[False for j in xrange(ls2+1)] for i in xrange(ls1+1)]
+        for i in xrange(ls1+1):
+            for j in xrange(ls2+1):
+                if i==0 and j==0: 
+                    dp[0][0] = True
+                elif i==0:
+                    dp[0][j] = dp[0][j-1] and s2[j-1]==s3[j-1]
+                elif j==0:
+                    dp[i][0] = dp[i-1][0] and s1[i-1]==s3[i-1]
+                else:
+                    dp[i][j] = (dp[i-1][j] and s1[i-1] == s3[i+j-1]) or\
+                                (dp[i][j-1] and s2[j-1] == s3[i+j-1])
+        return dp[ls1][ls2]
 #--------dfs---------------------------
 #98. Validate Binary Search Tree
 """
@@ -1101,18 +1262,52 @@ class Solution98(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
+#101. Symmetric Tree
+"""
+Given a binary tree, check whether it is a mirror of itself (ie, symmetric around its center).
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def isSymmetric(self, root):
+        """
+        :type root: TreeNode
+        :rtype: bool
+        """
+        #if root == None: return True
+        #return self.dfs(root.left,root.right)
+        return self.iterative(root)
+        
+    def iterative(self,root):
+        """
+        Instead of recursion, we can also use iteration with the aid of a queue. Each two consecutive nodes in the queue should be equal, and their subtrees a mirror of each other. Initially, the queue contains root and root. Then the algorithm works similarly to BFS, with some key differences. Each time, two nodes are extracted and their values compared. Then, the right and left children of the two nodes are inserted in the queue in opposite order. The algorithm is done when either the queue is empty, or we detect that the tree is not symmetric (i.e. we pull out two consecutive nodes from the queue that are unequal).
+        """
+        if root == None: return True
+        q = []
+        q.append(root.left)
+        q.append(root.right)
+        while q:
+            t1 = q.pop(0)
+            t2 = q.pop(0)
+            if t1 == None and t2 == None: continue
+            if t1 == None or t2 == None: return False
+            if t1.val!=t2.val: return False
+            q.append(t1.left)
+            q.append(t2.right)
+            q.append(t1.right)
+            q.append(t2.left)
+        return True
+        
+        
+    def dfs(self,p,q):
+        if p== None and q == None : return True
+        if p == None or q == None or p.val!=q.val : return False
+        return self.dfs(p.left,q.right) and self.dfs(p.right,q.left)
 #-----------------------------------
 #-----------bfs------------------------
 #103. Binary Tree Zigzag Level Order Traversal
@@ -1260,82 +1455,61 @@ def preorder_doubly_flatten(root):
 
     preorder_doubly_flatten(left)
     preorder_doubly_flatten(right)
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#144.Binary Tree Preorder Traversal 
+#-------dp----------------------------
+#115. Distinct Subsequences
 """
-Given a binary tree, return the preorder traversal of its nodes' values.
+ Given a string S and a string T, count the number of distinct subsequences of T in S.
+
+A subsequence of a string is a new string which is formed from the original string by deleting some (can be none) of the characters without disturbing the relative positions of the remaining characters. (ie, "ACE" is a subsequence of "ABCDE" while "AEC" is not).
+
+Here is an example:
+S = "rabbbit", T = "rabbit"
+
+Return 3.
 """
-# Definition for a binary tree node.
-# class TreeNode(object):
-#     def __init__(self, x):
-#         self.val = x
-#         self.left = None
-#         self.right = None
-
 class Solution(object):
-    def preorderTraversal(self, root):
+    def numDistinct(self, S, T):
         """
-        :type root: TreeNode
-        :rtype: List[int]
+        :type s: str
+        :type t: str
+        :rtype: int
         """
-        # recursive method
-        self.ans = []
-        self.iterative(root)
-        return self.ans
-    def iterative(self,root):
-        stack = []
-        while root or stack:
-            if root:
-                self.ans.append(root.val)
-                stack.append(root)
-                root = root.left
-            else:
-                top = stack.pop()
-                root = top.right
-    def recursive(self,root):
-        if root:
-            self.ans.append(root.val)
-            self.recursive(root.left)
-            self.recursive(root.right)
-#-----------------------------------
-#145. Binary Tree Postorder Traversal 
-class Solution(object):
-    def postorderTraversal(self, root):
-        """
-        :type root: TreeNode
-        :rtype: List[int]
-        """
-        self.ans = []
-        self.iterative(root)
-        return self.ans
-    def iterative(self,root):
-        stack = []
-        while root or stack:
-            if root:
-                self.ans.append(root.val)
-                stack.append(root)
-                root = root.right
-            else:
-                top = stack.pop()
-                root = top.left
-        # reverse mirror preorder
-        self.ans.reverse()
+        return self.sol2(S,T)
 
-    def recursive(self,root):
-        if root:
+    def sol1(self,S,T):
+        #http://www.cnblogs.com/asrman/p/4009924.html
+        #dp[i][j] means s[0:i] has how many subdistinct which is t[0:j]
+        #http://www.cnblogs.com/asrman/p/4009924.html
+        #dp[0][j] == 0
+        """
+        大概意思就是， 因为算的是S的子串和T匹配的方法， 所以一旦S[:j-1]和T[:i]有x种匹配方法时
+        S[:j]必定也至少和T[:i]有x种匹配方法，但尤其当S[j-1]==T[i-1]的时候，需要再加上S[:j-1]和T[:i-1]的匹配方法数
+        注意分清M,i和N,j对应T和S，这个很特殊因为必须是S的子串和T相同
+        """
+        dp = [ [0 for j in range(len(T) + 1)] for i in range(len(S) + 1) ]
+        for i in range(len(S) + 1):
+            dp[i][0] = 1
             
-            self.recursive(root.left)
-            self.recursive(root.right)
-            self.ans.append(root.val)
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
+        for i in range(1, len(S) + 1):
+            for j in range(1, len(T) + 1):
+                if S[i - 1] == T[j - 1]:
+                    dp[i][j] = dp[i-1][j-1] + dp[i-1][j]
+                else:
+                    dp[i][j] = dp[i-1][j]
+        return dp[len(S)][len(T)]
+
+    def sol2(self,S,T):
+        #1D DP, similiar to sol1
+        #dp[0][j] == 0
+        dp = [0 for j in range(len(T) + 1)] 
+        dp[0] =1
+            
+        for i in range(1, len(S) + 1):
+            for j in range(len(T),0,-1): #very important, sweep from right to left, update dp[j] first so that it won't affect dp[j-1]
+                if S[i - 1] == T[j - 1]:
+                    dp[j] += dp[j-1]
+
+        return dp[len(T)]
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
@@ -1410,7 +1584,6 @@ class Solution(object):
                 else:
                     sum[c] = min(sum[c],sum[c+1]) + T[r][c]
         return sum[0]
-#-----------------------------------
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
@@ -1529,6 +1702,108 @@ class Solution(object):
                     break
         return dp[n]
 #-----------------------------------
+#140
+#-----------------------------------
+#141. Linked List Cycle
+"""
+ Given a linked list, determine if it has a cycle in it.
+
+Follow up:
+Can you solve it without using extra space? 
+"""
+class Solution(object):
+    def hasCycle(self, head):
+        """
+        :type head: ListNode
+        :rtype: bool
+        """
+        p0 = p1 = head
+        while p1 and p1.next:
+            p1 = p1.next.next
+            p0 = p0.next
+            if p0 == p1 : return True
+        return False
+#-----------------------------------
+#144.Binary Tree Preorder Traversal
+"""
+Given a binary tree, return the preorder traversal of its nodes' values.
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def preorderTraversal(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[int]
+        """
+        # recursive method
+        self.ans = []
+        self.iterative(root)
+        return self.ans
+    def iterative(self,root):
+        stack = []
+        while root or stack:
+            if root:
+                self.ans.append(root.val)
+                stack.append(root)
+                root = root.left
+            else:
+                top = stack.pop()
+                root = top.right
+    def recursive(self,root):
+        if root:
+            self.ans.append(root.val)
+            self.recursive(root.left)
+            self.recursive(root.right)
+#-----------------------------------
+#145. Binary Tree Postorder Traversal 
+class Solution(object):
+    def postorderTraversal(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[int]
+        """
+        self.ans = []
+        self.iterative(root)
+        return self.ans
+    def iterative(self,root):
+        stack = []
+        while root or stack:
+            if root:
+                self.ans.append(root.val)
+                stack.append(root)
+                root = root.right
+            else:
+                top = stack.pop()
+                root = top.left
+        # reverse mirror preorder
+        self.ans.reverse()
+
+    def recursive(self,root):
+        if root:
+            
+            self.recursive(root.left)
+            self.recursive(root.right)
+            self.ans.append(root.val)
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
@@ -1590,6 +1865,50 @@ class MinStack(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#160. Intersection of Two Linked Lists
+"""
+Write a program to find the node at which the intersection of two singly linked lists begins.
+"""
+# Definition for singly-linked list.
+# class ListNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution(object):
+    def getIntersectionNode(self, headA, headB):
+        """
+        :type head1, head1: ListNode
+        :rtype: ListNode
+        """
+        if not headA or not headB: return None
+        lenA = self.getlen(headA)
+        lenB = self.getlen(headB)
+        
+        if lenA > lenB:
+            dist = lenA-lenB
+            for i in xrange(dist):
+                headA = headA.next
+        elif lenA < lenB:
+            dist = lenB- lenA
+            for i in xrange(dist):
+                headB= headB.next
+        
+        ret = None
+        while headA and headB:
+            if headA == headB:
+                return headA
+            else:
+                headA = headA.next
+                headB = headB.next
+        return ret
+        
+    def getlen(self,head):
+        ret = 0
+        while head:
+            ret +=1
+            head = head.next
+        return ret
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
