@@ -1793,6 +1793,52 @@ class Solution(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#166. Fraction to Recurring Decimal
+"""
+Given two integers representing the numerator and denominator of a fraction, return the fraction in string format.
+
+If the fractional part is repeating, enclose the repeating part in parentheses.
+
+For example,
+
+    Given numerator = 1, denominator = 2, return "0.5".
+    Given numerator = 2, denominator = 1, return "2".
+    Given numerator = 2, denominator = 3, return "0.(6)".
+
+"""
+class Solution(object):
+    def fractionToDecimal(self, numerator, denominator):
+        """
+        :type numerator: int
+        :type denominator: int
+        :rtype: str
+        """
+        if denominator == 0: return None
+        sign = "-" if numerator*denominator < 0 else ""
+        numerator= abs(numerator)
+        denominator = abs(denominator)
+        rl = [] #return list
+        db = {}
+        cnt = 0
+        repstr = None
+        while True:
+            rl.append(numerator/denominator)
+            cnt += 1
+            tmp = numerator%denominator
+            if tmp == 0: break
+            numerator = 10*tmp
+            if db.get(numerator) : # repeat start
+                repstr = "".join([str(x) for x in rl[db.get(numerator):cnt]])
+                break
+            db[numerator] = cnt
+        
+        res = str(rl[0])
+        if len(rl) > 1: res += "."
+        if repstr:
+            res += "".join([str(x) for x in rl[1:db.get(numerator)]]) + "(" + repstr + ")"
+        else:
+            res += "".join([str(x) for x in rl[1:]])
+        return sign + res
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
@@ -1964,9 +2010,229 @@ class Solution(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#191. Number of 1 Bits
+"""
+Write a function that takes an unsigned integer and returns the number of ’1' bits it has (also known as the Hamming weight).
+
+For example, the 32-bit integer ’11' has binary representation 00000000000000000000000000001011, so the function should return 3.
+"""
+class Solution(object):
+    def hammingWeight(self, n):
+        """
+        :type n: int
+        :rtype: int
+        """
+        return self.sol1(n)
+        
+    def sol1(self,n):
+        ans = 0
+        while n:
+            n&=n-1
+            ans +=1
+        return ans
+        
+    def sol2(self,n):
+        ans = 0
+        for i in xrange(32):
+            ans += 1&n
+            n >>=1
+        return ans
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#198. House Robber
+"""
+You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed, the only constraint stopping you from robbing each of them is that adjacent houses have security system connected and it will automatically contact the police if two adjacent houses were broken into on the same night.
+
+Given a list of non-negative integers representing the amount of money of each house, determine the maximum amount of money you can rob tonight without alerting the police.
+"""
+class Solution(object):
+    def rob(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        return self.sol2(nums)
+        
+    def sol2(self,nums):
+        n = len(nums)
+        if n == 0 : return 0
+        if n <=2 : return max(nums)
+        odd = nums[0]
+        even = max(nums[1],nums[0])
+        for i in xrange(2,n):
+            if i%2 == 0:
+                odd = max(odd+nums[i],even)
+            else:
+                even = max(even+nums[i],odd)
+        return max(odd,even)
+        
+    def sol1(self,nums):
+        n = len(nums)
+        if n == 0 : return 0
+        if n <=2 : return max(nums)
+        dp = [0 for i in xrange(n)]
+        dp[0] = nums[0]
+        dp[1] = max(nums[1],nums[0])
+        
+        for i in xrange(2,n):
+            dp[i] = max(dp[i-1],dp[i-2]+nums[i])
+        return dp[n-1]
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#206 Reverse Linked List
+# Definition for singly-linked list.
+# class ListNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution(object):
+    def reverseList(self, head):
+        """
+        :type head: ListNode
+        :rtype: ListNode
+        """
+        #return self.recursive(head,None)
+        return self.iter2(head)
+
+    def recursive(self,head,newHead):
+        if head == None: return newHead
+        nd = head.next
+        head.next = newHead
+        return self.recursive(nd,head)
+
+    def iter2(self,head):
+        prev = None
+        while head:
+            nd = head.next
+            head.next = prev
+            prev = head
+            head = nd
+        return prev
+
+    def iterative(self,head):
+        dumy = ListNode(None)
+        dumy .next = head
+        prev = dumy
+        curr = head
+        while curr and curr.next:
+            nd = curr.next.next
+            curr.next.next = prev.next
+            prev.next = curr.next
+            curr.next = nd
+        return dumy.next
+        
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#208 Implement Trie (Prefix Tree)
+class TrieNode(object):
+    def __init__(self):
+        """
+        Initialize your data structure here.
+        """
+        self.childs = {}
+        self.isWord = False
+
+
+class Trie(object):
+
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, word):
+        """
+        Inserts a word into the trie.
+        :type word: str
+        :rtype: void
+        """
+        p = self.root
+        for x in word:
+            if x not in p.childs:
+                child = TrieNode()
+                p.childs[x] = child
+            p = p.childs[x]
+        p.isWord = True
+
+    def search(self, word):
+        """
+        Returns if the word is in the trie.
+        :type word: str
+        :rtype: bool
+        """
+        p = self.root
+        for x in word:
+            p = p.childs.get(x)
+            if p == None:
+                return False
+        return p.isWord
+
+    def delete(self, word):
+        node = self.root
+        queue = [] #this is actually a stack
+        for letter in word:
+            queue.append((letter, node))
+            child = node.childs.get(letter)
+            if child is None:
+                return False
+            node = child
+        # no such word in the trie
+        if not node.isWord:   return False
+        if len(node.childs): # this path has other owrd
+            node.isWord = False
+        else:
+            while queue:
+                tmp = queue.pop()
+                letter = tmp[0]
+                node = tmp[1]
+                del node.childs[letter]
+                if len(node.childs) or node.isWord:
+                    break
+        return True
+
+    def startsWith(self, prefix):
+        """
+        Returns if there is any word in the trie
+        that starts with the given prefix.
+        :type prefix: str
+        :rtype: bool
+        """
+        p = self.root
+        for x in prefix:
+            if x in p.childs:
+                p = p.childs[x]
+            else: return False
+        return True
+
+#====dict method====================================
+def make_trie(*words):
+    root = dict()
+    for word in words:
+        current_dict = root
+        for letter in word:
+            #setdefault is similar to get(),
+            #but will set dict[key]=default if key is not already in dict
+            current_dict = current_dict.setdefault(letter, {})
+        current_dict['_end_'] = '_end_'
+    return root
+
+trie = make_trie('foo', 'bar', 'baz', 'barz')
+print trie
+
+def in_trie(word, trie):
+    current_dict = trie
+    for letter in word:
+        if letter not in current_dict:
+            return False
+        else:
+            current_dict = current_dict[letter]
+    return '_end_' in current_dict
+
+print in_trie('ba', trie)
+
 #-----------------------------------
 #-----------------------------------
 #215 Kth Largest Element in an Array
