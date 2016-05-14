@@ -620,14 +620,56 @@ Returns the index of the first occurrence of needle in haystack, or -1 if needle
 Subscribe to see which companies asked this question
 
 """
-class Solution28(object):
+class Solution(object):
     def strStr(self, haystack, needle):
         """
         :type haystack: str
         :type needle: str
         :rtype: int
         """
-        # 2 pointer solution
+        # Robin-Karp method
+        """
+        T test, P pattern
+        """
+        T = haystack
+        P = needle
+        if T == P or P == "" : return 0
+        if not T: return -1
+        lt = len(T)
+        lp = len(P)
+        if lt < lp: return -1
+
+        prime = 1000000007#big prime
+        x = 29 # random(1,prime-1)
+        result = []
+        pHash = self.PolyHash(P,prime,x)
+        
+        # precomputeHashes
+        H = [None for i in range(lt-lp+1)]
+        S = T[lt-lp:lt]
+        H[lt-lp] = self.PolyHash(S,prime,x)
+        y =1
+        for i in range(1,lp+1):
+            y = (y*x) %prime
+        for i in range(lt-lp-1,-1,-1):
+            H[i] = (x*H[i+1]+ord(T[i])-y*ord(T[i+lp]))%prime
+       
+        for i in range(lt-lp+1):
+    
+            if pHash != H[i]: continue
+            if T[i:i+lp] == P: return i
+        return -1
+
+    def PolyHash(self,P,prime,x):
+        ans = 0
+        for c in reversed(P):
+            ans = (ans * x + ord(c)) % prime
+        return ans % prime
+        
+    def sol1(self, haystack, needle):
+        """
+        native method
+        """
         if haystack == needle or needle == "" : return 0
         if not haystack: return -1
         lh = len(haystack)
@@ -640,7 +682,6 @@ class Solution28(object):
                 if j == ln-1: return i
                 
         return -1
-#-----------------------------------
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
@@ -2235,6 +2276,59 @@ print in_trie('ba', trie)
 
 #-----------------------------------
 #-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#----Hard-------------------------------
+#214. Shortest Palindrome
+"""
+Given a string S, you are allowed to convert it to a palindrome by adding characters in front of it.
+Find and return the shortest palindrome you can find by performing this transformation. 
+For example:
+
+Given "aacecaaa", return "aaacecaaa".
+
+Given "abcd", return "dcbabcd"
+"""
+class Solution(object):
+    def shortestPalindrome(self, s):
+        """
+        :type s: str
+        :rtype: str
+        """
+        return self.sol2(s)
+
+    def sol2(self,s):
+        #Rabin-Karp rolling hash
+        """
+        https://leetcode.com/discuss/95425/8-line-o-n-method-using-rabin-karp-rolling-hash
+        """
+        n = len(s) ; pos = -1
+        B =29; MOD =1000000007; POW = 1;hash1 = 0; hash2 = 0
+        for i in  xrange(n):
+            hash1 = (hash1 * B + ord(s[i])) % MOD;
+            hash2 = (hash2 + ord(s[i]) * POW) % MOD;
+            if (hash1 == hash2): pos = i           
+            POW = POW *B % MOD
+        rev_s =s[pos+1:][::-1]
+        return rev_s+s
+        
+    def sol1(self,s):
+        #KMP method对字符串l执行KMP算法，可以得到“部分匹配数组”p（也称“失败函数”）
+
+        #我们只关心p数组的最后一个值p[-1]，因为它表明了rev_s与s相互匹配的最大前缀长度。
+
+        #最后只需要将rev_s的前k个字符与原始串s拼接即可，其中k是s的长度len(s)与p[-1]之差。
+        
+        rev_s = s[::-1]
+        l = s+"#"+rev_s
+        p = [0]*len(l)
+        for i in xrange(1,len(l)):
+            j = p[i-1]
+            while j > 0 and l[i]!=l[j]:
+                j = p[j-1]
+            p[i] = j+(l[i]==l[j])
+        return rev_s[:len(s)-p[-1]] +s
+#-----------------------------------
 #215 Kth Largest Element in an Array
 """
 Find the kth largest element in an unsorted array. Note that it is the kth largest 
@@ -2282,7 +2376,24 @@ class Solution(object):
 
         return heapq.heappop(h)
 #-----------------------------------
+#216
 #-----------------------------------
+#217. Contains Duplicate
+"""
+Given an array of integers, find if the array contains any duplicates. Your function should return true if any value appears at least twice in the array, and it should return false if every element is distinct
+"""
+class Solution(object):
+    def containsDuplicate(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: bool
+        """
+        db ={}
+        for num in nums:
+            if db.get(num): return True
+            db[num] = 1
+        return False
+        # method2 sort nums 1st o(nlgn), space o(1)
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
