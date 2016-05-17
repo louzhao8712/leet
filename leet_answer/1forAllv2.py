@@ -3207,3 +3207,40 @@ def coin_change_helper(cur_face_value, rest_value, res, ret):
         res[i] -= 1 #very important step
 #-----------------------------------
 #-----------------------------------
+#326. Power of Three
+"""
+Given an integer, write a function to determine if it is a power of three.
+Follow up:
+Could you do it without using any loop / recursion? 
+"""
+class Solution(object):
+    def isPowerOfThree(self, n):
+        """
+        :type n: int
+        :rtype: bool
+        """
+        return self.sol2(n)
+        
+    def sol1(self,n):
+        return n>0 and 3** round(math.log(n,3)) == n
+    
+    def sol2(self,n):
+        if n==1: return True
+        if n==0 or n%3 > 0 : return False
+        return self.sol2(n/3)
+#-----------------------------------
+#-----------------------------------
+#328. Odd Even Linked List
+"""
+Given a singly linked list, group all odd nodes together followed by the even nodes. Please note here we are talking about the node number and not the value in the nodes.
+
+You should try to do it in place. The program should run in O(1) space complexity and O(nodes) time complexity.
+ Example:
+Given 1->2->3->4->5->NULL,
+return 1->3->5->2->4->NULL.
+
+Note:
+The relative order inside both the even and odd groups should remain as it was in the input.
+The first node is considered odd, the second node even and so on ... 
+
+"""
