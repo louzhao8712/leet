@@ -2396,6 +2396,27 @@ class Solution(object):
         # method2 sort nums 1st o(nlgn), space o(1)
 #-----------------------------------
 #-----------------------------------
+#219. Contains Duplicate II
+"""
+Given an array of integers and an integer k,
+find out whether there are two distinct indices i and j in the array such that nums[i] = nums[j] and the difference between i and j is at most k. 
+"""
+class Solution(object):
+    def containsNearbyDuplicate(self, A, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: bool
+        """
+        tb = {}
+        for i in xrange(len(A)):
+            if A[i] in tb:
+                if i-tb[A[i]] <= k : return True
+                else: tb[A[i]] = i
+            else: tb[A[i]] = i
+        return False
+#-----------------------------------
+#-----------------------------------
 #-----------------------------------
 #224. Basic Calculator
 """
@@ -2489,8 +2510,90 @@ class Stack(object):
         """
         return self.queue == []
 #-----------------------------------
+#226. Invert Binary Tree
+"""
+Invert a binary tree. 
+swap nodes in each level
+"""
+class Solution(object):
+    def invertTree(self, root):
+        """
+        :type root: TreeNode
+        :rtype: TreeNode
+        """
+        #bfs methid
+        return self.dfs(root)
+        
+    def bfs(self,root):
+        if root is None: return None
+        queue = [root]
+        while queue:
+            next = queue.pop(0)
+            if next.left:
+                queue.append(next.left)
+            if next.right:
+                queue.append(next.right)
+            next.left,next.right = next.right,next.left
+        return root
+        
+    def dfs(self,root):
+        if root is None: return None
+        if root.left: self.dfs(root.left)
+        if root.right: self.dfs(root.right)
+        root.left,root.right = root.right,root.left
+        return root
 #----------------------------------
 #-----------------------------------
+#228. Summary Ranges
+"""
+Given a sorted integer array without duplicates, return the summary of its ranges.
+For example, given [0,1,2,4,5,7], return ["0->2","4->5","7"].
+"""
+class Solution(object):
+    def summaryRanges(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: List[str]
+        """
+        return self.sol2(nums)
+        
+    def sol2(self,nums):
+        x,size = 0,len(nums)
+        ans = []
+        while x < size:
+            c = x
+            r = str(nums[x])
+            while x +1 <size and nums[x+1]-nums[x] ==1:
+                x+=1
+            if x>c:
+                r += "->"+str(nums[x])
+            ans.append(r)
+            x+=1
+        return ans
+
+    def sol1(self,nums):
+        if len(nums) == 0 : return []
+        if len(nums) == 1: return [str(nums[0])]
+        ret = []
+        start = 0
+        end = 0
+        for i in xrange(1,len(nums)):
+            if nums[i] - nums[i-1] == 1: 
+                end = i
+                continue
+            else:
+                if end!=start:
+                    ret.append(str(nums[start])+"->"+str(nums[end]))
+                else:
+                    ret.append(str(nums[start]))
+                start = i
+                end = i
+        if end!=start:
+            ret.append(str(nums[start])+"->"+str(nums[end]))
+        else:
+            ret.append(str(nums[start]))    
+            
+        return ret
 #-----------------------------------
 #229. Majority Element II
 """
@@ -2649,6 +2752,24 @@ class Solution(object):
         else:
             return matches
 #-----------------------------------
+#237. Delete Node in a Linked List 
+"""
+Write a function to delete a node (except the tail) in a singly linked list, given only access to that node. 
+Supposed the linked list is 1 -> 2 -> 3 -> 4 and you are given the third node with value 3, the linked list should become 1 -> 2 -> 4 after calling your function.
+"""
+# we have to replace the value of the node we want to delete with the value in the node after it, and then delete the node after it.
+class Solution(object):
+    def deleteNode(self, node):
+        """
+        :type node: ListNode
+        :rtype: void Do not return anything, modify node in-place instead.
+        """
+        if node.next:
+            node.val = node.next.val
+            node.next = node.next.next
+        else:
+            node = None
+
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
@@ -2677,14 +2798,370 @@ class Solution(object):
                 return True
         return False
 #-----------------------------------
+#241
+#-----------------------------------
+#242. Valid Anagram
+"""
+Given two strings s and t, write a function to determine if t is an anagram of s.
+For example,
+s = "anagram", t = "nagaram", return true.
+s = "rat", t = "car", return false. 
+"""
+class Solution(object):
+    def isAnagram(self, s, t):
+        """
+        :type s: str
+        :type t: str
+        :rtype: bool
+        """
+        return sorted(s) == sorted(t)
+
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#274. H-Index
+"""
+ Given an array of citations (each citation is a non-negative integer) of a researcher, write a function to compute the researcher's h-index.
+
+According to the definition of h-index on Wikipedia: "A scientist has index h if h of his/her N papers have at least h citations each, and the other N − h papers have no more than h citations each."
+
+For example, given citations = [3, 0, 6, 1, 5], which means the researcher has 5 papers in total and each of them had received 3, 0, 6, 1, 5 citations respectively. Since the researcher has 3 papers with at least 3 citations each and the remaining two with no more than 3 citations each, his h-index is 3
+
+"""
+class Solution(object):
+    def hIndex(self, citations):
+        """
+        :type citations: List[int]
+        :rtype: int
+        """
+        return self.solution3(citations)
+
+    def solution2(self,citations):
+        #extra space methid
+        n = len(citations)
+        cnt = [ 0 for i in xrange(n+1)]
+        for c in citations:
+            if c > n:   cnt[n] +=1 # because h index at most is n
+            else:       cnt[c] +=1
+        
+        sums = 0
+        for i in xrange(n,0,-1):
+            if sums + cnt[i] >= i : return i
+            sums += cnt[i]
+        return 0
+
+    def solution1(self,citations):
+        # sort method o(nlogn)
+        citations = sorted(citations,reverse=True)
+        h = 0
+        for i in xrange(len(citations)):
+            if citations[i] >= i+1: h = i+1
+            else: break
+        return h
+        
+    def solution3(self,citations):
+        # sort method o(nlogn) + binary search
+        citations = sorted(citations,reverse=True)
+        n = len(citations)
+        if n == 0: return 0
+        low = 0; high = n-1; mid = 0
+        while low+1 < high:
+            mid = (low+high)/2
+            if citations[mid] >= mid+1:
+                low = mid
+            else:
+                high = mid
+        if  citations[high] >= high+1: return high+1
+        elif citations[low] >= low+1:          return low+1
+        else: return 0
+#-----------------------------------
+#275. H-Index II
+"""
+Follow up for H-Index: What if the citations array is sorted in ascending order? Could you optimize your algorithm? 
+"""
+class Solution(object):
+    def hIndex(self, citations):
+        """
+        :type citations: List[int]
+        :rtype: int
+        """
+        # key point is return n-low
+        n  = len(citations)
+        low = 0; high = n-1
+
+        
+        while low <= high:
+            mid = (low+high)/2
+            if citations[mid] < n-mid: #n-mid the length from end to mid include citation[mid]
+                low = mid +1
+            else:
+                high = mid-1
+        return n-low
+
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#278. First Bad Version
+"""
+ You are a product manager and currently leading a team to develop a new product. Unfortunately, the latest version of your product fails the quality check. Since each version is developed based on the previous version, all the versions after a bad version are also bad.
+
+Suppose you have n versions [1, 2, ..., n] and you want to find out the first bad one, which causes all the following ones to be bad.
+
+You are given an API bool isBadVersion(version) which will return whether version is bad. Implement a function to find the first bad version. You should minimize the number of calls to the API. 
+"""
+# The isBadVersion API is already defined for you.
+# @param version, an integer
+# @return a bool
+# def isBadVersion(version):
+
+class Solution(object):
+    def firstBadVersion(self, n):
+        """
+        :type n: int
+        :rtype: int
+        """
+        lo  = 1
+        hi = n
+        while lo + 1 < hi:
+            ce = lo + (hi-lo)/2
+            if isBadVersion(ce):
+                hi = ce
+            else:
+                lo = ce
+        if isBadVersion(lo):
+            return lo
+        if isBadVersion(hi):
+            return hi
+        return -1
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#292. Nim Game 
+"""
+ You are playing the following Nim Game with your friend: There is a heap of stones on the table, each time one of you take turns to remove 1 to 3 stones. The one who removes the last stone will be the winner. You will take the first turn to remove the stones.
+
+Both of you are very clever and have optimal strategies for the game. Write a function to determine whether you can win the game given the number of stones in the heap.
+
+For example, if there are 4 stones in the heap, then you will never win the game: no matter 1, 2, or 3 stones you remove, the last stone will always be removed by your friend. 
+"""
+class Solution(object):
+    def canWinNim(self, n):
+        """
+        :type n: int
+        :rtype: bool
+        """
+        # pattern is win win win loose win win win loose
+        n = n%4
+        if n == 0 : return False
+        else: return True
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#303. Range Sum Query - Immutable 
+"""
+Given an integer array nums, find the sum of the elements between indices i and j (i ≤ j), inclusive.
+Example:
+Given nums = [-2, 0, 3, -5, 2, -1]
+
+sumRange(0, 2) -> 1
+sumRange(2, 5) -> -1
+sumRange(0, 5) -> -3
+
+Note:
+
+    You may assume that the array does not change.
+    There are many calls to sumRange function.
+
+"""
+class NumArray(object):
+    def __init__(self, nums):
+        """
+        initialize your data structure here.
+        :type nums: List[int]
+        """
+        n = len(nums)
+        self.sums = [ 0 for i in xrange(n+1)]
+        for i in xrange(n):
+            self.sums[i+1] = nums[i] + self.sums[i]
+        
+
+    def sumRange(self, i, j):
+        """
+        sum of elements nums[i..j], inclusive.
+        :type i: int
+        :type j: int
+        :rtype: int
+        """
+        return self.sums[j+1] - self.sums[i]
+#-----------------------------------
+#304. Range Sum Query 2D - Immutable
+"""
+Given a 2D matrix matrix, find the sum of the elements inside the rectangle defined by its upper left corner (row1, col1) and lower right corner (row2, col2).
+Note:
+
+    You may assume that the matrix does not change.
+    There are many calls to sumRegion function.
+    You may assume that row1 ≤ row2 and col1 ≤ col2.
+
+"""
+class NumMatrix(object):
+    def __init__(self, matrix):
+        """
+        initialize your data structure here.
+        :type matrix: List[List[int]]
+        """
+        m = len(matrix)
+
+        n = len(matrix[0]) if m else 0
+        
+        self.sums = [[ 0 for i in xrange(n+1)] for j in xrange(m+1)]
+        for j in xrange(1,m+1):
+            rowsum = 0
+            for i in xrange(1,n+1):
+                self.sums[j][i] += rowsum + matrix[j-1][i-1]
+                if j >1:
+                    self.sums[j][i] +=  self.sums[j-1][i]
+                rowsum += matrix[j-1][i-1]
+        
+
+    def sumRegion(self, row1, col1, row2, col2):
+        """
+        sum of elements matrix[(row1,col1)..(row2,col2)], inclusive.
+        :type row1: int
+        :type col1: int
+        :type row2: int
+        :type col2: int
+        :rtype: int
+        """
+        # sumRange(row1, col1, row2, col2) = sums[row2][col2] + sums[row1 - 1][col1 - 1] - sums[row1 - 1][col2] - sums[row2][col1 - 1]
+        
+        return self.sums[row2 + 1][col2 + 1] + self.sums[row1][col1] \
+                 - self.sums[row1][col2 + 1] - self.sums[row2 + 1][col1]
+
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#307. Range Sum Query - Mutable
+""""
+Given an integer array nums, find the sum of the elements between indices i and j (i ≤ j), inclusive.
+The update(i, val) function modifies nums by updating the element at index i to val. 
+Example:
+Given nums = [1, 3, 5]
+
+sumRange(0, 2) -> 9
+update(1, 2)
+sumRange(0, 2) -> 8
+"""
+class NumArray(object):
+    """
+    https://leetcode.com/articles/range-sum-query-mutable/
+    using segment tree
+    http://bookshadow.com/weblog/2015/11/18/leetcode-range-sum-query-mutable/
+    """
+    def __init__(self, nums):
+        """
+        initialize your data structure here.
+        :type nums: List[int]
+        """
+        self.nums = nums
+        self.size = size = len(nums)
+        h = int(math.ceil(math.log(size, 2))) if size else 0
+        #the orignal array nums is just the last layer leaves
+        maxSize = 2 ** (h + 1) - 1
+        self.st = [0] * maxSize
+        if size:
+            self.initST(0, size - 1, 0)
+
+    def update(self, i, val):
+        """
+        :type i: int
+        :type val: int
+        :rtype: int
+        """
+        if i < 0 or i >= self.size:
+            return
+        diff = val - self.nums[i]
+        self.nums[i] = val
+        self.updateST(0, self.size - 1, i, diff, 0)
+
+    def sumRange(self, i, j):
+        """
+        sum of elements nums[i..j], inclusive.
+        :type i: int
+        :type j: int
+        :rtype: int
+        """
+        if i < 0 or j < 0 or i >= self.size or j >= self.size:
+            return 0
+        return self.sumRangeST(0, self.size - 1, i, j, 0)
+
+    def initST(self, ss, se, si):
+        """
+        si is the index in segment tree
+        The segment tree for array a[0,1,…,n−1]a[0, 1, \ldots ,n-1]a[0,1,…,n−1] is a binary tree in which each node contains aggregate information (min, max, sum, etc.) for a subrange [i…j][i \ldots j][i…j] of the array, as its left and right child hold information for range [i…i+j2][i \ldots \frac{i+j}{2}][i…​2​​i+j​​] and [i+j2+1,j][\frac{i + j}{2} + 1, j][​2​​i+j​​+1,j].
+        Segment tree could be implemented using either an array or a tree. For an array implementation, if the element at index iii is not a leaf, its left and right child are stored at index 2i2i2i and 2i+12i + 12i+1 respectively.
+        """
+        if ss == se:
+            self.st[si] = self.nums[ss]
+        else:
+            mid = (ss + se) / 2
+            self.st[si] = self.initST(ss, mid, si * 2 + 1) + \
+                          self.initST(mid + 1, se, si * 2 + 2)
+        return self.st[si]
+
+    def updateST(self, ss, se, i, diff, si):
+        if i < ss or i > se:
+            return
+        # update the node from top root to down leaf
+        self.st[si] += diff
+        if ss != se:
+            mid = (ss + se) / 2
+            self.updateST(ss, mid, i, diff, si * 2 + 1)
+            self.updateST(mid + 1, se, i, diff, si * 2 + 2)
+
+    def sumRangeST(self, ss, se, qs, qe, si):
+        if qs <= ss and qe >= se:
+            return self.st[si]
+        if se < qs or ss > qe:
+            return 0
+        mid = (ss + se) / 2
+        return self.sumRangeST(ss, mid, qs, qe, si * 2 + 1) + \
+                self.sumRangeST(mid + 1, se, qs, qe, si * 2 + 2)
+
+# Your NumArray object will be instantiated and called as such:
+# numArray = NumArray(nums)
+# numArray.sumRange(0, 1)
+# numArray.update(1, 10)
+# numArray.sumRange(1, 2)
+#-----------------------------------
+#319. Bulb Switcher
+"""
+There are n bulbs that are initially off. You first turn on all the bulbs. Then, you turn off every second bulb. On the third round, you toggle every third bulb (turning on if it's off or turning off if it's on). For the ith round, you toggle every i bulb. For the nth round, you only toggle the last bulb. Find how many bulbs are on after n rounds. 
+Example:
+Given n = 3. 
+
+At first, the three bulbs are [off, off, off].
+After first round, the three bulbs are [on, on, on].
+After second round, the three bulbs are [on, off, on].
+After third round, the three bulbs are [on, off, off]. 
+
+So you should return 1, because there is only one bulb is on.
+"""
+class Solution(object):
+    def bulbSwitch(self, n):
+        """
+        :type n: int
+        :rtype: int
+        """
+        #http://bookshadow.com/weblog/2015/12/19/leetcode-bulb-switcher/
+        # 找有多少完全平方数小于等于n
+        """
+        为什么只有完全平方数的因子个数为奇数呢？
+        因为除了完全平方数，其余数字的因子都是成对出现的，而完全平方数的平方根只会统计一次。
+        """
+        return int(math.sqrt(n))
 #-----------------------------------
 #-----------------------------------
 #322. Coin Change
