@@ -1,5 +1,7 @@
 [cyandtery Summary](https://github.com/cyandterry/Python-Study/blob/master/system_design.md)
 
+[checkcheckzz Summary](https://github.com/checkcheckzz/system-design-interview)
+
 [Intro to HDFS](https://www.youtube.com/watch?v=ziqx2hJY8Hg)
 mapreduce: algorithm,pattern
 hadoop: framework using mapreduce
