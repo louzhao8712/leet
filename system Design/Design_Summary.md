@@ -1,6 +1,6 @@
-[cyandtery Summary](https://github.com/cyandterry/Python-Study/blob/master/system_design.md)
-
+[Scalability, Availability & Stability Patterns](http://www.slideshare.net/jboner/scalability-availability-stability-patterns/110-All_operations_in_scope_ofa)
 [checkcheckzz Summary](https://github.com/checkcheckzz/system-design-interview)
+[cyandtery Summary](https://github.com/cyandterry/Python-Study/blob/master/system_design.md)
 
 [Intro to HDFS](https://www.youtube.com/watch?v=ziqx2hJY8Hg)
 mapreduce: algorithm,pattern
