@@ -3127,6 +3127,60 @@ class Codec:
 # codec.deserialize(codec.serialize(root))
 #-----------------------------------
 #-----------------------------------
+#300. Longest Increasing Subsequence
+"""
+ Given an unsorted array of integers, find the length of longest increasing subsequence.
+
+For example,
+Given [10, 9, 2, 5, 3, 7, 101, 18],
+The longest increasing subsequence is [2, 3, 7, 101], therefore the length is 4. Note that there may be more than one LIS combination, it is only necessary for you to return the length.
+
+Your algorithm should run in O(n2) complexity.
+
+Follow up: Could you improve it to O(n log n) time complexity? 
+"""
+class Solution(object):
+    def lengthOfLIS(self, A):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        #http://bookshadow.com/weblog/2015/11/03/leetcode-longest-increasing-subsequence/
+        #return self.sol1(A)
+        return self.sol2(A)
+
+    def sol1(self,A):
+        #dp[x] = max(dp[x], dp[y] + 1) 其中 y < x
+        size = len(A)
+        dp = [1] * size
+        for x in xrange(size):
+            for y in xrange(x):
+                if A[x] > A[y]:
+                    dp[x] = max(dp[x],dp[y]+1)
+        if dp!=[]: return max(dp)
+        else: return 0
+    
+    def sol2(self,A):
+        #binary search method
+        #维护一个单调序列
+        #遍历nums数组，二分查找每一个数在单调序列中的位置，然后替换之。    
+        n= len(A)
+        res = []
+        for x in xrange(n):
+            low,high = 0,len(res)-1
+            while low+1 < high:
+                mid = (low+high)/2
+                if res[mid] < A[x]:
+                    low = mid
+                else:
+                    high = mid
+            if low >= len(res):
+                res.append(A[x])
+            else:
+                res[low] = A[x]
+        return len(res)
+#-----------------------------------
+#-----------------------------------
 #303. Range Sum Query - Immutable 
 """
 Given an integer array nums, find the sum of the elements between indices i and j (i ≤ j), inclusive.
@@ -3473,5 +3527,80 @@ class Solution(object):
                     stack.pop()
         return False
 #-----------------------------------
+#332. Reconstruct Itinerary
+"""
+Given a list of airline tickets represented by pairs of departure and arrival airports [from, to], reconstruct the itinerary in order. All of the tickets belong to a man who departs from JFK. Thus, the itinerary must begin with JFK.
+
+Note:
+
+    If there are multiple valid itineraries, you should return the itinerary that has the smallest lexical order when read as a single string. For example, the itinerary ["JFK", "LGA"] has a smaller lexical order than ["JFK", "LGB"].
+    All airports are represented by three capital letters (IATA code).
+    You may assume all tickets form at least one valid itinerary.
+
+Example 1:
+tickets = [["MUC", "LHR"], ["JFK", "MUC"], ["SFO", "SJC"], ["LHR", "SFO"]]
+Return ["JFK", "MUC", "LHR", "SFO", "SJC"].
+
+Example 2:
+tickets = [["JFK","SFO"],["JFK","ATL"],["SFO","ATL"],["ATL","JFK"],["ATL","SFO"]]
+Return ["JFK","ATL","JFK","SFO","ATL","SFO"].
+Another possible reconstruction is ["JFK","SFO","ATL","JFK","ATL","SFO"]. But it is larger in lexical order. 
+"""
+class Solution(object):
+    def findItinerary(self, tickets):
+        """
+        :type tickets: List[List[str]]
+        :rtype: List[str]
+        """
+        """
+
+        http://bookshadow.com/weblog/2016/02/05/leetcode-reconstruct-itinerary/
+        """
+        return self.sol2(tickets)
+    def sol2(self,tickets):
+        """
+        https://leetcode.com/discuss/84659/short-ruby-python-java-c
+        题目的实质就是从JFK顶点出发寻找欧拉通路，可以利用Hierholzer算法。
+        """
+        targets = collections.defaultdict(list)
+        for a, b in sorted(tickets)[::-1]:
+            targets[a] += b,
+        route = []
+        def visit(airport):
+            while targets[airport]:
+                visit(targets[airport].pop())
+            route.append(airport)
+        visit('JFK')
+        return route[::-1]
+        
+    def sol1(self,tickets):
+        """
+        从出发机场开始，按照到达机场的字典序递归搜索
+        在搜索过程中删除已经访问过的机票
+        将到达机场分为两类：子行程中包含出发机场的记为left，不含出发机场的记为right
+        返回时left排在right之前，
+        关键点sorted(route[start])不断被调用
+        """
+        routes = collections.defaultdict(list)
+        for s, e in tickets:
+            routes[s].append(e)
+        for key in routes.keys():
+            routes[key]=sorted(routes[key])
+            
+            
+        def solve(start):
+            left,right = [],[]
+            # left is the subrouties which go back to start, so left should be append first
+            for end in sorted(routes[start]):
+                if end not in routes[start]:
+                    continue
+                routes[start].remove(end)
+                subroutes = solve(end)
+                if start in subroutes:
+                    left += subroutes
+                else:
+                    right += subroutes
+            return [start] + left + right
+        return solve("JFK")        
 #-----------------------------------
 #-----------------------------------
