@@ -3032,7 +3032,7 @@ class Solution(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
-#292. Nim Game 
+#292. Nim Game
 """
  You are playing the following Nim Game with your friend: There is a heap of stones on the table, each time one of you take turns to remove 1 to 3 stones. The one who removes the last stone will be the winner. You will take the first turn to remove the stones.
 
@@ -3051,6 +3051,47 @@ class Solution(object):
         if n == 0 : return False
         else: return True
 #-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#297. Serialize and Deserialize Binary Tree
+"""
+Serialization is the process of converting a data structure or object into a sequence of bits so that it can be stored in a file or memory buffer, or transmitted across a network connection link to be reconstructed later in the same or another computer environment.
+
+Design an algorithm to serialize and deserialize a binary tree. There is no restriction on how your serialization/deserialization algorithm should work. You just need to ensure that a binary tree can be serialized to a string and this string can be deserialized to the original tree structure.
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+class Codec:
+    def serialize(self, root):
+        def doit(node):
+            if node:
+                vals.append(str(node.val))
+                doit(node.left)
+                doit(node.right)
+            else:
+                vals.append('#')
+        vals= []
+        doit(root)
+        return " ".join(vals)
+
+    def deserialize(self, data):
+        def doit():
+            val = next(vals)
+            if val == "#": return None
+            node = TreeNode(int(val))
+            node.left = doit()
+            node.right = doit()
+            return node
+        vals = iter(data.split())
+        return doit()
+
+# Your Codec object will be instantiated and called as such:
+# codec = Codec()
+# codec.deserialize(codec.serialize(root))
 #-----------------------------------
 #-----------------------------------
 #303. Range Sum Query - Immutable 
@@ -3360,3 +3401,44 @@ class Solution(object):
             even = even.next
         odd.next = evenHead
         return oddHead
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#331. Verify Preorder Serialization of a Binary Tree
+"""
+One way to serialize a binary tree is to use pre-order traversal. When we encounter a non-null node, we record the node's value. If it is a null node, we record using a sentinel value such as #
+For example, the above binary tree can be serialized to the string "9,3,4,#,#,1,#,#,2,#,6,#,#", where # represents a null node.
+
+Given a string of comma separated values, verify whether it is a correct preorder traversal serialization of a binary tree. Find an algorithm without reconstructing the tree.
+
+Each comma separated value in the string must be either an integer or a character '#' representing null pointer.
+
+You may assume that the input format is always valid, for example it could never contain two consecutive commas such as "1,,3".
+"""
+class Solution(object):
+    def isValidSerialization(self, preorder):
+        """
+        :type preorder: str
+        :rtype: bool
+        """
+        """
+        num of "#" == n+1
+        meet # then pop a number
+        """
+        A = preorder.split(',')
+        n = len(A)
+        stack = []
+        for i in xrange(n):
+            if A[i].isdigit():
+                stack.append(A[i])
+            else: # "#"
+                if stack == []:
+                    if i == n-1: return True
+                    else: return False
+                else:
+                    stack.pop()
+        return False
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
