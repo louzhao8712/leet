@@ -1144,6 +1144,30 @@ class Solution(object):
                 ed = mid
         return row[st] == target or row[ed] == target
 #-----------------------------------
+#75. Sort Colors
+"""
+ Given an array with n objects colored red, white or blue, sort them so that objects of the same color are adjacent, with the colors in the order red, white and blue.
+
+Here, we will use the integers 0, 1, and 2 to represent the color red, white, and blue respectively. 
+"""
+class Solution(object):
+    def sortColors(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: void Do not return anything, modify nums in-place instead.
+        """
+        if len(nums) <=1 : return
+        p0 = 0; p1 = len(nums)-1; i =0
+        while i <= p1:
+            if nums[i] ==2 :
+                nums[p1],nums[i] = nums[i],nums[p1]
+                p1 -=1
+            elif nums[i] == 0:
+                nums[p0],nums[i] = nums[i],nums[p0]
+                p0 +=1
+                i+=1
+            else:
+                i += 1
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
@@ -2405,6 +2429,37 @@ print in_trie('ba', trie)
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#213. House Robber II
+"""
+After robbing those houses on that street, the thief has found himself a new place for his thievery so that he will not get too much attention. This time, all houses at this place are arranged in a circle. That means the first house is the neighbor of the last one. Meanwhile, the security system for these houses remain the same as for those in the previous street.
+
+Given a list of non-negative integers representing the amount of money of each house, determine the maximum amount of money you can rob tonight without alerting the police.
+"""
+class Solution(object):
+    def rob(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        n = len(nums)
+        if n == 0: return 0
+        if n <=2 : return max(nums)
+        return max(self.helper(nums[:-1]),self.helper(nums[1:]))
+    def helper(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        n = len(nums)
+
+        odd, even= 0,0
+        
+        for i in xrange(n):
+            if i %2:
+                odd = max(odd+nums[i],even)
+            else:
+                even = max(even+nums[i],odd)
+        return max(even,odd)
 #----Hard-------------------------------
 #214. Shortest Palindrome
 """
@@ -2428,24 +2483,35 @@ class Solution(object):
         #Rabin-Karp rolling hash
         """
         https://leetcode.com/discuss/95425/8-line-o-n-method-using-rabin-karp-rolling-hash
+        our goad is to divide s to A+B while A is palindrome, then return revB+A+B
+        using Rabin-Karp to check A is palindrome
         """
         n = len(s) ; pos = -1
         B =29; MOD =1000000007; POW = 1;hash1 = 0; hash2 = 0
         for i in  xrange(n):
             hash1 = (hash1 * B + ord(s[i])) % MOD;
             hash2 = (hash2 + ord(s[i]) * POW) % MOD;
-            if (hash1 == hash2): pos = i           
+            #if (hash1 == hash2) and self.isPalindrome(s[:i+1]):  #Time exceed limit
+            if (hash1 == hash2)
+                pos = i           
             POW = POW *B % MOD
         rev_s =s[pos+1:][::-1]
         return rev_s+s
-        
+
+    def isPalindrome(self, s):
+        """
+        :type s: str
+        :rtype: bool
+        """
+        lens = len(s)
+        for i in xrange(lens/2):
+            if s[i] != s[lens-1-i]: return False
+        return True
+
     def sol1(self,s):
         #KMP method对字符串l执行KMP算法，可以得到“部分匹配数组”p（也称“失败函数”）
-
         #我们只关心p数组的最后一个值p[-1]，因为它表明了rev_s与s相互匹配的最大前缀长度。
-
         #最后只需要将rev_s的前k个字符与原始串s拼接即可，其中k是s的长度len(s)与p[-1]之差。
-        
         rev_s = s[::-1]
         l = s+"#"+rev_s
         p = [0]*len(l)
@@ -3429,6 +3495,69 @@ def coin_change_helper(cur_face_value, rest_value, res, ret):
         res[i] -= 1 #very important step
 #-----------------------------------
 #-----------------------------------
+#324. Wiggle Sort II
+"""
+ Given an unsorted array nums, reorder it such that nums[0] < nums[1] > nums[2] < nums[3]....
+
+Example:
+(1) Given nums = [1, 5, 1, 1, 6, 4], one possible answer is [1, 4, 1, 5, 1, 6].
+(2) Given nums = [1, 3, 2, 2, 3, 1], one possible answer is [2, 3, 1, 3, 1, 2].
+
+Note:
+You may assume all input has valid answer.
+
+Follow Up:
+Can you do it in O(n) time and/or in-place with O(1) extra space? 
+"""
+class Solution(object):
+    def wiggleSort(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: void Do not return anything, modify nums in-place instead.
+        """
+
+        # def sol2(self,nums):
+        size = len(nums)
+        snums = sorted(nums)
+        for x in range(1, size, 2) + range(0, size, 2):
+            nums[x] = snums.pop()       
+"""
+解法II O(n)时间复杂度+O(1)空间复杂度解法：
+
+1. 使用O(n)时间复杂度的quickSelect算法，从未经排序的数组nums中选出中位数mid
+
+2. 参照解法I的思路，将nums数组的下标x通过函数idx()从[0, 1, 2, ... , n - 1, n] 映射到 [1, 3, 5, ... , 0, 2, 4, ...]，得到新下标ix
+
+3. 以中位数mid为界，将大于mid的元素排列在ix的较小部分，而将小于mid的元素排列在ix的较大部分。
+
+详见：https://leetcode.com/discuss/77133/o-n-o-1-after-median-virtual-indexing
+C++伪代码：
+
+void wiggleSort(vector<int>& nums) {
+    int n = nums.size();
+
+    // Find a median.
+    auto midptr = nums.begin() + n / 2;
+    nth_element(nums.begin(), midptr, nums.end());
+    int mid = *midptr;
+
+    // Index-rewiring.
+    #define A(i) nums[(1+2*(i)) % (n|1)]
+
+    // 3-way-partition-to-wiggly in O(n) time with O(1) space.
+    int i = 0, j = 0, k = n - 1;
+    while (j <= k) {
+        if (A(j) > mid)
+            swap(A(i++), A(j++));
+        else if (A(j) < mid)
+            swap(A(j), A(k--));
+        else
+            j++;
+    }
+}
+
+"""
+#-----------------------------------
 #326. Power of Three
 """
 Given an integer, write a function to determine if it is a power of three.
@@ -3632,3 +3761,269 @@ class Solution(object):
             else:
                 return True
         return False
+#-----------------------------------
+#-----------------------------------
+#335. Self Crossing
+"""
+ You are given an array x of n positive numbers. You start at point (0,0) and moves x[0] metres to the north, then x[1] metres to the west, x[2] metres to the south, x[3] metres to the east and so on. In other words, after each move your direction changes counter-clockwise.
+
+Write a one-pass algorithm with O(1) extra space to determine, if your path crosses itself, or not.
+
+Example 1:
+
+Given x = [2, 1, 1, 2],
+┌───┐
+│   │
+└───┼──>
+    │
+
+Return true (self crossing)
+
+Example 2:
+
+Given x = [1, 2, 3, 4],
+┌──────┐
+│      │
+│
+│
+└────────────>
+
+Return false (not self crossing)
+
+Example 3:
+
+Given x = [1, 1, 1, 1],
+┌───┐
+│   │
+└───┼>
+
+Return true (self crossing)
+
+"""
+class Solution(object):
+    def isSelfCrossing(self, x):
+        """
+        :type x: List[int]
+        :rtype: bool
+        """
+        """
+        Best solution so far.
+            The first if checks if current line crosses the line 3 steps ahead of it
+            The second if checks if current line crosses the line 4 steps ahead of it
+            The third if checks if current line crosses the line 6 steps ahead of it
+                case 3 实际上是螺旋递增转螺旋递减
+        /*               i-2
+            case 1 : i-1┌─┐
+                        └─┼─>i
+                         i-3
+        
+                            i-2
+            case 2 : i-1 ┌────┐
+                         └─══>┘i-3
+                         i  i-4      (i overlapped i-4)
+        
+            case 3 :    i-4
+                       ┌──┐ 
+                       │i<┼─┐
+                    i-3│ i-5│i-1
+                       └────┘
+                        i-2
+        
+        */        
+        If none of the above condition is satisfied, there must not be any cross
+        
+        True means cross
+        """
+        n = len(x)
+        if n <= 3: return False
+        for i in xrange(3,n):
+            #case1
+            if x[i] >=x[i-2] and x[i-1] <=x[i-3] : return True
+            elif i >=4 and x[i-1] == x[i-3] and x[i]+x[i-4]>=x[i-2] : return True
+            elif i >=5 and x[i-2] >= x[i-4] and x[i]+x[i-4] >= x[i-2] \
+                and x[i-1] <= x[i-3] and x[i-1]+x[i-5] >= x[i-3] : return True
+        return False
+        
+#-----------------------------------
+#336. Palindrome Pairs 
+"""
+ Given a list of unique words. Find all pairs of distinct indices (i, j) in the given list, so that the concatenation of the two words, i.e. words[i] + words[j] is a palindrome.
+
+Example 1:
+Given words = ["bat", "tab", "cat"]
+Return [[0, 1], [1, 0]]
+The palindromes are ["battab", "tabbat"]
+
+Example 2:
+Given words = ["abcd", "dcba", "lls", "s", "sssll"]
+Return [[0, 1], [1, 0], [3, 2], [2, 4]]
+The palindromes are ["dcbaabcd", "abcddcba", "slls", "llssssll"]
+"""
+class Solution(object):
+    def palindromePairs(self, words):
+        """
+        :type words: List[str]
+        :rtype: List[List[int]]
+        """
+        #o(len(words) * len(word)^2)
+        #since each word is unique,we can create dict {word:idx}
+        tb = {word:idx for idx,word in enumerate(words)}
+
+        def ispal(word):
+            n= len(word)
+            for i in xrange(n/2):
+                if word[i]!=word[n-1-i]: return False
+            return True
+        
+        res = set()
+        for i in xrange(len(words)):
+            
+            if words[i]!= "" and ispal(words[i]) and "" in tb:
+                res.add((i,tb[""]))
+                res.add((tb[""],i))
+            rw = words[i][::-1]
+            if rw in tb:
+                if i!=tb[rw]: #important
+                    res.add((i,tb[rw]))
+                    res.add((tb[rw],i))
+
+            for j in xrange(1,len(words[i])):
+                left,right = words[i][:j],words[i][j:]
+                rvleft,rvright = left[::-1],right[::-1]
+                if ispal(right) and rvleft in tb:
+                    res.add((i,tb[rvleft]))
+                if ispal(left) and rvright in tb:
+                    res.add((tb[rvright],i))
+                    
+        return list(res)
+#-----------------------------------
+#337. House Robber III
+"""
+ The thief has found himself a new place for his thievery again. There is only one entrance to this area, called the "root." Besides the root, each house has one and only one parent house. After a tour, the smart thief realized that "all houses in this place forms a binary tree". It will automatically contact the police if two directly-linked houses were broken into on the same night.
+
+Determine the maximum amount of money the thief can rob tonight without alerting the police.
+
+Example 1:
+
+     3
+    / \
+   2   3
+    \   \ 
+     3   1
+
+Maximum amount of money the thief can rob = 3 + 3 + 1 = 7.
+
+Example 2:
+
+     3
+    / \
+   4   5
+  / \   \ 
+ 1   3   1
+
+Maximum amount of money the thief can rob = 4 + 5 = 9. 
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def rob(self, root):
+        """
+        :type root: TreeNode
+        :rtype: int
+        """
+        return self.sol2(root)
+    def sol2(self,root):
+        """
+        use dict to store visited path
+        maxBenifit = max(rob(left) + rob(right), root.val + rob(ll) + rob(lr) + rob(rl) + rob(rr))
+        """
+        map = {}
+        
+        def dfs(node,path):
+            if node is None: return 0
+            if path not in map:
+                leftn,rightn = node.left,node.right
+                ll = lr = rl = rr = None # important, init
+                if leftn: ll,lr = leftn.left,leftn.right
+                if rightn: rl,rr = rightn.left,rightn.right
+                skipit = dfs(leftn,path+'l') + dfs(rightn,path+'r')
+                useit = node.val+ dfs(ll,path+'ll') + dfs(lr,path+'lr') + dfs(rl,path+'rl') + dfs(rr,path+'rr')
+                map[path] = max(skipit,useit)
+            return map[path]
+        
+        return dfs(root,"")
+        
+    def sol1(self,root):
+        """
+        dfs all the nodes of the tree, each node return two number, int[] num, num[0] is the max value while rob this node, num[1] is max value while not rob this value. Current node return value only depend on its children's value.
+        """
+        def dfs(node):
+            if node == None: return [0,0]
+            left = dfs(node.left)
+            right = dfs(node.right)
+            res = [0,0]
+            res[0] = node.val+left[1]+right[1] #rob node
+            res[1] = max(left[0],left[1])+max(right[0],right[1]) #skip node and robe its children
+            return res
+        
+        tmp = dfs(root)
+        return max(tmp)
+#-----------------------------------
+#-----------------------------------
+#338 . Counting Bits
+"""
+Given a non negative integer number num. For every numbers i in the range 0 ≤ i ≤ num calculate the number of 1's in their binary representation and return them as an array.
+
+Example:
+For num = 5 you should return [0,1,1,2,1,2].
+
+Follow up:
+
+    It is very easy to come up with a solution with run time O(n*sizeof(integer)). But can you do it in linear time O(n) /possibly in a single pass?
+    Space complexity should be O(n).
+    Can you do it like a boss? Do it without using any builtin function like __builtin_popcount in c++ or in any other language.
+
+"""
+class Solution(object):
+    def countBits(self, num):
+        """
+        :type num: int
+        :rtype: List[int]
+        """
+        return self.sol3(num)
+        
+    def sol1(self,num):
+        """
+        ans[n] = ans[n>>1] + (n&1)
+        """
+        ans = [0]
+        for x in xrange(1,num+1):
+            ans.append( ans[x>>1] + (x&1))
+        return ans
+    def sol2(self,num):
+        """
+        ans[n] = ans[n - highbits(n)] + 1
+        highbits(n)表示只保留n的最高位得到的数字。
+        highbits(n) = 1<<int(math.log(x,2))
+        
+        """
+        ans = [0]
+        for x in range(1, num + 1):
+            ans += ans[x - (1<<int(math.log(x,2)))] + 1,
+        return ans   
+    def sol3(self,num):
+        """
+        ans[n] = ans[n & (n - 1)] + 1
+        """
+        ans = [0]
+        for x in range(1, num + 1):
+            ans += ans[x & (x - 1)] + 1,
+        return ans        
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
