@@ -2310,6 +2310,61 @@ class Solution(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#200. Number of Islands
+"""Given a 2d grid map of '1's (land) and '0's (water), count the number of islands. An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.
+"""
+class Solution(object):
+    def numIslands(self, grid):
+        """
+        :type grid: List[List[str]]
+        :rtype: int
+        """
+        # for python, if input variable is array, it is mutable, i.e the value get changed after the function
+        # call
+        return self.sol1(grid)
+    
+    def sol1(self,grid):
+        self.row = len(grid)
+        if self.row ==0: return 0
+        self.col = len(grid[0])
+        ret = 0
+        for i in xrange(self.row):
+            for j in xrange(self.col):
+                if grid[i][j] == "1":
+                    ##dfs solution
+                    #self.dfs(grid,i,j)
+                    #bfs solution
+                    self.bfs(grid,i,j)
+                    ret +=1
+        # ideally we should recover the grid
+        return ret
+        
+    def dfs(self,grid,i,j):
+        if grid[i][j] == "0" : return
+        if grid[i][j] == "1":
+            grid[i][j] = "#" #do not traverse the same point again
+            if i >= 1: self.dfs(grid,i-1,j)
+            if i < self.row-1 : self.dfs(grid,i+1,j)
+            if j >= 1 : self.dfs(grid,i,j-1)
+            if j < self.col-1: self.dfs(grid,i,j+1)
+    def bfs(self,grid,i,j):
+        queue = [] # each ceil in grid labledd as i*self.col + j
+        self.visit(grid,i,j,queue)
+        while queue!=[]:
+            pos = queue.pop(0)
+            row = pos/self.col
+            col = pos%self.col
+            self.visit(grid,row-1,col,queue)
+            self.visit(grid,row+1,col,queue)
+            self.visit(grid,row,col-1,queue)
+            self.visit(grid,row,col+1,queue)
+        
+    def visit(self,grid,i,j,queue):
+        if i<0 or i > (self.row-1) or j <0 or j > (self.col-1) or grid[i][j]!="1": return
+        grid[i][j] = "#"
+        queue.append(i*self.col + j)
+#-----------------------------------
+#-----------------------------------
 #206 Reverse Linked List
 # Definition for singly-linked list.
 # class ListNode(object):
