@@ -29,3 +29,9 @@ Process is on Heap memory.
 Thread is on Stack memory.
 Stack is faster while heap is slower
 stackoverflow for stack while heap is for memory leak
+
+[NOSQL Pattern]
+Key value store
+Run on large number of commodity machines
+Data are partitioned and replicated among these machines
+Relax the data consistency requirement. (because the CAP theorem proves that you cannot get Consistency, Availability and Partitioning at the the same time)

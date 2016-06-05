@@ -4026,4 +4026,160 @@ class Solution(object):
         return ans        
 #-----------------------------------
 #-----------------------------------
+#341. Flatten Nested List Iterator
+"""
+Given a nested list of integers, implement an iterator to flatten it.
+
+Each element is either an integer, or a list -- whose elements may also be integers or other lists.
+
+Example 1:
+Given the list [[1,1],2,[1,1]],
+
+By calling next repeatedly until hasNext returns false, the order of elements returned by next should be: [1,1,2,1,1].
+
+Example 2:
+Given the list [1,[4,[6]]],
+
+By calling next repeatedly until hasNext returns false, the order of elements returned by next should be: [1,4,6]. 
+"""
+# """
+# This is the interface that allows for creating nested lists.
+# You should not implement it, or speculate about its implementation
+# """
+#class NestedInteger(object):
+#    def isInteger(self):
+#        """
+#        @return True if this NestedInteger holds a single integer, rather than a nested list.
+#        :rtype bool
+#        """
+#
+#    def getInteger(self):
+#        """
+#        @return the single integer that this NestedInteger holds, if it holds a single integer
+#        Return None if this NestedInteger holds a nested list
+#        :rtype int
+#        """
+#
+#    def getList(self):
+#        """
+#        @return the nested list that this NestedInteger holds, if it holds a nested list
+#        Return None if this NestedInteger holds a single integer
+#        :rtype List[NestedInteger]
+#        """
+
+class NestedIterator(object):
+
+    def __init__(self, nestedList):
+        """
+        Initialize your data structure here.
+        :type nestedList: List[NestedInteger]
+        """
+        self.stack = []
+        self.list = nestedList
+        
+
+    def next(self):
+        """
+        :rtype: int
+        """
+        return self.stack.pop()
+
+    def hasNext(self):
+        """
+        :rtype: bool
+        """
+        while self.stack or self.list:
+            if not self.stack:
+                self.stack.append(self.list.pop(0))
+            while self.stack and not self.stack[-1].isInteger():
+                #need to flat the last item
+                top = self.stack.pop().getList()
+                for e in top[::-1]: #push in reverse order
+                    self.stack.append(e)
+            if self.stack and self.stack[-1].isInteger():
+                return True
+        return False
+            
+        
+
+# Your NestedIterator object will be instantiated and called as such:
+# i, v = NestedIterator(nestedList), []
+# while i.hasNext(): v.append(i.next())
 #-----------------------------------
+#342. Power of Four
+"""
+ Given an integer (signed 32 bits), write a function to check whether it is a power of 4.
+
+Example:
+Given num = 16, return true. Given num = 5, return false.
+
+Follow up: Could you solve it without loops/recursion? 
+"""
+class Solution(object):
+    def isPowerOfFour(self, num):
+        """
+        :type num: int
+        :rtype: bool
+        """
+        # 1. power of 2 n&(n-1) ==0 
+        # 2. assuming 32bits then & 0x55555555
+        return  (num&(num-1)==0) and (num&0x55555555 > 0)
+#-----------------------------------
+#343. Integer Break
+"""
+ Given a positive integer n, break it into the sum of at least two positive integers and maximize the product of those integers. Return the maximum product you can get.
+
+For example, given n = 2, return 1 (2 = 1 + 1); given n = 10, return 36 (10 = 3 + 3 + 4). 
+Note: you may assume that n is not less than 2. 
+"""
+class Solution(object):
+    def integerBreak(self, n):
+        """
+        :type n: int
+        :rtype: int
+        """
+        #return self.dpsol(n)
+        return self.O1sol(n)
+        
+    def O1sol(self,n):
+        """
+        n / 3 <= 1 时，分为两个数的乘积，尽量均摊
+        n / 3 > 1 时，分为若干个3和2的乘积
+        n % 3 == 0 时，分为n个3的乘积
+        n % 3 == 1 时，分为n-1个3和两个2的乘积
+        n % 3 == 2 时，分为n个3和一个2的乘积
+        """
+        div = n / 3
+        if div <= 1:
+            return (n / 2) * (n / 2 + n % 2)
+        mod = n % 3
+        if mod == 0:
+            return 3 ** div
+        elif mod == 1:
+            return 3 ** (div - 1) * 4
+        elif mod == 2:
+            return 3 ** div * 2
+
+    def ONsol(self,n):
+        return max([self.mulSplitInt(n, m) for m in range(2, n + 1)])
+    
+    def mulSplitInt(self, n, m):
+        quotient = n / m
+        remainder = n % m
+        return quotient ** (m - remainder) * (quotient + 1) ** remainder
+        
+
+    def dpsol(self,n):
+        #the element is either 2 or 3
+        # so dp[n]=max(3*dp[n-3],2*dp[n-2])
+        #special handing for n<=3
+        if n<=3: return n-1
+        dp= [0 for _ in xrange(n+1)]
+        dp[2] = 2
+        dp[3]=3
+        for i in xrange(4,n+1):
+            dp[i] = max(3*dp[i-3],2*dp[i-2])
+        return dp[n]
+#-----------------------------------
+#-----------------------------------
+
