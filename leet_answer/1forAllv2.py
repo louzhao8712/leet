@@ -2230,6 +2230,43 @@ class Solution(object):
             n >>=1
         return ans
 #-----------------------------------
+#192. Word Frequency
+"""
+Write a bash script to calculate the frequency of each word in a text file words.txt.
+
+For simplicity sake, you may assume:
+
+    words.txt contains only lowercase characters and space ' ' characters.
+    Each word must consist of lowercase characters only.
+    Words are separated by one or more whitespace characters.
+
+For example, assume that words.txt has the following content:
+
+the day is sunny the the
+the sunny is is
+
+Your script should output the following, sorted by descending frequency:
+
+the 4
+is 3
+sunny 2
+day 1
+
+Note:
+Don't worry about handling ties, it is guaranteed that each word's frequency count is unique. 
+"""
+# Read from the file words.txt and output the word frequency list to stdout.
+#http://bookshadow.com/weblog/2015/03/24/leetcode-word-frequency/
+#tr -s: 使用指定字符串替换出现一次或者连续出现的目标字符串（把一个或多个连续空格用换行符代替）
+
+#sort: 将单词从小到大排序
+
+#uniq -c: uniq用来对连续出现的行去重，-c参数为计数
+
+#sort -rn: -r 倒序排列， -n 按照数值大小排序（感谢网友 长弓1990 指正）
+
+#awk '{ print $2, $1 }': 格式化输出，将每一行的内容用空格分隔成若干部分，$i为第i个部分。
+cat words.txt | tr -s ' ' '\n' | sort | uniq -c | sort -rn | awk '{print $2" "$1}'
 #-----------------------------------
 #-----------------------------------
 #198. House Robber
@@ -4181,5 +4218,182 @@ class Solution(object):
             dp[i] = max(3*dp[i-3],2*dp[i-2])
         return dp[n]
 #-----------------------------------
+#344. Reverse String
+class Solution(object):
+    def reverseString(self, s):
+        """
+        :type s: str
+        :rtype: str
+        """
+        return s[::-1]
 #-----------------------------------
+#345. Reverse Vowels of a String
+"""
+Write a function that takes a string as input and reverse only the vowels of a string.
+Write a function that takes a string as input and reverse only the vowels of a string.
 
+Example 1:
+Given s = "hello", return "holle".
+
+Example 2:
+Given s = "leetcode", return "leotcede". 
+
+2 pointer method
+"""
+class Solution(object):
+    def reverseVowels(self, s):
+        """
+        :type s: str
+        :rtype: str
+        """
+        db = ('a', 'e', 'i', 'o', 'u')
+        n = len(s)
+        l,r = 0,n-1
+        ls = list(s)
+        while True:
+            while l<n and s[l].lower() not in db:
+                l+=1
+            while r >=0 and s[r].lower() not in db:
+                r -=1
+            if l>= r: break
+            ls[l],ls[r] = ls[r],ls[l]
+            l += 1
+            r -= 1
+        return "".join(ls)
+#-----------------------------------
+#-----------------------------------
+#347. Top K Frequent Elements
+"""
+ Given a non-empty array of integers, return the k most frequent elements.
+
+For example,
+Given [1,1,1,2,2,3] and k = 2, return [1,2].
+
+Note:
+
+    You may assume k is always valid, 1 ≤ k ≤ number of unique elements.
+    Your algorithm's time complexity must be better than O(n log n), where n is the array's size.
+"""
+class Solution(object):
+    def topKFrequent(self, nums, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: List[int]
+        """
+        return self.sol2(nums,k)
+
+    def sol2(self,nums,k):
+        #bucket sort o(n)
+        n = len(nums)
+        freq = {} #key is num, val is freq
+        for x in nums:
+            freq[x] = freq.get(x,0) +1
+        freqList = [[] for _ in xrange(n+1)] #index is freq, value is the number
+        for x in freq:
+            freqList[freq[x]].append(x)
+        ans = []
+        for i in xrange(n,0,-1):
+            if freqList[i] != []:
+                ans += freqList[i]
+        return ans[:k]
+            
+    def sol1(self,nums,k):
+        # easy solution is using collections.Counter(nums).most_common(k) method
+        # hashtable + heap
+        #o(nlogn)
+        db = {}
+        for x in nums:
+            db[x] = db.get(x,0) +1
+        import heapq
+        #heapq is a minheap
+        res = []
+        for key in db:
+            heapq.heappush(res,[-1*db[key],key])
+        ans = []
+        for _ in xrange(k):
+            ans.append(heapq.heappop(res)[1])
+        return ans
+#-----------------------------------
+#-----------------------------------
+#349 Intersection of Two Arrays
+"""
+ Given two arrays, write a function to compute their intersection.
+
+Example:
+Given nums1 = [1, 2, 2, 1], nums2 = [2, 2], return [2].
+
+Note:
+
+    Each element in the result must be unique.
+    The result can be in any order.
+
+"""
+class Solution(object):
+    def intersection(self, nums1, nums2):
+        """
+        :type nums1: List[int]
+        :type nums2: List[int]
+        :rtype: List[int]
+        """
+        return list(set(nums1).intersection(set(nums2)))
+#-----------------------------------
+#350. Intersection of Two Arrays II
+"""
+ Given two arrays, write a function to compute their intersection.
+
+Example:
+Given nums1 = [1, 2, 2, 1], nums2 = [2, 2], return [2, 2].
+
+Note:
+
+    Each element in the result should appear as many times as it shows in both arrays.
+    The result can be in any order.
+
+Follow up:
+
+    What if the given array is already sorted? How would you optimize your algorithm?
+    What if nums1's size is small compared to nums2's size? Which algorithm is better?
+    What if elements of nums2 are stored on disk, and the memory is limited such that you cannot load all elements into the memory at once?
+
+"""
+class Solution(object):
+    def intersect(self, nums1, nums2):
+        """
+        :type nums1: List[int]
+        :type nums2: List[int]
+        :rtype: List[int]
+        """
+        return self.sol2(nums1,nums2)
+        
+    def sol1(self,nums1,nums2):
+        """
+        sorting + 2pointers since we don't care about the output sequece
+        """
+        nums1 = sorted(nums1)
+        nums2 = sorted(nums2)
+        ans = []
+        p1 = p2 = 0
+        while p1 < len(nums1) and p2 < len(nums2):
+            if nums1[p1] < nums2[p2]: p1+=1
+            elif nums1[p1] > nums2[p2]: p2+=1
+            else:
+                ans.append(nums1[p1])
+                p1 += 1
+                p2 +=1
+        return ans
+    def sol2(self,nums1,nums2):
+        """
+        the longer one is on disk
+        using collections.Counter
+        """
+        if len(nums1) > len(nums2):
+            nums1,nums2 = nums2,nums1
+        c= collections.Counter(nums1)
+        ans = []
+        for x in nums2:
+            if c[x] >0:
+                ans.append(x)
+                c[x] -=1
+        return ans
+#-----------------------------------
