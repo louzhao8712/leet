@@ -35,3 +35,5 @@ Key value store
 Run on large number of commodity machines
 Data are partitioned and replicated among these machines
 Relax the data consistency requirement. (because the CAP theorem proves that you cannot get Consistency, Availability and Partitioning at the the same time)
+
+[Web Search Engine from Sergey and Larry Page](http://infolab.stanford.edu/~backrub/google.html)
