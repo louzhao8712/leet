@@ -1683,7 +1683,123 @@ class Solution(object):
                     sum[c] = min(sum[c],sum[c+1]) + T[r][c]
         return sum[0]
 #-----------------------------------
+#126. Word Ladder II
+"""
+ Given two words (beginWord and endWord), and a dictionary's word list, find all shortest transformation sequence(s) from beginWord to endWord, such that:
+
+    Only one letter can be changed at a time
+    Each intermediate word must exist in the word list
+
+For example,
+
+Given:
+beginWord = "hit"
+endWord = "cog"
+wordList = ["hot","dot","dog","lot","log"]
+
+Return
+
+  [
+    ["hit","hot","dot","dog","cog"],
+    ["hit","hot","lot","log","cog"]
+  ]
+
+Note:
+
+    All words have the same length.
+    All words contain only lowercase alphabetic characters.
+
+"""
+class Solution(object):
+    def findLadders(self, start, end, wordlist):
+        """
+        :type beginWord: str
+        :type endWord: str
+        :type wordlist: Set[str]
+        :rtype: List[List[int]]
+        """
+        # thanks to https://leetcode.com/discuss/24191/defaultdict-for-traceback-and-easy-writing-lines-python-code
+        #http://chaoren.is-programmer.com/posts/43039.html
+        # use collections.defaultdict(set) which will init each key with valie set() and avoid duplication
+        # key is childword, value is a set of parents word
+        wordlist.add(end)
+        level = set([start])  #it's like a queue for bfs
+        # key is word, value is parent word, e.g. {'hot': set(['hit']), 'cog': set(['log', 'dog'])}
+        # In each level, defaultdict(set) can remove duplicates, first we need to get parent dictionary
+        hashtable = collections.defaultdict(set)
+        lw = len(start)
+        # dictionary.update(dictionary) function can add or update key-pair
+        while level and end not in hashtable: #if end also a key in hashtable means we have already found solution
+            nextlevel = collections.defaultdict(set)
+            for word in level:
+                for i in xrange(lw):
+                    part1 = word[:i];part2 = word[i+1:]
+                    for j in 'abcdefghijklmnopqrstuvwxyz':
+                        if j!= word[i]:
+                            nextword = part1 + j +part2
+                            if nextword in wordlist and nextword not in hashtable:
+                                  #!!!tricky part! nextowrd will be added into hasttable untill hashtable.update(nextlevel)
+                                  nextlevel[nextword].add(word) 
+            level = nextlevel
+            hashtable.update(nextlevel)
+        res = [[end]]
+        while res and res[0][0]!=start:
+            res = [[p] + r for r in res for p in hashtable[r[0]]]
+        return res   
+            
 #-----------------------------------
+#127. Word Ladder
+"""
+ Given two words (beginWord and endWord), and a dictionary's word list, find the length of shortest transformation sequence from beginWord to endWord, such that:
+
+    Only one letter can be changed at a time
+    Each intermediate word must exist in the word list
+
+For example,
+
+Given:
+beginWord = "hit"
+endWord = "cog"
+wordList = ["hot","dot","dog","lot","log"]
+
+As one shortest transformation is "hit" -> "hot" -> "dot" -> "dog" -> "cog",
+return its length 5.
+
+Note:
+
+    Return 0 if there is no such transformation sequence.
+    All words have the same length.
+    All words contain only lowercase alphabetic characters.
+
+"""
+class Solution(object):
+    def ladderLength(self, start, end, wordList):
+        """
+        :type beginWord: str
+        :type endWord: str
+        :type wordList: Set[str]
+        :rtype: int
+        """
+        #BFS method
+        q = []
+        q.append((start,1)) #word and length
+        wordList.add(end)
+        lw = len(start)
+        while q:
+            curr = q.pop(0)
+            currWord = curr[0]
+            currLen = curr[1]
+            if currWord == end: return currLen
+            for i in xrange(lw):
+                left = currWord[:i]
+                right = currWord[i+1:]
+                for j in 'abcdefghijklmnopqrstuvwxyz':
+                    if currWord[i]!=j:
+                        nextWord = left + j + right
+                        if nextWord in wordList:
+                            q.append((nextWord,currLen+1))
+                            wordList.remove(nextWord)
+        return 0
 #-----------------------------------
 #-------dfs----------------------------
 #131. Palindrome Partitioning
