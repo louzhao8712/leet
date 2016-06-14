@@ -770,6 +770,97 @@ class Solution40(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#44. Wildcard Matching
+"""
+Implement wildcard pattern matching with support for '?' and '*'.
+'?' Matches any single character.
+'*' Matches any sequence of characters (including the empty sequence).
+
+The matching should cover the entire input string (not partial).
+
+The function prototype should be:
+bool isMatch(const char *s, const char *p)
+
+Some examples:
+isMatch("aa","a") → false
+isMatch("aa","aa") → true
+isMatch("aaa","aa") → false
+isMatch("aa", "*") → true
+isMatch("aa", "a*") → true
+isMatch("ab", "?*") → true
+isMatch("aab", "c*a*b") → false
+"""
+class Solution(object):
+    def isMatch(self, s, p):
+        """
+        :type s: str
+        :type p: str
+        :rtype: bool
+        """
+        #return self.greedy(s,p)
+        return self.dpmethod(s,p)
+        
+    def dpmethod(self,s,p):
+        #Let d(i, j) = true if s[0, i - 1] matches p[0, j - 1] (i, j are string lengths).
+        #Initialize:
+        #d(0, 0) = true, 
+        #d(0, j): if p[j - 1] == '*', d(j) = d(0, j - 1) // deletion; else d(j) = false.
+        #Fill up the table:
+        #if         p[j - 1] matches s[i - 1],   d(i, j) = d(i - 1, j - 1);
+        #else if  p[j - 1] == '*',  find if there is a s[0, k - 1] that matches p[0, j - 1]
+        #                                     for (k : 0 to i) { if d(k, j - 1) == true,  d(i, j) = true; }
+        #Note: “p[j] matches s[i]” means p[j] == s[i] || p[j] == '?'.  
+        # deal with exceeding time limit case
+        count = 0
+        ls = len(s); lp = len(p)
+        for i in xrange(lp):
+            if p[i]!="*": count+=1
+        if count > ls : return False
+        
+        dp = [[False for j in range(lp + 1)] for i in range(ls + 1)]  
+        
+        dp[0][0] = True  
+        for j in range(1,len(p) + 1):  
+                if p[j-1] == '*':  
+                        dp[0][j] = dp[0][j - 1]  
+        for i in xrange(1,ls+1):
+            for j in xrange(1,lp+1):
+                if p[j - 1] == '?' or s[i-1] == p[j-1]:   ## first case   
+                    dp[i][j] = dp[i - 1][j - 1] 
+                elif p[j-1] == "*" :
+                    for k in xrange(i+1):
+                        if dp[k][j-1] == True: #that's because if p[0,j-2] can match s[0,k-1] then the * in p can  match the rest in p 
+                            dp[i][j] = True
+                            break
+        return dp[-1][-1]        
+        
+    def greedy(self,s,p):
+        #中心思想 *什么都不匹配，你们先比
+        # 不行的话，*占一位，然后你们再比
+        # 再不行， *占两位
+        pPointer = sPointer = ss = 0
+        star = -1
+        #ss is used to save the place in s when * happened in p
+        while sPointer < len(s):
+            if pPointer < len(p):
+                if p[pPointer] == s[sPointer] or p[pPointer] == '?':
+                    pPointer +=1
+                    sPointer +=1
+                    continue
+                elif p[pPointer] == "*" :
+                    star = pPointer
+                    ss = sPointer
+                    pPointer +=1
+                    continue
+            if star != -1: # e.g. case single '*"
+                pPointer = star +1 #always star +1, we try to match this digit in s
+                ss +=1
+                sPointer = ss
+                continue
+            return False
+        while pPointer < len(p) and p[pPointer] == "*":
+            pPointer +=1
+        return pPointer == len(p)
 #-----------------------------------
 #45. Jump Game II
 """
@@ -1044,7 +1135,7 @@ class Solution(object):
 #----------------------------------
 #-----------------------------------
 #-------dp----------------------------
-#73 Edit Distance
+#72 Edit Distance
 """
  Given two words word1 and word2, find the minimum number of steps required to convert word1 to word2. (each operation is counted as 1 step.)
 
