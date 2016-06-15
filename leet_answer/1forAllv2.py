@@ -685,7 +685,78 @@ class Solution(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#36. Valid Sudoku
+"""
+Determine if a Sudoku is valid, according to: Sudoku Puzzles - The Rules.
+
+The Sudoku board could be partially filled, where empty cells are filled with the character '.'.
+A valid Sudoku board (partially filled) is not necessarily solvable. Only the filled cells need to be validated. 
+"""
+class Solution(object):
+    def isValidSudoku(self, board):
+        """
+        :type board: List[List[str]]
+        :rtype: bool
+        """
+        # create 3 hashtables
+        row = [[False for i in xrange(9)] for j in xrange(9)] #[row][num]
+        col = [[False for i in xrange(9)] for j in xrange(9)] #[col][num]
+        grid =  [[False for i in xrange(9)] for j in xrange(9)] # (row/3)*3 + j/3
+        for x in xrange(9):
+            for y in xrange(9):
+                if board[x][y] == "." : continue
+                num = int(board[x][y]) -1
+                if row[x][num] or col[y][num] or grid[(x/3)*3+ (y/3)][num]:
+                    return False #duplication found
+                else:
+                    row[x][num] , col[y][num] , grid[(x/3)*3+ (y/3)][num] = True,True,True
+        return True
 #-----------------------------------
+#37. Sudoku Solver
+"""
+Write a program to solve a Sudoku puzzle by filling the empty cells.
+
+Empty cells are indicated by the character '.'.
+
+You may assume that there will be only one unique solution. 
+"""
+
+class Solution(object):
+    def solveSudoku(self, board):
+        """
+        :type board: List[List[str]]
+        :rtype: void Do not return anything, modify board in-place instead.
+        """
+        if len(board) == 0: return False
+        self.dfs(board)
+    def dfs(self,board):
+        for i in xrange(9):
+            for j in xrange(9):
+                if board[i][j] == ".":
+                    for c in xrange(1,10):
+                        if self.isvalid(board,i,j,str(c)):
+                            board[i][j] = str(c)
+                            if self.dfs(board): return True
+                            else:
+                                board[i][j]= '.'
+                    return False
+        return True
+
+    def isvalid(self,board, x,y,tmp):
+        """
+        :type board: List[List[str]]
+        :rtype: bool
+        """
+        # create 3 hashtables
+
+        for i in xrange(9):
+            if board[i][y]==tmp:return False
+        for i in xrange(9):
+            if board[x][i]==tmp:return False
+        for i in xrange(3):
+            for j in range(3):
+                if board[(x/3)*3+i][(y/3)*3+j]==tmp: return False
+        return True 
 #-----------------------------------
 #-----------------------------------
 #39 Combination Sum
