@@ -519,9 +519,41 @@ class Solution15(object):
 #-----------------------------------
 class Solution16(object):
 #-----------------------------------
-class Solution17(object):
-#-----------------------------------
-#-----------------------------------
+#17. Letter Combinations of a Phone Number
+"""
+Given a digit string, return all possible letter combinations that the number could represent.
+
+A mapping of digit to letters (just like on the telephone buttons) is given below.
+Input:Digit string "23"
+Output: ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"].
+"""
+class Solution(object):
+    def letterCombinations(self, digits):
+        """
+        :type digits: str
+        :rtype: List[str]
+        """
+        if digits == None or digits.strip() == "" : return []
+        self.dict = {'2':['a','b','c'],
+                '3':['d','e','f'],
+                '4':['g','h','i'],
+                '5':['j','k','l'],
+                '6':['m','n','o'],
+                '7':['p','q','r','s'],
+                '8':['t','u','v'],
+                '9':['w','x','y','z']
+                }
+        self.ret = []
+        self.dfs(0,'',digits)
+        return self.ret
+    def dfs(self,count,vstr,digits):
+        if count == len(digits):
+            self.ret.append(vstr)
+            return
+        else:
+            for item in self.dict[digits[count]]:
+                self.dfs(count+1,vstr+item,digits)
+
 #-----------------------------------
 #-----------------------------------
 #19. Remove Nth Node From End of List
@@ -554,6 +586,73 @@ class Solution(object):
         prev.next=prev.next.next
         return dummy.next
 #-----------------------------------
+#20. Valid Parentheses
+"""
+Given a string containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.
+
+The brackets must close in the correct order, "()" and "()[]{}" are all valid but "(]" and "([)]" are not.
+"""
+class Solution(object):
+    def isValid(self, s):
+        """
+        :type s: str
+        :rtype: bool
+        """
+        tb = { '(' : ')',
+                '{':'}',
+                '[':']'
+             }
+        tb2 = { ')' : '(',
+                '}':'{',
+                ']':'['
+             }
+        stack = []
+        for x in s:
+            if x in tb:
+                stack.append(x)
+            else:
+                if stack == [] or stack[-1]!= tb2[x]:
+                    return False
+                stack.pop()
+        if stack != [] : return False
+        return True
+#-----------------------------------
+#-----------------------------------
+#22. Generate Parentheses
+"""
+ Given n pairs of parentheses, write a function to generate all combinations of well-formed parentheses.
+
+For example, given n = 3, a solution set is:
+
+[
+  "((()))",
+  "(()())",
+  "(())()",
+  "()(())",
+  "()()()"
+]
+"""
+class Solution(object):
+    def generateParenthesis(self, n):
+        """
+        :type n: int
+        :rtype: List[str]
+        """
+        # anytime len(left) >= len (right)
+        self.ret = []
+        self.dfs(0,0,'',n)
+        return self.ret
+
+    def dfs(self,lcount,rcount,vstr,n):
+        if lcount == n and rcount == n:
+            self.ret.append(vstr)
+        if lcount < rcount:
+            return
+        if lcount < n:
+            self.dfs(lcount+1,rcount,vstr+'(',n)
+        if rcount < n:
+            self.dfs(lcount,rcount+1,vstr+')',n)
+                    
 #-----------------------------------
 #-----------------------------------
 #26. Remove Duplicates from Sorted Array
@@ -964,6 +1063,56 @@ class Solution(object):
         return jumps
 #-----------------------------------
 #-----------------------------------
+#54. Spiral Matrix
+"""
+Given a matrix of m x n elements (m rows, n columns), return all elements of the matrix in spiral order.
+
+For example,
+Given the following matrix:
+
+[
+ [ 1, 2, 3 ],
+ [ 4, 5, 6 ],
+ [ 7, 8, 9 ]
+]
+
+You should return [1,2,3,6,9,8,7,4,5]. 
+"""
+class Solution(object):
+    def spiralOrder(self, matrix):
+        """
+        :type matrix: List[List[int]]
+        :rtype: List[int]
+        """
+        m = len(matrix)
+        if m == 0 : return []
+        n = len(matrix[0])
+        res = []
+        direction = 0 # 0 go right, 1 down,2 left,3 up
+        left,up = 0,0
+        right = n-1
+        down = m-1
+        # if up > dwon or left > right then return
+        while True:
+            if direction == 0:
+                for i in xrange(left,right+1):
+                    res.append(matrix[up][i])
+                up +=1
+            elif direction == 1:
+                for i in xrange(up,down+1):
+                    res.append(matrix[i][right])
+                right -=1
+            elif direction == 2:
+                for i in xrange(right,left-1,-1):
+                    res.append(matrix[down][i])
+                down -=1
+            elif direction == 3:
+                for i in xrange(down,up-1,-1):
+                    res.append(matrix[i][left])
+                left +=1
+            if up > down or left > right: 
+                return res
+            direction = (direction+1)%4
 #-----------------------------------
 #55. Jump Game
 """
@@ -1013,11 +1162,6 @@ For example,
 Given [1,3],[2,6],[8,10],[15,18],
 return [1,6],[8,10],[15,18]. 
 """
-
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
 # Definition for an interval.
 # class Interval(object):
 #     def __init__(self, s=0, e=0):
@@ -1041,7 +1185,67 @@ class Solution(object):
                     res[-1].end = max(res[-1].end, inters[i].end)
                 else:
                     res.append(inters[i])
-        return res    
+        return res
+#-----------------------------------
+#-----------------------------------
+#59. Spiral Matrix II
+"""
+Given an integer n, generate a square matrix filled with elements from 1 to n2 in spiral order.
+
+For example,
+Given n = 3,
+You should return the following matrix:
+
+[
+ [ 1, 2, 3 ],
+ [ 8, 9, 4 ],
+ [ 7, 6, 5 ]
+]
+
+"""
+class Solution(object):
+    def generateMatrix(self, n):
+        """
+        :type n: int
+        :rtype: List[List[int]]
+        """
+        if n == 0: return []
+        
+
+        matrix = [[0 for i in xrange(n)] for j in xrange(n)]
+        res = []
+        direction = 0 # 0 go right, 1 down,2 left,3 up
+        left,up = 0,0
+        right = n-1
+        down = n-1
+        num =1
+        # if up > dwon or left > right then return
+        while True:
+            if direction == 0:
+                for i in xrange(left,right+1):
+                    matrix[up][i] = num
+                    num += 1
+                up +=1
+            elif direction == 1:
+                for i in xrange(up,down+1):
+                    matrix[i][right] = num
+                    num += 1
+                right -=1
+            elif direction == 2:
+                for i in xrange(right,left-1,-1):
+                    matrix[down][i] = num
+                    num += 1
+                down -=1
+            elif direction == 3:
+                for i in xrange(down,up-1,-1):
+                    matrix[i][left] = num
+                    num += 1
+                left +=1
+            if up > down or left > right: 
+                return matrix
+            direction = (direction+1)%4
+#-----------------------------------
+#-----------------------------------
 #62. Unique Paths
 """
 A robot is located at the top-left corner of a m x n grid (marked 'Start' in the diagram below).
@@ -2282,22 +2486,57 @@ class LRUCache(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#149. Max Points on a Line
+"""
+Given n points on a 2D plane, find the maximum number of points that lie on the same straight line.
+"""
+# Definition for a point.
+# class Point(object):
+#     def __init__(self, a=0, b=0):
+#         self.x = a
+#         self.y = b
+
+class Solution(object):
+
+    def maxPoints(self, points):
+        """
+        :type points: List[Point]
+        :rtype: int
+        """
+        res = 0
+        lp = len(points)
+        if lp < 3 : return lp
+        for i in xrange(lp):
+            samepoints =1
+            slope = {'inf':0}
+            for j in xrange(i+1,lp):
+                if points[i].x == points[j].x and points[i].y != points[j].y:
+                    slope['inf'] += 1
+                elif points[i].x != points[j].x:
+                    tmp = 1.0 * 1.0 * (points[i].y - points[j].y) / (points[i].x - points[j].x)
+                    if tmp in slope : slope[tmp] += 1
+                    else:             slope[tmp] = 1
+                else: samepoints+=1
+            res = max(res,max(slope.values())+samepoints)
+        return res
+
 #-----------------------------------
 #-----------------------------------
 #166. Fraction to Recurring Decimal
-"""
-Given two integers representing the numerator and denominator of a fraction, return the fraction in string format.
 
-If the fractional part is repeating, enclose the repeating part in parentheses.
-
-For example,
-
-    Given numerator = 1, denominator = 2, return "0.5".
-    Given numerator = 2, denominator = 1, return "2".
-    Given numerator = 2, denominator = 3, return "0.(6)".
-
-"""
 class Solution(object):
+    """
+    Given two integers representing the numerator and denominator of a fraction, return the fraction in string format.
+
+    If the fractional part is repeating, enclose the repeating part in parentheses.
+
+    For example,
+
+        Given numerator = 1, denominator = 2, return "0.5".
+        Given numerator = 2, denominator = 1, return "2".
+        Given numerator = 2, denominator = 3, return "0.(6)".
+
+    """
     def fractionToDecimal(self, numerator, denominator):
         """
         :type numerator: int
