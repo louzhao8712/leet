@@ -2738,6 +2738,29 @@ class Solution(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#189. Rotate Array
+"""
+Rotate an array of n elements to the right by k steps.
+For example, with n = 7 and k = 3, the array [1,2,3,4,5,6,7] is rotated to [5,6,7,1,2,3,4]. 
+"""
+class Solution(object):
+    def rotate(self, nums, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: void Do not return anything, modify nums in-place instead.
+        """
+        n = len(nums)
+        k %= n
+        self.reverse(nums, 0, n - k)
+        self.reverse(nums, n - k, n)
+        self.reverse(nums, 0, n)
+
+    def reverse(self, nums, start, end):
+        for x in range(start, (start + end) / 2):
+            nums[x] ^= nums[start + end - x - 1]
+            nums[start + end - x - 1] ^= nums[x]
+            nums[x] ^= nums[start + end - x - 1]
 #-----------------------------------
 #-----------------------------------
 #191. Number of 1 Bits
@@ -3928,8 +3951,77 @@ class Solution(object):
                 res[low] = A[x]
         return len(res)
 #-----------------------------------
+#301. Remove Invalid Parentheses
+"""
+ Remove the minimum number of invalid parentheses in order to make the input string valid. Return all possible results.
+
+Note: The input string may contain letters other than the parentheses ( and ).
+
+Examples:
+
+"()())()" -> ["()()()", "(())()"]
+"(a)())()" -> ["(a)()()", "(a())()"]
+")(" -> [""]
+
+"""
+class Solution(object):
+    def removeInvalidParentheses(self, s):
+        """
+        :type s: str
+        :rtype: List[str]
+        """
+        #bfs + pruning
+        # http://bookshadow.com/weblog/2015/11/05/leetcode-remove-invalid-parentheses/
+        self.visited = set([s]) #!important
+        #return self.dfs(s)
+        return self.bfs(s)
+        
+    def dfs(self,s):
+        cur = self.cal(s)
+        if cur == 0: return [s]
+        ans = []
+
+        for i in xrange(len(s)):
+            if s[i] in ('(',')'):
+                ns = s[:i]+s[i+1:]
+                if ns not in self.visited and self.cal(ns) < cur:
+                    self.visited.add(ns)
+                    ans.extend(self.dfs(ns))
+        return ans
+        
+    def bfs(self,s):
+        ans = []
+        queue = [s]
+        done = False
+        while queue!= []:
+            t = queue.pop(0)
+            cur = self.cal(t)
+            if cur == 0: 
+                done = True
+                ans.append(t)
+            if done: continue
+            for i in xrange(len(t)):
+                 if t[i] in ('(',')'):
+                     ns = t[:i]+t[i+1:]
+                     if ns not in self.visited and self.cal(ns) < cur:
+                        self.visited.add(ns)
+                        queue.append(ns)
+        return ans
+        
+    def cal(self,s):
+        # a is count of left ( imbalance
+        # b is count of right ) imblance
+        # return total imbalance
+        a = b = 0
+        for x in s:
+            a += {'(':1,')':-1}.get(x,0)
+            b += a <0
+            #dbg!!!
+            a = max(a,0)
+        return a + b
 #-----------------------------------
-#303. Range Sum Query - Immutable 
+#-----------------------------------
+#303. Range Sum Query - Immutable
 """
 Given an integer array nums, find the sum of the elements between indices i and j (i ≤ j), inclusive.
 Example:
