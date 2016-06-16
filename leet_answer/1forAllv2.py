@@ -1063,6 +1063,69 @@ class Solution(object):
         return jumps
 #-----------------------------------
 #-----------------------------------
+#-----------------------------------
+#53. Maximum Subarray
+"""
+ Find the contiguous subarray within an array (containing at least one number) which has the largest sum.
+
+For example, given the array [−2,1,−3,4,−1,2,1,−5,4],
+the contiguous subarray [4,−1,2,1] has the largest sum = 6. 
+"""
+class Solution(object):
+class Solution(object):
+    def maxSubArray(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        #greedy method O(n)
+        #return self.greedy(nums)
+        # divide and conquer method
+        if len(nums)== 0: return None
+        
+        #return self.divide(nums,0,len(nums)-1)
+        
+        #dp method
+        return self.dp(nums)
+        
+    def dp(self,nums):
+        minsum = Sum = 0
+        ret =  -float('inf')
+        for i in xrange(len(nums)):
+            minsum = min(minsum,Sum)
+            Sum += nums[i]
+            ret = max(ret,Sum-minsum)
+        return ret
+
+    def divide(self,nums,start,end):
+        if nums[start] == nums[end]: return nums[start]
+        mid = (start+end)/2
+        leftans = self.divide(nums,start,mid)
+        rightans = self.divide(nums,mid+1,end)
+        leftmax = nums[mid]
+        rightmax = nums[mid+1]
+        tmp =0
+        for i in xrange(mid,start-1,-1):
+            tmp += nums[i]
+            if tmp > leftmax: leftmax = tmp
+        tmp = 0
+        for i in xrange(mid+1,end+1):
+            tmp += nums[i]
+            if tmp > rightmax: rightmax = tmp
+        return max(max(leftans, rightans),leftmax+rightmax)
+        
+    def greedy(self,nums):
+        currmax = 0
+        ret = -float('inf')
+        for i in xrange(len(nums)):
+            # drop negative sum
+            currmax = max(0,currmax)
+            currmax += nums[i]
+            ret = max(ret,currmax)
+        return ret
+        
+        
+#-----------------------------------
 #54. Spiral Matrix
 """
 Given a matrix of m x n elements (m rows, n columns), return all elements of the matrix in spiral order.
@@ -1773,25 +1836,53 @@ class Solution(object):
         if p == None or q == None or p.val!=q.val : return False
         return self.dfs(p.left,q.right) and self.dfs(p.right,q.left)
 #-----------------------------------
+#102. Binary Tree Level Order Traversal
+"""
+Given a binary tree, return the level order traversal of its nodes' values. (ie, from left to right, level by level).
+"""
+class Solution(object):
+    def levelOrder(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[List[int]]
+        """
+        self.res = []
+        #self.dfs(root,0)
+        self.bfs(root)
+        return self.res
+
+    def bfs(self,root):
+        if root == None: return
+        queue = [root,'end']
+        while queue:
+            tmplist = []
+            curr = queue.pop(0)
+            while curr!= 'end':
+                tmplist.append(curr.val)
+                if curr.left: queue.append(curr.left)
+                if curr.right: queue.append(curr.right)
+                curr = queue.pop(0)
+            self.res.append(tmplist)
+            if queue: queue.append('end')
+
+    def dfs(self,root,level):
+        if root:
+            if len(self.res) < level +1:
+                self.res.append([])
+            self.res[level].append(root.val)
+            self.dfs(root.left,level+1)
+            self.dfs(root.right,level+1)
 #-----------bfs------------------------
 #103. Binary Tree Zigzag Level Order Traversal
 """
 Given a binary tree, return the zigzag level order traversal of its nodes' values.
 (ie, from left to right, then right to left for the next level and alternate between).
 """
-# Definition for a binary tree node.
-# class TreeNode(object):
-#     def __init__(self, x):
-#         self.val = x
-#         self.left = None
-#         self.right = None
-
 class Solution(object):
     def zigzagLevelOrder(self, root):
         """
         :type root: TreeNode
         :rtype: List[List[int]]
-
         """
         self.res = []
         #self.dfs(root,0)
@@ -1817,6 +1908,44 @@ class Solution(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#107. Binary Tree Level Order Traversal II
+"""
+Given a binary tree, return the bottom-up level order traversal of its nodes' values. (ie, from left to right, level by level from leaf to root).
+"""
+class Solution(object):
+    def levelOrderBottom(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[List[int]]
+        """
+        self.res = []
+        #self.dfs(root,0)
+        self.bfs(root)
+        self.res.reverse()
+        return self.res
+
+    def bfs(self,root):
+        if root == None: return
+        queue = [root,'end']
+        while queue:
+            tmplist = []
+            curr = queue.pop(0)
+            while curr!= 'end':
+                tmplist.append(curr.val)
+                if curr.left: queue.append(curr.left)
+                if curr.right: queue.append(curr.right)
+                curr = queue.pop(0)
+            self.res.append(tmplist)
+            if queue: queue.append('end')
+
+        
+    def dfs(self,root,level):
+        if root:
+            if len(self.res) < level +1:
+                self.res.append([])
+            self.res[level].append(root.val)
+            self.dfs(root.left,level+1)
+            self.dfs(root.right,level+1)
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
@@ -3079,6 +3208,72 @@ def in_trie(word, trie):
 print in_trie('ba', trie)
 
 #-----------------------------------
+#209. Minimum Size Subarray Sum
+"""
+ Given an array of n positive integers and a positive integer s, find the minimal length of a subarray of which the sum ≥ s. If there isn't one, return 0 instead.
+
+For example, given the array [2,3,1,2,4,3] and s = 7,
+the subarray [4,3] has the minimal length under the problem constraint.
+
+click to show more practice.
+More practice:
+
+If you have figured out the O(n) solution, try coding another solution of which the time complexity is O(n log n).
+
+"""
+class Solution(object):
+    def minSubArrayLen(self, s, nums):
+        """
+        :type s: int
+        :type nums: List[int]
+        :rtype: int
+        """
+        # 
+        #if len(nums) == 0: return 0
+        return self.sol2(s,nums)
+        
+        
+    def sol2(self,s,nums):
+        # o(nlgn) method
+        size = len(nums)
+        left,right = 0,size
+        ret = 0
+        while left <= right:
+            mid = (left+right)/2
+            if self.solve(mid,s,nums):
+                ret = mid
+                right = mid-1
+            else:
+                left = mid +1
+        return ret
+        
+        
+    def solve(self,l,s,nums):
+        sums = 0
+        for x in xrange(len(nums)):
+            sums += nums[x]
+            if x >= l :
+                sums -= nums[x-l]
+            if sums >=s :
+                return True
+        return False
+            
+    def sol1(self,s,nums):
+        #o(N) method
+        sum = 0
+        ret = None
+        p1  = 0
+        for i in xrange(len(nums)):
+            sum += nums[i]
+            while sum >= s :
+                ret = i-p1 +1 if ret == None else min(ret, i-p1 +1)
+                sum -= nums[p1]
+                p1 += 1
+                if p1 > len(nums) -1: break
+        if ret == None: return 0
+        else: return ret
+                
+        
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
