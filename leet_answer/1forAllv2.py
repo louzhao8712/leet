@@ -2865,6 +2865,80 @@ class Solution(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#187. Repeated DNA Sequences
+"""
+ All DNA is composed of a series of nucleotides abbreviated as A, C, G, and T, for example: "ACGAATTCCG". When studying DNA, it is sometimes useful to identify repeated sequences within the DNA.
+
+Write a function to find all the 10-letter-long sequences (substrings) that occur more than once in a DNA molecule.
+
+For example,
+
+Given s = "AAAAACCCCCAAAAACCCCCCAAAAAGGGTTT",
+
+Return:
+["AAAAACCCCC", "CCCCCAAAAA"].
+
+"""
+class Solution(object):
+    def findRepeatedDnaSequences(self, s):
+        """
+        :type s: str
+        :rtype: List[str]
+        """
+        return self.sol1(s)
+        
+    def sol1(self,s):
+        #hash table + bitmap
+        ans = []
+        table = {}
+        map = {'A':0,'C':1,'G':2,'T':3} # 00 01 10 11
+        sum = 0
+        for i in xrange(len(s)):
+            sum = ((sum<<2) | map[s[i]]) & 0xFFFFF
+            if i < 9: continue
+            table[sum] = table.get(sum,0) + 1
+            if table[sum] ==2 :
+                ans.append(s[i-9:i+1])
+        return ans
+    
+
+    def sol2(self, s):
+        # Robin-Karp method
+        """
+        s test, P pattern
+        """
+        ls = len(s)
+        lp = 10
+        ans = []
+        if ls < lp: return ans
+
+        prime = 1000000007#big prime
+        x = 29 # random(1,prime-1)
+        
+        db = {}
+        # precomputeHashes
+        H = [None for i in range(ls-10+1)]
+        S = s[ls-lp:ls]
+        H[ls-lp] = self.PolyHash(S,prime,x)
+        db[H[ls-lp]] = 1
+        
+        y =1
+        for i in range(1,lp+1):
+            y = (y*x) %prime
+        for i in range(ls-lp-1,-1,-1):
+            H[i] = (x*H[i+1]+ord(s[i])-y*ord(s[i+lp]))%prime
+            db[H[i]] = db.get(H[i],0) + 1
+            if db[H[i]] == 2:
+                ans.append(s[i:i+lp])
+
+        ans.reverse()
+        return ans
+        
+    def PolyHash(self,P,prime,x):
+        ans = 0
+        for c in reversed(P):
+            ans = (ans * x + ord(c)) % prime
+        return ans % prime
 #-----------------------------------
 #-----------------------------------
 #189. Rotate Array
@@ -3457,6 +3531,30 @@ class Solution(object):
             else: tb[A[i]] = i
         return False
 #-----------------------------------
+#220. Contains Duplicate III
+"""
+Given an array of integers, find out whether there are two distinct indices i and j in the array such that the difference between nums[i] and nums[j] is at most t and the difference between i and j is at most k. 
+"""
+class Solution(object):
+    def containsNearbyAlmostDuplicate(self, nums, k, t):
+        """
+        :type nums: List[int]
+        :type k: int
+        :type t: int
+        :rtype: bool
+        """
+        # java equivalent treeset in python is collections.OrderedDict()
+        # http://bookshadow.com/weblog/2015/06/03/leetcode-contains-duplicate-iii/
+        if t < 0 or k <1 : return False
+        db = collections.OrderedDict()
+        for i in xrange(len(nums)):
+            key = nums[i]/max(1,t)
+            for m in (key-1,key,key+1):
+                if m in db and (abs(nums[i] - db[m]) <=t): return True
+            db[key] = nums[i]
+            if i >=k:
+                db.popitem(last=False)
+        return False
 #-----------------------------------
 #-----------------------------------
 #224. Basic Calculator
