@@ -1906,7 +1906,71 @@ class Solution(object):
 
 #-----------------------------------
 #-----------------------------------
+#105. Construct Binary Tree from Preorder and Inorder Traversal
+"""
+Given preorder and inorder traversal of a tree, construct the binary tree.
+
+Note:
+You may assume that duplicates do not exist in the tree. 
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def buildTree(self, preorder, inorder):
+        """
+        :type preorder: List[int]
+        :type inorder: List[int]
+        :rtype: TreeNode
+        """
+        if not preorder: return None
+        self.preorder,self.inorder = preorder, inorder
+        return self.dfs(0,0,len(preorder))
+    
+    def dfs(self,preLeft,inLeft,Len):
+        if Len == 0 : return None
+        root = TreeNode(self.preorder[preLeft])
+        rootPos = self.inorder.index(root.val)  #since no duplication
+        root.left = self.dfs(preLeft +1,inLeft,rootPos - inLeft)
+        root.right = self.dfs(preLeft +1 +rootPos - inLeft,rootPos+1,Len-1-(rootPos-inLeft) )
+        return root
 #-----------------------------------
+#106. Construct Binary Tree from Inorder and Postorder Traversal
+"""
+Given inorder and postorder traversal of a tree, construct the binary tree.
+
+Note:
+You may assume that duplicates do not exist in the tree. 
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def buildTree(self, inorder, postorder):
+        """
+        :type inorder: List[int]
+        :type postorder: List[int]
+        :rtype: TreeNode
+        """
+        if not inorder: return None
+        self.postorder,self.inorder = postorder, inorder
+        return self.dfs(0,0,len(postorder))
+    
+    def dfs(self,postLeft,inLeft,Len):
+        if Len == 0 : return None
+        root = TreeNode(self.postorder[postLeft+Len-1])
+        rootPos = self.inorder.index(root.val)  #since no duplication
+        root.left = self.dfs(postLeft,inLeft,rootPos - inLeft)
+        root.right = self.dfs(postLeft  +rootPos - inLeft,rootPos+1,Len-1-(rootPos-inLeft) )
+        return root
 #-----------------------------------
 #107. Binary Tree Level Order Traversal II
 """
@@ -3957,6 +4021,30 @@ class Solution(object):
 
 #-----------------------------------
 #-----------------------------------
+#268. Missing Number
+"""
+ Given an array containing n distinct numbers taken from 0, 1, 2, ..., n, find the one that is missing from the array.
+
+For example,
+Given nums = [0, 1, 3] return 2.
+
+Note:
+Your algorithm should run in linear runtime complexity. Could you implement it using only constant extra space complexity? 
+"""
+class Solution(object):
+    def missingNumber(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        # using xor to eliminiate all same number
+        a=reduce(lambda x,y: x^y, nums + range(len(nums)+1))
+        return a
+
+    def sol1(self,nums):
+        n = len(nums)
+        sumn = sum(nums)
+        return n*(n+1)/2 - sumn
 #-----------------------------------
 #-----------------------------------
 #274. H-Index
