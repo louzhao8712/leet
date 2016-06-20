@@ -1623,6 +1623,42 @@ class Solution(object):
 
         return dummy.next
 #-----------------------------------
+#84. Largest Rectangle in Histogram
+"""
+Given n non-negative integers representing the histogram's bar height where the width of each bar is 1, find the area of largest rectangle in the histogram. 
+"""
+class Solution(object):
+    def largestRectangleArea(self, height):
+        """
+        :type height: List[int]
+        :rtype: int
+        """
+        # use stacks to store height and index
+        # if height[i] > stack top, push in
+        # if height[i] == stack top,ignore
+        # if height[i] < stacktop, pop and calculate tmp area untill stack top <= height[i]
+        stackH = []
+        stackI = [] #index
+        maxArea = 0
+        for i in xrange(len(height)):
+            if stackH == [] or height[i] > stackH[-1]:
+                stackH.append(height[i])
+                stackI.append(i)
+            elif height[i] < stackH[-1]:
+                lastIndex = 0
+                while stackH and height[i] < stackH[-1]:
+                    lastIndex = stackI.pop()
+                    tmpArea = stackH.pop() * (i-lastIndex)
+                    maxArea = max(maxArea,tmpArea)
+                if stackH == [] or stackH[-1] < height[i]:
+                    stackH.append(height[i])
+                    stackI.append(lastIndex) #very important !! 
+        n =len(height) 
+        while stackH:
+            tmpArea = stackH.pop() * (n -stackI.pop())
+            maxArea = max(maxArea,tmpArea)
+        return maxArea
+
 #-----------------------------------
 #-----------------------------------
 #91. Decode Ways
@@ -2035,7 +2071,7 @@ class Solution(object):
         :rtype: void Do not return anything, modify root in-place instead.
         """
         # connect the rightmost node in curr.left to curr.right
-        # set curr.right to curr.right
+        # set curr.right to curr.left
         # set curr.left to None
         curr = root
         while curr:
