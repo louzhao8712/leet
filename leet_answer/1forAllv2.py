@@ -1661,6 +1661,103 @@ class Solution(object):
 
 #-----------------------------------
 #-----------------------------------
+#87. Scramble String
+"""
+ Given a string s1, we may represent it as a binary tree by partitioning it to two non-empty substrings recursively.
+
+Below is one possible representation of s1 = "great":
+
+    great
+   /    \
+  gr    eat
+ / \    /  \
+g   r  e   at
+           / \
+          a   t
+
+To scramble the string, we may choose any non-leaf node and swap its two children.
+
+For example, if we choose the node "gr" and swap its two children, it produces a scrambled string "rgeat".
+
+    rgeat
+   /    \
+  rg    eat
+ / \    /  \
+r   g  e   at
+           / \
+          a   t
+
+We say that "rgeat" is a scrambled string of "great".
+
+Similarly, if we continue to swap the children of nodes "eat" and "at", it produces a scrambled string "rgtae".
+
+    rgtae
+   /    \
+  rg    tae
+ / \    /  \
+r   g  ta  e
+       / \
+      t   a
+
+We say that "rgtae" is a scrambled string of "great".
+
+Given two strings s1 and s2 of the same length, determine if s2 is a scrambled string of s1. 
+"""
+class Solution(object):
+    def isScramble(self, s1, s2):
+        """
+        :type s1: str
+        :type s2: str
+        :rtype: bool
+        """
+        # method 1
+        # return self.dfs(s1,s2)
+        # method2 dp method
+        return self.dp(s1,s2)
+
+    def dp(self,s1,s2):
+        #http://wlcoding.blogspot.com/2015/03/scramble-string.html?view=sidebar
+        l1 = len(s1)
+        l2 = len(s2)
+        if l1!=l2: return False
+        if s1==s2: return True
+        t1=list(s1)
+        t2=list(s2)
+        t1.sort()
+        t2.sort()
+        if t1!=t2 : return False     
+        #d(i, j, k) = true iff s1[i, i + k] and s2[j, j + k] is a scramble pair.
+        dp = [[[False for k in xrange(l2)] for j in xrange(l2)] for i in xrange(l2)]
+        for i in xrange(l2):
+            for j in xrange(l2):
+                dp[i][j][0] = (s1[i]==s2[j])
+        for k in xrange(1,l2):
+            for i in xrange(0,l2-k):
+                for j in xrange(0,l2-k):
+                    #p: split into [0..p] and [p+1..k]
+                    for p in xrange(k):
+                        dp[i][j][k] =  (dp[i][j][p] and dp[i + p + 1][j + p + 1][k - p - 1])\
+                               or (dp[i][j + k - p][p] and dp[i + p + 1][j][k - p - 1]);
+                        if dp[i][j][k]: break
+        return dp[0][0][l2-1]
+        
+    def dfs(self,s1,s2):
+        l1 = len(s1)
+        l2 = len(s2)
+        if l1!=l2: return False
+        if s1==s2: return True
+        t1=list(s1)
+        t2=list(s2)
+        t1.sort()
+        t2.sort()
+        if t1!=t2 : return False
+        for i in xrange(1,l1):
+            if self.dfs(s1[:i],s2[:i]) and self.dfs(s1[i:],s2[i:]):return True
+            elif self.dfs(s1[:i],s2[l1-i:]) and self.dfs(s1[i:],s2[:l1-i]):return True
+        return False
+        
+#-----------------------------------
+#-----------------------------------
 #91. Decode Ways
 """
 A message containing letters from A-Z is being encoded to numbers using the following mapping:
@@ -2751,64 +2848,12 @@ class Solution(object):
 
 #-----------------------------------
 #-----------------------------------
-#166. Fraction to Recurring Decimal
-
-class Solution(object):
-    """
-    Given two integers representing the numerator and denominator of a fraction, return the fraction in string format.
-
-    If the fractional part is repeating, enclose the repeating part in parentheses.
-
-    For example,
-
-        Given numerator = 1, denominator = 2, return "0.5".
-        Given numerator = 2, denominator = 1, return "2".
-        Given numerator = 2, denominator = 3, return "0.(6)".
-
-    """
-    def fractionToDecimal(self, numerator, denominator):
-        """
-        :type numerator: int
-        :type denominator: int
-        :rtype: str
-        """
-        if denominator == 0: return None
-        sign = "-" if numerator*denominator < 0 else ""
-        numerator= abs(numerator)
-        denominator = abs(denominator)
-        rl = [] #return list
-        db = {}
-        cnt = 0
-        repstr = None
-        while True:
-            rl.append(numerator/denominator)
-            cnt += 1
-            tmp = numerator%denominator
-            if tmp == 0: break
-            numerator = 10*tmp
-            if db.get(numerator) : # repeat start
-                repstr = "".join([str(x) for x in rl[db.get(numerator):cnt]])
-                break
-            db[numerator] = cnt
-        
-        res = str(rl[0])
-        if len(rl) > 1: res += "."
-        if repstr:
-            res += "".join([str(x) for x in rl[1:db.get(numerator)]]) + "(" + repstr + ")"
-        else:
-            res += "".join([str(x) for x in rl[1:]])
-        return sign + res
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
 
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
-
+#-----------------------------------
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
@@ -2916,6 +2961,98 @@ class Solution(object):
         return ret
 #-----------------------------------
 #-----------------------------------
+#164. Maximum Gap
+"""
+Given an unsorted array, find the maximum difference between the successive elements in its sorted form.
+
+Try to solve it in linear time/space.
+
+Return 0 if the array contains less than 2 elements.
+
+You may assume all elements in the array are non-negative integers and fit in the 32-bit signed integer range.
+"""
+class Solution(object):
+    def maximumGap(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        #bucket sort
+        N = len(nums)
+        if N < 2: return 0
+        A= min(nums)
+        B= max(nums)
+        bucketlen = max(1, int(math.ceil( float(B-A)/(N-1))))
+        numbucket = (B-A)/bucketlen +1
+        buckets = [None]*numbucket
+        for x in nums:
+            loc = (x-A)/bucketlen
+            bucket = buckets[loc]
+            if bucket is None:
+                bucket = {'min':x,'max':x}
+                buckets[loc] = bucket
+            else:
+                bucket['min'] = min(bucket['min'],x)
+                bucket['max'] = max(bucket['max'],x)
+        ret = 0
+        for i in xrange(numbucket):
+            if buckets[i] == None : continue
+            j = i+1
+            while j < numbucket and buckets[j] is None: j +=1
+            if j < numbucket:
+                ret = max(ret,buckets[j]['min']-buckets[i]['max'])
+        return ret
+        
+
+#-----------------------------------
+#-----------------------------------
+#166. Fraction to Recurring Decimal
+
+class Solution(object):
+    """
+    Given two integers representing the numerator and denominator of a fraction, return the fraction in string format.
+
+    If the fractional part is repeating, enclose the repeating part in parentheses.
+
+    For example,
+
+        Given numerator = 1, denominator = 2, return "0.5".
+        Given numerator = 2, denominator = 1, return "2".
+        Given numerator = 2, denominator = 3, return "0.(6)".
+
+    """
+    def fractionToDecimal(self, numerator, denominator):
+        """
+        :type numerator: int
+        :type denominator: int
+        :rtype: str
+        """
+        if denominator == 0: return None
+        sign = "-" if numerator*denominator < 0 else ""
+        numerator= abs(numerator)
+        denominator = abs(denominator)
+        rl = [] #return list
+        db = {}
+        cnt = 0
+        repstr = None
+        while True:
+            rl.append(numerator/denominator)
+            cnt += 1
+            tmp = numerator%denominator
+            if tmp == 0: break
+            numerator = 10*tmp
+            if db.get(numerator) : # repeat start
+                repstr = "".join([str(x) for x in rl[db.get(numerator):cnt]])
+                break
+            db[numerator] = cnt
+        
+        res = str(rl[0])
+        if len(rl) > 1: res += "."
+        if repstr:
+            res += "".join([str(x) for x in rl[1:db.get(numerator)]]) + "(" + repstr + ")"
+        else:
+            res += "".join([str(x) for x in rl[1:]])
+        return sign + res
 #-----------------------------------
 #169. Majority Element
 """
@@ -3273,8 +3410,55 @@ class Solution(object):
         return dumy.next
         
 #-----------------------------------
-#-----------------------------------
-#-----------------------------------
+#207. Course Schedule
+"""
+There are a total of n courses you have to take, labeled from 0 to n - 1.
+
+Some courses may have prerequisites, for example to take course 0 you have to first take course 1, which is expressed as a pair: [0,1]
+
+Given the total number of courses and a list of prerequisite pairs, is it possible for you to finish all courses?
+
+For example:
+
+2, [[1,0]]
+
+There are a total of 2 courses to take. To take course 1 you should have finished course 0. So it is possible.
+
+2, [[1,0],[0,1]]
+
+There are a total of 2 courses to take. To take course 1 you should have finished course 0, and to take course 0 you should also have finished course 1. So it is impossible.
+"""
+class Solution(object):
+    def canFinish(self, numCourses, prerequisites):
+        """
+        :type numCourses: int
+        :type prerequisites: List[List[int]]
+        :rtype: bool
+        """
+        #BFS method
+        # a->b degree of b is 1 and degree of a is 0
+        degrees = [0 for i in xrange(numCourses)]
+        childs = [[] for i in xrange(numCourses)]
+        for pair in prerequisites:
+            degrees[pair[0]]+=1
+            childs[pair[1]].append(pair[0])
+        A = set(range(numCourses)) #courses
+        
+        delqueue = []
+        ans = []
+        for course in A:
+            if degrees[course] == 0:
+                delqueue.append(course)
+
+        while delqueue:
+            course = delqueue.pop(0)
+            A.remove(course)
+            for child in childs[course]:
+                degrees[child]-=1
+                if degrees[child] == 0:
+                    delqueue.append(child)
+        return len(A) == 0
+                
 #-----------------------------------
 #208 Implement Trie (Prefix Tree)
 class TrieNode(object):
@@ -3446,9 +3630,61 @@ class Solution(object):
                 if p1 > len(nums) -1: break
         if ret == None: return 0
         else: return ret
-                
-        
+
 #-----------------------------------
+#210. Course Schedule II
+"""
+ There are a total of n courses you have to take, labeled from 0 to n - 1.
+
+Some courses may have prerequisites, for example to take course 0 you have to first take course 1, which is expressed as a pair: [0,1]
+
+Given the total number of courses and a list of prerequisite pairs, return the ordering of courses you should take to finish all courses.
+
+There may be multiple correct orders, you just need to return one of them. If it is impossible to finish all courses, return an empty array.
+
+For example:
+
+2, [[1,0]]
+
+There are a total of 2 courses to take. To take course 1 you should have finished course 0. So the correct course order is [0,1]
+
+4, [[1,0],[2,0],[3,1],[3,2]]
+
+There are a total of 4 courses to take. To take course 3 you should have finished both courses 1 and 2. Both courses 1 and 2 should be taken after you finished course 0. So one correct course order is [0,1,2,3]. Another correct ordering is[0,2,1,3].
+"""
+class Solution(object):
+    def findOrder(self, numCourses, prerequisites):
+        """
+        :type numCourses: int
+        :type prerequisites: List[List[int]]
+        :rtype: List[int]
+        """
+        #BFS method
+        # a->b degree of b is 1 and degree of a is 0
+        degrees = [0 for i in xrange(numCourses)]
+        childs = [[] for i in xrange(numCourses)]
+        for pair in prerequisites:
+            degrees[pair[0]]+=1
+            childs[pair[1]].append(pair[0])
+        A = set(range(numCourses)) #courses
+        
+        delqueue = []
+        ans = []
+        for course in A:
+            if degrees[course] == 0:
+                delqueue.append(course)
+                
+        while delqueue:
+            course = delqueue.pop(0)
+            ans.append(course)
+            A.remove(course)
+            
+            for child in childs[course]:
+                degrees[child]-=1
+                if degrees[child] == 0:
+                    delqueue.append(child)
+        return [[],ans][len(A) == 0]
+        
 #-----------------------------------
 #-----------------------------------
 #213. House Robber II
@@ -4057,6 +4293,34 @@ class Solution(object):
 
 #-----------------------------------
 #-----------------------------------
+#264. Ugly Number I
+"""
+Write a program to find the n-th ugly number.
+
+Ugly numbers are positive numbers whose prime factors only include 2, 3, 5. For example, 1, 2, 3, 4, 5, 6, 8, 9, 10, 12 is the sequence of the first 10 ugly numbers.
+
+Note that 1 is typically treated as an ugly number. 
+"""
+class Solution(object):
+    def nthUglyNumber(self, n):
+        """
+        :type n: int
+        :rtype: int
+        """
+        #http://bookshadow.com/weblog/2015/08/19/leetcode-ugly-number-ii/
+        i2 = i3 =i5 =0
+        q= [1]
+        while len(q) < n:
+            m2,m3,m5 = q[i2]*2,q[i3]*3,q[i5]*5
+            m = min(m2,m3,m5)
+            if m == m2:   i2 +=1
+            if m == m3 : i3 +=1
+            if m== m5 : i5 +=1
+            q.append(m)
+        return q[-1]
+
+#-----------------------------------
+#-----------------------------------
 #268. Missing Number
 """
  Given an array containing n distinct numbers taken from 0, 1, 2, ..., n, find the one that is missing from the array.
@@ -4614,6 +4878,46 @@ class NumArray(object):
 # numArray.sumRange(0, 1)
 # numArray.update(1, 10)
 # numArray.sumRange(1, 2)
+#-----------------------------------
+#-----------------------------------
+#313. Super Ugly Number
+"""
+ Write a program to find the nth super ugly number.
+
+Super ugly numbers are positive numbers whose all prime factors are in the given prime list primes of size k. For example, [1, 2, 4, 7, 8, 13, 14, 16, 19, 26, 28, 32] is the sequence of the first 12 super ugly numbers given primes = [2, 7, 13, 19] of size 4.
+
+Note:
+(1) 1 is a super ugly number for any given primes.
+(2) The given numbers in primes are in ascending order.
+(3) 0 < k ≤ 100, 0 < n ≤ 106, 0 < primes[i] < 1000. 
+"""
+class Solution(object):
+    def nthSuperUglyNumber(self, n, primes):
+        """
+        :type n: int
+        :type primes: List[int]
+        :rtype: int
+        """
+        # method with ugly number II
+        q = [1] #result
+        size = len(primes)
+        index = [0 for i in xrange(size)]
+
+        while len(q) < n:
+            minv = float('inf')
+            val = [None for i in xrange(size)]
+            for i in xrange(size):
+                val[i] = q[index[i]]*primes[i]
+            
+            q.append( min(val))
+            for x in xrange(size):
+                if val[x] == q[-1]:
+                    index[x] +=1
+
+        return q[-1]       
+        
+
+#-----------------------------------
 #-----------------------------------
 #319. Bulb Switcher
 """
