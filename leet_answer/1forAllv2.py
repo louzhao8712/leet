@@ -4615,6 +4615,53 @@ class NumArray(object):
 # numArray.update(1, 10)
 # numArray.sumRange(1, 2)
 #-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#312. Burst Balloons
+"""
+ Given n balloons, indexed from 0 to n-1. Each balloon is painted with a number on it represented by array nums. You are asked to burst all the balloons. If the you burst balloon i you will get nums[left] * nums[i] * nums[right] coins. Here left and right are adjacent indices of i. After the burst, the left and right then becomes adjacent.
+
+Find the maximum coins you can collect by bursting the balloons wisely.
+
+Note:
+(1) You may imagine nums[-1] = nums[n] = 1. They are not real therefore you can not burst them.
+(2) 0 ≤ n ≤ 500, 0 ≤ nums[i] ≤ 100
+
+Example:
+
+Given [3, 1, 5, 8]
+
+Return 167
+
+    nums = [3,1,5,8] --> [3,5,8] -->   [3,8]   -->  [8]  --> []
+   coins =  3*1*5      +  3*5*8    +  1*3*8      + 1*8*1   = 167
+"""
+class Solution(object):
+    def maxCoins(self, iNums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        # https://leetcode.com/discuss/72216/share-some-analysis-and-explanations
+        # we can find that for any balloons left the maxCoins does not depends on the balloons already bursted.
+        #dp[l][r] : the max coins can get from range l to r not include boundary l and r
+                    # all ballons in between have been bursted
+        #dp[l][r] = max(dp[l][r],dp[l][m]+dp[r][m]+ nums[l]*nums[m]*nums[r]) 
+        # increase
+        nums = [1] + [i for i in iNums if i > 0] + [1]
+        n = len(nums)
+        dp = [[0]*n for _ in xrange(n)]
+    
+        for k in xrange(2,n): #k is the distance between left and right
+            for l in xrange(0,n-k):
+                r = l + k
+                for m in xrange(l+1,r):
+                   dp[l][r] = max(dp[l][r],dp[l][m]+dp[m][r]+ nums[l]*nums[m]*nums[r])  
+        
+        return dp[0][n - 1]
+
+#-----------------------------------
+#-----------------------------------
 #319. Bulb Switcher
 """
 There are n bulbs that are initially off. You first turn on all the bulbs. Then, you turn off every second bulb. On the third round, you toggle every third bulb (turning on if it's off or turning off if it's on). For the ith round, you toggle every i bulb. For the nth round, you only toggle the last bulb. Find how many bulbs are on after n rounds. 
