@@ -654,6 +654,39 @@ class Solution(object):
             self.dfs(lcount,rcount+1,vstr+')',n)
                     
 #-----------------------------------
+#23. Merge k Sorted Lists
+"""
+Merge k sorted linked lists and return it as one sorted list. Analyze and describe its complexity. 
+"""
+# Definition for singly-linked list.
+# class ListNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution(object):
+    def mergeKLists(self, lists):
+        """ode]
+        :rtype: ListNode
+        :type lists: List[ListN
+        """
+        heap =[]
+        for node in lists:
+            if node:
+                heap.append((node.val,node))
+        
+        heapq.heapify(heap)
+        dummy = ListNode(None)
+        curr = dummy
+        while heap:
+            top = heapq.heappop(heap)
+            tmp = ListNode(top[0])
+            curr.next = tmp
+            curr = curr.next
+            if top[1].next:
+                heapq.heappush(heap,(top[1].next.val,top[1].next))
+        return dummy.next
+#-----------------------------------
 #-----------------------------------
 #26. Remove Duplicates from Sorted Array
 """
@@ -5629,3 +5662,34 @@ class Solution(object):
                 c[x] -=1
         return ans
 #-----------------------------------
+#-----------------------------------
+#373. Find K Pairs with Smallest Sums 
+"""
+ You are given two integer arrays nums1 and nums2 sorted in ascending order and an integer k.
+
+Define a pair (u,v) which consists of one element from the first array and one element from the second array.
+
+Find the k pairs (u1,v1),(u2,v2) ...(uk,vk) with the smallest sums. 
+"""
+class Solution(object):
+    def kSmallestPairs(self, nums1, nums2, k):
+        """
+        :type nums1: List[int]
+        :type nums2: List[int]
+        :type k: int
+        :rtype: List[List[int]]
+        """
+        #http://bookshadow.com/weblog/2016/07/07/leetcode-find-k-pairs-with-smallest-sums/
+        ans = []
+        heap = []
+        def push(i,j):
+            if i < len(nums1) and j < len(nums2):
+                heapq.heappush(heap,[nums1[i]+nums2[j],i,j])
+        push(0,0)
+        while heap and len(ans) < k:
+            _,i,j = heapq.heappop(heap)
+            ans.append([nums1[i],nums2[j]])
+            push(i,j+1)
+            if j ==0:
+                push(i+1,0)
+        return ans
