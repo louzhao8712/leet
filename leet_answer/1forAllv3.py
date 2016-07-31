@@ -229,6 +229,7 @@ class Solution6(object):
 
         
     def sol2(self,s,n):
+        if n == 1: return s
         arr = ["" for i in xrange(n)]
         row =0;step =1
         for c in s:
@@ -242,6 +243,7 @@ class Solution6(object):
     def sol1(self,s,n):
         # keypoint is r = 2*n-2
         # arr store string in each level
+        if n == 1: return s
         arr = ["" for i in xrange(n)]
         r = 2*n-2
         for i in xrange(len(s)):
