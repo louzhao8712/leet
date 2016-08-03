@@ -494,14 +494,14 @@ class Solution14(object):
 Given an array S of n integers, are there elements a, b, c in S 
 such that a + b + c = 0? Find all unique triplets in the array which gives the sum of zero.
 """
-class Solution15(object):
+class Solution(object):
     def threeSum(self, A):
         """
         :type nums: List[int]
         :rtype: List[List[int]]
         """
         if len(A) < 3: return []
-        res = list()
+        res = set([])
         A.sort()
         length = len(A)
         for i in xrange(length-2):
@@ -509,17 +509,17 @@ class Solution15(object):
             k = length-1
             while (j < k):
                 if A[j]+A[k] == -1*A[i]:
-                    res.append([A[i],A[j],A[k]])
+                    res.add((A[i],A[j],A[k]))
                     j+=1
                     k-=1
                 elif A[j]+A[k] < -1*A[i]:
                     j = j+1
                 else:
                     k = k-1
-        return [list(x) for x in set([tuple(y)for y in res])]
+        return [list(x) for x in res]
                     
 #-----------------------------------
-class Solution16(object):
+#16
 #-----------------------------------
 #17. Letter Combinations of a Phone Number
 """
@@ -1747,7 +1747,7 @@ class Solution(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
-#94Binary Tree Inorder Traversal
+#94 Binary Tree Inorder Traversal
 """
 Given a binary tree, return the inorder traversal of its nodes' values.
 """
@@ -1777,7 +1777,89 @@ class Solution(object):
             self.ans.append(root.val)
             self.recursive(root.right)
 #-----------------------------------
+#95. Unique Binary Search Trees II
+"""
+Given an integer n, generate all structurally unique BST's (binary search trees) that store values 1...n.
+
+For example,
+Given n = 3, your program should return all 5 unique BST's shown below.
+
+   1         3     3      2      1
+    \       /     /      / \      \
+     3     2     1      1   3      2
+    /     /       \                 \
+   2     1         2                 3
+
+"""
+class Solution(object):
+    def generateTrees(self, n):
+        """
+        :type n: int
+        :rtype: List[TreeNode]
+        """
+    
+        def dfs(start,end):
+            if start > end : return [None]
+            res = []
+            for rootval in xrange(start,end+1):
+                leftTree = dfs(start,rootval-1)
+                rightTree = dfs(rootval+1,end)
+                for i in leftTree:
+                    for j in rightTree:
+                        root = TreeNode(rootval)
+                        root.left = i
+                        root.right = j
+                        res.append(root)
+            return res
+        return dfs(1,n)
+
 #-----------------------------------
+#96. Unique Binary Search Trees
+"""
+Given n, how many structurally unique BST's (binary search trees) that store values 1...n?
+
+For example,
+Given n = 3, there are a total of 5 unique BST's.
+
+   1         3     3      2      1
+    \       /     /      / \      \
+     3     2     1      1   3      2
+    /     /       \                 \
+   2     1         2                 3
+
+"""
+class Solution(object):
+    def numTrees(self, n):
+        """
+        :type n: int
+        :rtype: int
+        """
+        return self.mathmethod(n)
+        
+    def mathmethod(self,n):
+        #Catlan number
+        c=math.factorial(2*n)/math.factorial(n)
+        c /= math.factorial(n+1)
+        return c
+        
+    def numTrees2(self, minV, maxV):
+        # dfs method time exceed
+        if minV >= maxV:
+            return 1
+        val = 0
+        for i in range(minV,maxV+1):
+            val = val + self.numTrees2(minV, i-1)*self.numTrees2(i+1, maxV)
+        return val
+        
+    def dpmethod(self,n):
+        # http://algorithm.yuanbin.me/zh-hans/math_and_bit_manipulation/unique_binary_search_trees.html
+        dp = [0 for i in xrange(n+1)]
+        dp[0] =1
+        dp[1]=1
+        for i in xrange(2,n+1):
+            for j in xrange(0,i):
+                dp[i] += dp[j]*dp[i-1-j]
+        return dp[n]
 #---------dp--------------------------
 #97. Interleaving String
 """
