@@ -817,6 +817,45 @@ class Solution(object):
                 
         return -1
 #-----------------------------------
+#33. Search in Rotated Sorted Array
+"""
+Suppose a sorted array is rotated at some pivot unknown to you beforehand.
+
+(i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2).
+
+You are given a target value to search. If found in the array return its index, otherwise return -1.
+
+You may assume no duplicate exists in the array.
+"""
+class Solution(object):
+    def search(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: int
+        """
+        if len(nums) ==0 : return None
+        lo = 0
+        hi = len(nums)-1
+        while lo +1  < hi:
+            ce = lo + (hi-lo)/2
+            if nums[ce] == target : return ce
+            elif nums[lo] < nums[ce]:
+                #situation 1, numbers between start and mid are sorted
+                if target < nums[ce] and target >= nums[lo]:
+                    hi = ce
+                else:
+                    lo = ce
+            else:
+                #// situation 2, numbers between mid and end are sorted
+                if target > nums[ce] and target <= nums [hi]:
+                    lo = ce
+                else:
+                    hi = ce
+        if nums[lo] == target : return lo
+        elif nums[hi] == target : return hi
+        return -1  
+
 #-----------------------------------
 #-----------------------------------
 #36. Valid Sudoku
@@ -1633,6 +1672,50 @@ class Solution(object):
             else:
                 i += 1
 #-----------------------------------
+#81. Search in Rotated Sorted Array II
+"""
+basic idea: always compare nums[ce] with nums[lo], if equal lo+=1
+
+Follow up for "Search in Rotated Sorted Array" #33
+What if duplicates are allowed?
+
+Would this affect the run-time complexity? How and why?
+
+Write a function to determine if a given target is in the array.
+"""
+class Solution(object):
+    def search(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: bool
+        """
+        if len(nums) ==0 : return False
+        #if len(nums) ==1: return True if  nums[0] == target else False
+        lo = 0
+        hi = len(nums)-1
+        while lo +1 < hi:
+
+            ce = lo + (hi-lo)/2
+            if nums[ce] == target : return True
+            if nums[ce] > nums[lo]:
+                if target < nums[ce] and target >= nums [lo]:
+                    hi = ce
+                else:
+                    lo = ce
+
+            elif nums[ce] < nums[lo]:
+                if target > nums[ce] and target <= nums[hi]:
+                    lo = ce 
+                else:
+                    hi = ce
+            else:
+                lo +=1
+            
+        if nums[lo] == target : return True
+        elif nums[hi] == target : return True
+        return False
+
 #-----------------------------------
 #-----------------------------------
 #83 Remove Duplicates from Sorted List 
@@ -2649,7 +2732,7 @@ class Solution(object):
                     break
         return dp[n]
 #-----------------------------------
-#140
+
 #-----------------------------------
 #141. Linked List Cycle
 """
@@ -2867,6 +2950,76 @@ class Solution(object):
         return res
 
 #-----------------------------------
+#153. Find Minimum in Rotated Sorted Array
+"""
+Suppose a sorted array is rotated at some pivot unknown to you beforehand.
+
+(i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2).
+
+Find the minimum element.
+
+You may assume no duplicate exists in the array.
+"""
+class Solution(object):
+    def findMin(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        if len(nums) ==0 : return None
+        lo = 0
+        hi = len(nums)-1
+        while lo +1 < hi:
+            ce = (lo+hi)/2
+            if nums[ce] > nums[hi]:
+                lo = ce
+            else:
+                hi = ce
+        if nums[lo]<nums[hi]: return nums[lo]
+        else: return nums[hi]
+#-----------------------------------
+#154. Find Minimum in Rotated Sorted Array II
+"""
+
+
+    Follow up for "Find Minimum in Rotated Sorted Array":
+    What if duplicates are allowed?
+
+    Would this affect the run-time complexity? How and why?
+
+Suppose a sorted array is rotated at some pivot unknown to you beforehand.
+
+(i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2).
+
+Find the minimum element.
+
+The array may contain duplicates.
+
+Subscribe to see which companies asked this question
+
+"""
+class Solution(object):
+    def findMin(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        if len(nums) ==0 : return None
+
+        lo = 0
+        hi = len(nums)-1
+        while lo+1 < hi and nums[lo] >= nums[hi]:
+            ce = (lo+hi)/2
+            if nums[ce] > nums[lo]:
+                lo = ce 
+            elif nums[ce] < nums[lo]:
+                hi = ce
+            else:
+                lo +=1
+        if nums[lo] < nums[hi]: return nums[lo]
+        else: return nums[hi]
+
+
 #-----------------------------------
 #166. Fraction to Recurring Decimal
 
