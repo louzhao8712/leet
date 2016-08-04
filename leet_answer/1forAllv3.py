@@ -5181,6 +5181,27 @@ class Solution(object):
         num of "#" == n+1
         meet # then pop a number
         """
+        return self.sol2(preorder)
+    def sol2(self,preorder):
+        """
+        Since this is a preorder serialization, degrees are calculated in a top-down fashion, and, tree is a structure that each node has only one indegree and at most two outdegree.
+            Positive degree means there are more indegree than outdegree, which violates the definition.
+            every time meet a character, degree ++
+            if the character is node, degree -=2
+            None node "#" will only +1 degree for balance
+            total degree == 0
+        """
+        A = preorder.split(',')
+        n = len(A)
+        degree = -1 #root has no indegree, compenstate with -1
+        for i in xrange(n):
+            degree += 1
+            if degree >0 : return False
+            if A[i].isdigit():
+                degree -=2
+        return degree == 0
+
+    def sol1(self,preorder):
         A = preorder.split(',')
         n = len(A)
         stack = []
