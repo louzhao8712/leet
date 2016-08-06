@@ -356,7 +356,7 @@ class Solution10(object):
         """
         return self.sol1(s,p)
         #return self.dfs(s,p)
-    
+
     def sol1(self,s,p):
         #dp method
         # Let d(i, j) = true if s[0, i - 1] matches p[0, j - 1] (i, j are string lengths).
@@ -376,15 +376,15 @@ class Solution10(object):
         #!! very important to set dp[0][j]
         # this is for the case like p == "a*"
         for j in range(1,len(p) + 1):
-                if p[j-1] == '*' and j >= 2:  
+                if p[j-1] == '*' and j >= 2:
                         dp[0][j] = dp[0][j - 2]
         for i in xrange(1,ls+1):
             for j in xrange(1,lp+1):
                 if p[j - 1] == '.' or s[i-1] == p[j-1]:   ## first case
-                    dp[i][j] = dp[i - 1][j - 1] 
+                    dp[i][j] = dp[i - 1][j - 1]
                 elif p[j-1] == "*" :
                     if p[j-2] == '.' or s[i-1] == p[j-2]:
-                        dp[i][j] = dp[i][j-2] or dp[i-1][j]  #delete x*to match or the * is used for repete
+                        dp[i][j] = dp[i][j-2] or dp[i-1][j]  #delete x*to match or the * is used for repeate
                     else:
                         dp[i][j] = dp[i][j-2]  #delete the x* to match
         return dp[-1][-1]
@@ -1076,7 +1076,7 @@ class Solution(object):
                         if dp[k][j-1] == True: #that's because if p[0,j-2] can match s[0,k-1] then the * in p can  match the rest in p 
                             dp[i][j] = True
                             break
-        return dp[-1][-1]        
+        return dp[-1][-1]
         
     def greedy(self,s,p):
         #中心思想 *什么都不匹配，你们先比
@@ -2478,6 +2478,92 @@ class Solution(object):
                     sum[c] = min(sum[c],sum[c+1]) + T[r][c]
         return sum[0]
 #-----------------------------------
+#121. Best Time to Buy and Sell Stock
+"""
+Say you have an array for which the ith element is the price of a given stock on day i.
+
+If you were only permitted to complete at most one transaction (ie, buy one and sell one share of the stock), design an algorithm to find the maximum profit.
+
+Example 1:
+
+Input: [7, 1, 5, 3, 6, 4]
+Output: 5
+
+max. difference = 6-1 = 5 (not 7-1 = 6, as selling price needs to be larger than buying price)
+
+Example 2:
+
+Input: [7, 6, 4, 3, 1]
+Output: 0
+
+In this case, no transaction is done, i.e. max profit = 0.
+
+"""
+class Solution(object):
+    def maxProfit(self, prices):
+        """
+        :type prices: List[int]
+        :rtype: int
+        """
+        if len(prices)  == 0 : return 0
+        minv = prices[0]
+        ret = 0
+        for i in xrange(len(prices)):
+            minv = min(minv,prices[i])
+            ret = max(ret,prices[i]-minv)
+        return ret
+#-----------------------------------
+#122. Best Time to Buy and Sell Stock II
+"""
+Say you have an array for which the ith element is the price of a given stock on day i.
+
+Design an algorithm to find the maximum profit. You may complete as many transactions as you like (ie, buy one and sell one share of the stock multiple times). However, you may not engage in multiple transactions at the same time (ie, you must sell the stock before you buy again).
+"""
+class Solution(object):
+    def maxProfit(self, prices):
+        """
+        :type prices: List[int]
+        :rtype: int
+        """
+        if len(prices) == 0 : return 0
+        ret = 0
+        for i in xrange(1, len(prices)):
+            if prices[i] > prices[i-1]: ret += prices[i] - prices[i-1]
+        return ret
+#-----------------------------------
+#123. Best Time to Buy and Sell Stock III
+"""
+Say you have an array for which the ith element is the price of a given stock on day i.
+
+Design an algorithm to find the maximum profit. You may complete at most two transactions.
+"""
+class Solution(object):
+    def maxProfit(self, A):
+        """
+        :type A: List[int]
+        :rtype: int
+        """
+        
+        lenA = len(A)
+        if lenA < 2 : return 0
+        f = [0 for i in xrange(lenA)]
+        g = [0 for i in xrange(lenA)]
+
+        minv = A[0]
+        for i in xrange(1,lenA):
+            minv = min(minv,A[i])
+            f[i]  = max(f[i-1],A[i]-minv)
+        
+        maxv = A[lenA-1]
+        for j in xrange(lenA-2,-1,-1):
+            maxv = max(maxv,A[j])
+            g[j] = max(g[j+1],maxv-A[j])
+            
+        ret = 0
+        for i in xrange(lenA):
+            ret = max(ret,f[i]+g[i])
+        return ret
+#-----------------------------------
 #126. Word Ladder II
 """
  Given two words (beginWord and endWord), and a dictionary's word list, find all shortest transformation sequence(s) from beginWord to endWord, such that:
@@ -3310,6 +3396,53 @@ class Solution(object):
             ans = (ans * x + ord(c)) % prime
         return ans % prime
 #-----------------------------------
+#188. Best Time to Buy and Sell Stock IV
+"""
+Say you have an array for which the ith element is the price of a given stock on day i.
+
+Design an algorithm to find the maximum profit. You may complete at most k transactions.
+"""
+class Solution(object):
+    def maxProfit(self, k, A):
+        """
+        :type k: int
+        :type A: List[int]
+        :rtype: int
+        """
+        #http://wlcoding.blogspot.com/2015/03/best-time-to-buy-and-sell-stock.html?view=sidebar
+        # try dp size [k][lenA]
+        """
+        
+    There is no sell at j: d(i, j) = d(i, j - 1)
+    There is a sell at j (there must be a buy at l < j): d(i, j) = max_{0 <= l < j} {d(i - 1, l - 1) - p[l] + p[j]}
+
+    d(i, j) = max{d(i, j - 1), max_{1 <= l <= j} {d(i - 1, l - 1) - p[l] + p[j]}}
+         = max{d(i, j - 1), p[j] + max_{1 <= l <= j} {d(i - 1, l - 1) - p[l]}} // move p[j] out of max
+        profit_max = d[k][N - 1]
+        """
+
+        lenA = len(A)
+        if len(A) < 2 : return 0
+        if k > lenA/2 : return self.quickSolve(lenA, A) 
+        dp = [[0 for i in xrange(lenA)] for j in xrange(k+1)]
+        # d(i, j) = max{d(i, j - 1), max_{1<=l<=j} {d(i - 1, l - 1) - p[l] (buy) + p[j] (sell)}}
+        for i in xrange(1,k+1):
+            tmpmax = dp[i-1][0]-A[0]
+            for j in xrange(1,lenA):
+                #find the point although buy stock, the money left is max
+                tmpmax = max(tmpmax,dp[i - 1][j - 1] - A[j])
+                #dp[i][j-1] means do noting at j
+                dp[i][j] = max(dp[i][j-1], tmpmax+ A[j])
+
+        return dp[k][lenA-1]
+
+    def quickSolve(self, size, prices):
+        sum = 0
+        for x in range(size - 1):
+            if prices[x + 1] > prices[x]:
+                sum += prices[x + 1] - prices[x]
+        return sum 
+
 #-----------------------------------
 #189. Rotate Array
 """
@@ -4917,6 +5050,67 @@ class NumArray(object):
 # numArray.sumRange(1, 2)
 #-----------------------------------
 #-----------------------------------
+#309. Best Time to Buy and Sell Stock with Cooldown
+"""
+Say you have an array for which the ith element is the price of a given stock on day i.
+
+Design an algorithm to find the maximum profit. You may complete as many transactions as you like (ie, buy one and sell one share of the stock multiple times) with the following restrictions:
+
+    You may not engage in multiple transactions at the same time (ie, you must sell the stock before you buy again).
+    After you sell your stock, you cannot buy stock on next day. (ie, cooldown 1 day)
+
+Example:
+
+prices = [1, 2, 3, 0, 2]
+maxProfit = 3
+transactions = [buy, sell, cooldown, buy, sell]
+
+"""
+class Solution(object):
+    def maxProfit(self, prices):
+        """
+        :type prices: List[int]
+        :rtype: int
+        """
+        return self.sol2(prices)
+        
+    def sol2(self,prices):
+        #sells[i] : max profit if not hold stock at day[i]
+        #buys[i]: max profix if hold stock
+        n = len(prices)
+        if n<2 : return 0
+        buys = [None]*n
+        sells = [None]*n
+        sells[0] = 0
+        sells[1] = max(0,prices[1]-prices[0])
+        buys[0]= -prices[0]
+        buys[1] = max(-prices[0],-prices[1])
+        for i in xrange(2,n):
+            sells[i] = max(sells[i-1],buys[i-1]+prices[i])
+            # sells[i-2] here indicate the cool down
+            buys[i] = max(sells[i-2]-prices[i],buys[i-1])
+        return sells[-1]
+        
+    
+    def sol1(self,prices):
+        #auxiliary array
+        # sell[i] best accumulate profit at day i
+        # buy[i] 
+        # http://bookshadow.com/weblog/2015/11/24/leetcode-best-time-to-buy-and-sell-stock-with-cooldown/
+        
+        
+        n = len(prices)
+        if n <2: return 0
+        buy = [None] *n
+        sell = [None] *n
+        buy[0] = -prices[0]
+        sell[0]=0
+        for i in xrange(1,n):
+            delta = prices[i]-prices[i-1]
+            sell[i] = max(buy[i-1]+prices[i],sell[i-1]+delta)
+            buy[i] = max(buy[i-1]-delta,sell[i-2]-prices[i] if i >1 else None)
+        return max(sell)
+        
 #-----------------------------------
 #312. Burst Balloons
 """
