@@ -43,7 +43,7 @@ class Trie(object):
         node = self.root
         queue = [] #this is actually a stack
         for letter in word:
-            queue.append((letter, node))
+            queue.append((letter, node)) #letter and its father
             child = node.childs.get(letter)
             if child is None:
                 return False
