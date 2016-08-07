@@ -3089,6 +3089,77 @@ class Solution(object):
                     dp[i] = min(dp[i],dp[j+1]+1)
         return dp[0]-1
 #-----------------------------------
+#133. Clone Graph
+"""
+ Clone an undirected graph. Each node in the graph contains a label and a list of its neighbours.
+
+OJ's undirected graph serialization:
+
+Nodes are labeled uniquely.
+We use # as a separator for each node, and , as a separator for node label and each neighbor of the node.
+
+As an example, consider the serialized graph {0,1,2#1,2#2,2}.
+
+The graph has a total of three nodes, and therefore contains three parts as separated by #.
+
+    First node is labeled as 0. Connect node 0 to both nodes 1 and 2.
+    Second node is labeled as 1. Connect node 1 to node 2.
+    Third node is labeled as 2. Connect node 2 to node 2 (itself), thus forming a self-cycle.
+
+Visually, the graph looks like the following: 
+       1
+      / \
+     /   \
+    0 --- 2
+         / \
+         \_/
+"""
+# Definition for a undirected graph node
+# class UndirectedGraphNode(object):
+#     def __init__(self, x):
+#         self.label = x
+#         self.neighbors = []
+
+class Solution(object):
+    def cloneGraph(self, node):
+        """
+        :type node: UndirectedGraphNode
+        :rtype: UndirectedGraphNode
+        """
+        if node == None: return None
+        #dfs method
+        #return self.dfs(node,{})
+        return self.bfs(node)
+    
+    def bfs(self,node):
+        # hashtable key--visited node, value--its copy to avoid duplication
+        map = {} # indicate visited
+        queue = []
+        copy = UndirectedGraphNode(node.label)
+        map[node] = copy
+        queue.append(node) #element in queue all from the original graph
+        while queue:
+            v = queue.pop(0)
+            for w in v.neighbors:
+                #w is one neighbour of v the origin graph
+                # map[w] is also a copy of w
+                if w in map:
+                    map[v].neighbors.append(map[w])
+                else:
+                    wcopy = UndirectedGraphNode(w.label)
+                    map[w] = wcopy
+                    map[v].neighbors.append(wcopy)
+                    queue.append(w)
+        return copy
+
+    def dfs(self,input,map):
+        # hash table key--visited node, value--its copy to avoid duplication!!! smart
+        if input in map: return map[input]
+        output = UndirectedGraphNode(input.label)
+        map[input]=output
+        for neighbor in input.neighbors:
+            output.neighbors.append(self.dfs(neighbor,map))
+        return output
 #-----------------------------------
 #136. Single Number
 """
@@ -4051,10 +4122,61 @@ class Solution(object):
             prev.next = curr.next
             curr.next = nd
         return dumy.next
+#-----------------------------------
+#207. Course Schedule
+"""
+ There are a total of n courses you have to take, labeled from 0 to n - 1.
+
+Some courses may have prerequisites, for example to take course 0 you have to first take course 1, which is expressed as a pair: [0,1]
+
+Given the total number of courses and a list of prerequisite pairs, is it possible for you to finish all courses?
+
+For example:
+
+2, [[1,0]]
+
+There are a total of 2 courses to take. To take course 1 you should have finished course 0. So it is possible.
+
+2, [[1,0],[0,1]]
+
+There are a total of 2 courses to take. To take course 1 you should have finished course 0, and to take course 0 you should also have finished course 1. So it is impossible.
+"""
+class Solution(object):
+    def canFinish(self, numCourses, prerequisites):
+        """
+        :type numCourses: int
+        :type prerequisites: List[List[int]]
+        :rtype: bool
+        """
+        #BFS method
+        # a->b indegree of b is 1 and degree of a is 0
+        # the key is find all root courses and remove them
         
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
+        degrees = [0 for i in xrange(numCourses)]
+        childs = [[] for i in xrange(numCourses)]
+        for pair in prerequisites:
+            degrees[pair[0]]+=1
+            childs[pair[1]].append(pair[0])
+        A = set(range(numCourses)) #courses
+        
+        delqueue = []
+        ans = []
+        
+        # find all courses that do not need prerequist
+        for course in A:
+            if degrees[course] == 0:
+                delqueue.append(course)
+                
+        while delqueue:
+            course = delqueue.pop(0)
+
+            A.remove(course)
+            
+            for child in childs[course]:
+                degrees[child]-=1
+                if degrees[child] == 0:
+                    delqueue.append(child)
+        return len(A) == 0
 #-----------------------------------
 #208 Implement Trie (Prefix Tree)
 class TrieNode(object):
@@ -4226,9 +4348,59 @@ class Solution(object):
                 if p1 > len(nums) -1: break
         if ret == None: return 0
         else: return ret
-                
-        
 #-----------------------------------
+#210. Course Schedule II
+"""
+ There are a total of n courses you have to take, labeled from 0 to n - 1.
+
+Some courses may have prerequisites, for example to take course 0 you have to first take course 1, which is expressed as a pair: [0,1]
+
+Given the total number of courses and a list of prerequisite pairs, return the ordering of courses you should take to finish all courses.
+
+There may be multiple correct orders, you just need to return one of them. If it is impossible to finish all courses, return an empty array.
+
+For example:
+
+2, [[1,0]]
+
+There are a total of 2 courses to take. To take course 1 you should have finished course 0. So the correct course order is [0,1]
+
+4, [[1,0],[2,0],[3,1],[3,2]]
+
+There are a total of 4 courses to take. To take course 3 you should have finished both courses 1 and 2. Both courses 1 and 2 should be taken after you finished course 0. So one correct course order is [0,1,2,3]. Another correct ordering is[0,2,1,3].
+"""
+class Solution(object):
+    def findOrder(self, numCourses, prerequisites):
+        """
+        :type numCourses: int
+        :type prerequisites: List[List[int]]
+        :rtype: List[int]
+        """
+        #BFS method
+        # a->b degree of b is 1 and degree of a is 0
+        degrees = [0 for i in xrange(numCourses)]
+        childs = [[] for i in xrange(numCourses)]
+        for pair in prerequisites:
+            degrees[pair[0]]+=1
+            childs[pair[1]].append(pair[0])
+        A = set(range(numCourses)) #courses
+        
+        delqueue = []
+        ans = []
+        # find all root course
+        for course in A:
+            if degrees[course] == 0:
+                delqueue.append(course)
+        while delqueue:
+            course = delqueue.pop(0)
+            ans.append(course)
+            A.remove(course)
+            for child in childs[course]:
+                degrees[child]-=1
+                if degrees[child] == 0:
+                    delqueue.append(child)
+        return [[],ans][len(A) == 0]
+        
 #-----------------------------------
 #-----------------------------------
 #213. House Robber II

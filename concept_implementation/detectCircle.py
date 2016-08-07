@@ -1,3 +1,4 @@
+#dfs method
 def cyclic(g):
     """Return True if the directed graph g has a cycle.
     g must be represented as a dictionary mapping vertices to
