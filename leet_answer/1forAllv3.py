@@ -53,6 +53,7 @@ class Solution2(object):
         return dumy.next
 
 #-----hash and 2 pointer------------------------------
+#2 Add Two numbers
 """
 Given a string, find the length of the longest substring without repeating characters.
 
@@ -519,7 +520,39 @@ class Solution(object):
         return [list(x) for x in res]
                     
 #-----------------------------------
-#16
+#16. 3Sum Closest
+"""
+Given an array S of n integers, find three integers in S such that the sum is closest to a given number, target. Return the sum of the three integers. You may assume that each input would have exactly one solution.
+
+    For example, given array S = {-1 2 1 -4}, and target = 1.
+
+    The sum that is closest to the target is 2. (-1 + 2 + 1 = 2).
+
+"""
+class Solution(object):
+    def threeSumClosest(self, A, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: int
+        """
+
+        if len(A) < 3: return None
+        res = A[0]+A[1]+A[2]
+        A.sort()
+        length = len(A)
+        for i in xrange(length-2):
+            j = i +1
+            k = length-1
+            while (j < k):
+                sum = A[j]+A[k] + A[i]
+                if sum == target : return sum
+                if abs(sum-target)<abs(res-target):
+                    res = sum
+                if sum < target: j+=1
+                if sum > target: k-=1
+
+        return res
 #-----------------------------------
 #17. Letter Combinations of a Phone Number
 """
@@ -557,6 +590,51 @@ class Solution(object):
                 self.dfs(count+1,vstr+item,digits)
 
 #-----------------------------------
+#18. 4Sum
+"""
+Given an array S of n integers, are there elements a, b, c, and d in S such that a + b + c + d = target? Find all unique quadruplets in the array which gives the sum of target.
+
+Note: The solution set must not contain duplicate quadruplets.
+
+For example, given array S = [1, 0, -1, 0, -2, 2], and target = 0.
+
+A solution set is:
+[
+  [-1,  0, 0, 1],
+  [-2, -1, 1, 2],
+  [-2,  0, 0, 2]
+]
+
+"""
+class Solution(object):
+    def fourSum(self, A, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: List[List[int]]
+        """
+        if len(A) < 4: return []
+        res = list()
+        A.sort()
+        length = len(A)
+        tb = {} # key 2sum, value index
+        #generate all pairs
+        for i in xrange(length-1):
+            for j in xrange(i+1,length):
+                tmp = A[i]+A[j]
+                if tmp in tb:
+                    tb[tmp].append((i,j))
+                else:
+                    tb[tmp] = [(i,j)]
+
+        for i in xrange(length-3):
+            for j in xrange(i+1,length-2):
+                tmp = target - A[i]-A[j]
+                if tmp in tb:
+                    for item in tb[tmp]:
+                        if item[0] > j:
+                            res.append([A[i],A[j],A[item[0]],A[item[1]]])
+        return [list(x) for x in set([tuple(y)for y in res])]
 #-----------------------------------
 #19. Remove Nth Node From End of List
 """
