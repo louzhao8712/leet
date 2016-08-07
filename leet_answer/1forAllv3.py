@@ -817,6 +817,76 @@ class Solution(object):
                 
         return -1
 #-----------------------------------
+#31. Next Permutation
+"""
+ Implement next permutation, which rearranges numbers into the lexicographically next greater permutation of numbers.
+
+If such arrangement is not possible, it must rearrange it as the lowest possible order (ie, sorted in ascending order).
+
+The replacement must be in-place, do not allocate extra memory.
+
+Here are some examples. Inputs are in the left-hand column and its corresponding outputs are in the right-hand column.
+1,2,3 → 1,3,2
+3,2,1 → 1,2,3
+1,1,5 → 1,5,1
+"""
+class Solution(object):
+    def nextPermutation(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: void Do not return anything, modify nums in-place instead.
+        """
+        #https://discuss.leetcode.com/topic/52275/easy-python-solution-based-on-lexicographical-permutation-algorithm
+
+        # step1: find the longest non increaseing suffix
+        #find nums[i] < nums[i + 1], Loop backwards
+        i = -1
+        for t in xrange(len(nums) - 2, -1, -1):
+            if nums[t] < nums[t+1]:  
+                i=t
+                break
+        # i is the pivot
+        if i!= -1:
+            # step2: find the rightmost successor to pivot in the suffic
+            #find nums[i] < nums[j], Loop backwards
+            for j in xrange(len(nums) - 1, i, -1):
+                if nums[i] < nums[j]: 
+                    # step3: swap betwenn nums[i] and nums[j]
+                    nums[i], nums[j] = nums[j], nums[i]
+                    break
+        
+        # step4: reverse the suffix after pivot which is[i + 1, n - 1]
+        # revere the nums after pindex
+        lo = i+1
+        hi = len(nums)-1
+        while lo < hi:
+            nums[lo],nums[hi] = nums[hi],nums[lo]
+            lo +=1
+            hi -=1
+#-----------------------------------
+#32. Longest Valid Parentheses
+"""
+Given a string containing just the characters '(' and ')', find the length of the longest valid (well-formed) parentheses substring.
+
+For "(()", the longest valid parentheses substring is "()", which has length = 2.
+
+Another example is ")()())", where the longest valid parentheses substring is "()()", which has length = 4
+"""
+class Solution:
+    # @param {string} s
+    # @return {integer}
+    def longestValidParentheses(self, s):
+        #Use a stack to record left paren, right paren and index.
+        #If current paren is ')' and stack top is '(' then pop up and update maxLen
+        stack, maxLen = [-1], 0
+        for i in xrange(len(s)):
+            if s[i] == ')' and stack[-1] != -1 and s[stack[-1]] == '(':
+                stack.pop()
+                maxLen = max(maxLen, i - stack[-1])
+            else:
+                stack.append(i)
+        return maxLen
+#-----------------------------------
 #33. Search in Rotated Sorted Array
 """
 Suppose a sorted array is rotated at some pivot unknown to you beforehand.
@@ -1136,7 +1206,163 @@ class Solution(object):
             maxv = max(maxv,i+nums[i])
         return jumps
 #-----------------------------------
+#46. Permutations
+"""
+ Given a collection of distinct numbers, return all possible permutations.
+
+For example,
+[1,2,3] have the following permutations:
+
+[
+  [1,2,3],
+  [1,3,2],
+  [2,1,3],
+  [2,3,1],
+  [3,1,2],
+  [3,2,1]
+]
+
+"""
+class Solution(object):
+    def permute(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: List[List[int]]
+        """
+        return self.sol2(nums)
+
+    def sol2(self,nums):
+        #iterative use the next permutation method
+        if nums is None:  return [[]]
+        elif len(nums) <= 1:   return [nums]
+
+        # sort nums first
+        nums.sort()
+
+        result = []
+        while True:
+            result.append([]+nums)
+            # step1: find nums[i] < nums[i + 1], Loop backwards
+            i = 0
+            for i in xrange(len(nums) - 2, -1, -1):
+                if nums[i] < nums[i + 1]:   break
+                elif i == 0:  return result
+            # step2: find nums[i] < nums[j], Loop backwards
+            j = 0
+            for j in xrange(len(nums) - 1, i, -1):
+                if nums[i] < nums[j]:  break
+            # step3: swap betwenn nums[i] and nums[j]
+            nums[i], nums[j] = nums[j], nums[i]
+            # step4: reverse between [i + 1, n - 1]
+            nums[i + 1:len(nums)] = nums[len(nums) - 1:i:-1]
+        return result
+
+    def sol1(self,nums):
+        #recursive
+        if len(nums) == 0: return[]
+        elif len(nums) ==1: return [nums]
+        res = []
+        for i in xrange(len(nums)):
+            for j in self.sol1(nums[:i]+nums[i+1:]):
+                res.append([nums[i]]+j)
+        return res
 #-----------------------------------
+#47. Permutations II
+"""
+ Given a collection of numbers that might contain duplicates, return all possible unique permutations.
+
+For example,
+[1,1,2] have the following unique permutations:
+
+[
+  [1,1,2],
+  [1,2,1],
+  [2,1,1]
+]
+
+"""
+class Solution(object):
+    def permuteUnique(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: List[List[int]]
+        """
+        #
+        return self.iterative(nums)
+
+    def iterative(self,nums):
+        """
+        :type nums: List[int]
+        :rtype: void Do not return anything, modify nums in-place instead.
+        """
+        #https://discuss.leetcode.com/topic/52275/easy-python-solution-based-on-lexicographical-permutation-algorithm
+
+
+        if nums is None:  return [[]]
+        elif len(nums) <= 1:   return [nums]
+
+        # sort nums first
+        nums.sort()
+
+        result = set([])
+        while True:
+            result.add(tuple([]+nums))
+            # step1: find nums[i] < nums[i + 1], Loop backwards
+            i = 0
+            for i in xrange(len(nums) - 2, -1, -1):
+                if nums[i] < nums[i + 1]:   break
+                elif i == 0:  return [list(x) for x in result]
+            # step2: find nums[i] < nums[j], Loop backwards
+            j = 0
+            for j in xrange(len(nums) - 1, i, -1):
+                if nums[i] < nums[j]:  break
+            # step3: swap betwenn nums[i] and nums[j]
+            nums[i], nums[j] = nums[j], nums[i]
+            # step4: reverse between [i + 1, n - 1]
+            nums[i + 1:len(nums)] = nums[len(nums) - 1:i:-1]
+        return  [list(x) for x in result]
+
+    def recursive(self,nums):
+        nums.sort()
+        if len(nums) == 0 : return []
+        if len(nums) == 1: return [nums]
+        res = []
+        preNum = None
+        for i in xrange(len(nums)):
+            if nums[i] == preNum : continue #this step eliminate duplication
+            preNum = nums[i]
+            for j in self.recursive(nums[:i]+nums[i+1:]):
+                res.append([nums[i]]+j)
+        return res
+#-----------------------------------
+#49. Group Anagrams
+"""
+Given an array of strings, group anagrams together.
+
+For example, given: ["eat", "tea", "tan", "ate", "nat", "bat"],
+Return:
+
+[
+  ["ate", "eat","tea"],
+  ["nat","tan"],
+  ["bat"]
+]
+"""
+class Solution(object):
+    def groupAnagrams(self, strs):
+        """
+        :type strs: List[str]
+        :rtype: List[List[str]]
+        """
+        res = []
+        tb = {}
+        for item in strs:
+            key = "".join(sorted(item))
+            if key in tb: tb[key].append(item)
+            else: tb[key]=[item]
+        for key in tb:
+            res.append(sorted(tb[key]))
+        return res
 #-----------------------------------
 #53. Maximum Subarray
 """
@@ -1382,6 +1608,52 @@ class Solution(object):
                 return matrix
             direction = (direction+1)%4
 #-----------------------------------
+#60. Permutation Sequence
+"""
+The set [1,2,3,…,n] contains a total of n! unique permutations.
+
+By listing and labeling all of the permutations in order,
+We get the following sequence (ie, for n = 3):
+
+    "123"
+    "132"
+    "213"
+    "231"
+    "312"
+    "321"
+
+Given n and k, return the kth permutation sequence.
+
+Note: Given n will be between 1 and 9 inclusive.
+"""
+class Solution(object):
+    def getPermutation(self, n, k):
+        """
+        :type n: int
+        :type k: int
+        :rtype: str
+        """
+        #  k = i_0 * (n - 1)! + i_1 * (n - 2)! + ... + i_{n - 1} * 0!
+        # i here is the index in the array num below
+        # e.g. k == 6 = 2* 2!+ 1*1!+ 1*0! and num is [1,2,3]
+        # so the string is "321"
+        
+        # get (n-1)!
+        fac =1
+        for i in xrange(1,n) : fac *= i
+        num = range(1,n+1)
+        k -= 1  #adjust the input k from 1-based to 0-based index
+        res = ''
+        for i in xrange(n-1,-1,-1):
+            curr = num[k/fac]
+            res += str(curr)
+            num.remove(curr) # important!
+            if i!=0:
+                k %= fac
+                fac /= i
+        return res
+        # check the reverse program
+        # http://algorithm.yuanbin.me/zh-hans/exhaustive_search/permutation_index.html
 #-----------------------------------
 #62. Unique Paths
 """
@@ -1582,6 +1854,35 @@ class Solution(object):
                                     dp[i][j-1]+1,\
                                     dp[i-1][j-1]+ (0 if word1[i-1]==word2[j-1] else 1))
         return dp[n1][n2]
+
+    #-----------not recommend--------------------
+    #The time complexity of above solution is exponential. In worst case, we may end up doing O(3m) operations. 
+    # A Naive recursive Python program to fin minimum number
+    # operations to convert str1 to str2
+    def editDistance(str1, str2, m , n):
+     
+        # If first string is empty, the only option is to
+        # insert all characters of second string into first
+        if m==0:    return n
+     
+        # If second string is empty, the only option is to
+        # remove all characters of first string
+        if n==0:    return m
+     
+        # If last characters of two strings are same, nothing
+        # much to do. Ignore last characters and get count for
+        # remaining strings.
+        if str1[m-1]==str2[n-1]:
+            return editDistance(str1,str2,m-1,n-1)
+     
+        # If last characters are not same, consider all three
+        # operations on last character of first string, recursively
+        # compute minimum cost for all three operations and take
+        # minimum of three values.
+        return 1 + min(editDistance(str1, str2, m, n-1),    # Insert
+                       editDistance(str1, str2, m-1, n),    # Remove
+                       editDistance(str1, str2, m-1, n-1)    # Replace
+                       )
 #----binary search------------------
 #74. Search a 2D Matrix
 """
@@ -2010,17 +2311,35 @@ Assume a BST is defined as follows:
 #         self.left = None
 #         self.right = None
 
-class Solution98(object):
+class Solution(object):
     def isValidBST(self, root):
         """
         :type root: TreeNode
         :rtype: bool
         """
-        return self.dfs(root,-1*float('inf'),float('inf'))
+        #return self.dfs(root,-1*float('inf'),float('inf'))
+        self.prev = None
+        return self.sol2(root)
+
     def dfs(self,root,min,max):
         if root == None: return True
         if root.val <= min or root.val >= max: return False
         return   self.dfs(root.left,min,root.val) and  self.dfs(root.right,root.val,max)
+        
+    def sol2(self,node):
+        """
+        If we use in-order traversal to serialize a binary search tree, we can
+        get a list of values in ascending order. It can be proved with the
+        definition of BST. And here I use the reference of TreeNode
+        pointer prev as a global variable to mark the address of previous node in the
+        list.
+        """
+        #inroder method
+        if node == None : return True
+        if not self.sol2(node.left): return False
+        if self.prev!= None and self.prev.val >= node.val : return False
+        self.prev = node
+        return self.sol2(node.right)
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
@@ -2563,6 +2882,32 @@ class Solution(object):
         for i in xrange(lenA):
             ret = max(ret,f[i]+g[i])
         return ret
+#-----------------------------------
+#125. Valid Palindrome
+"""
+Given a string, determine if it is a palindrome, considering only alphanumeric characters and ignoring cases.
+
+For example,
+"A man, a plan, a canal: Panama" is a palindrome.
+"race a car" is not a palindrome. 
+"""
+class Solution(object):
+    def isPalindrome(self, s):
+        """
+        :type s: str
+        :rtype: bool
+        """
+        if s == None: return None
+        s= filter(lambda x:x.isalnum(),s)
+        s= s.lower()
+        if len(s)<=1: return True
+        p0 =0; p1=len(s)-1
+        while p0<p1:
+            if s[p0]!=s[p1]:
+                return False
+            p0+=1
+            p1-=1
+        return True
 #-----------------------------------
 #126. Word Ladder II
 """
@@ -3143,6 +3488,7 @@ class Solution(object):
             if tmp == 0: break
             numerator = 10*tmp
             if db.get(numerator) : # repeat start
+                # cnt +=1 so that make sure the last character in rl is included
                 repstr = "".join([str(x) for x in rl[db.get(numerator):cnt]])
                 break
             db[numerator] = cnt
@@ -4348,6 +4694,45 @@ class Queue(object):
         return self.stack == []
 #-----------------------------------
 #-----------------------------------
+#234. Palindrome Linked List
+"""
+Given a singly linked list, determine if it is a palindrome.
+Follow up:
+Could you do it in O(n) time and O(1) space?
+"""
+class Solution(object):
+    def isPalindrome(self, head):
+        """
+        :type head: ListNode
+        :rtype: bool
+        """
+        if head == None : return True
+        slow = fast = head
+        while fast and fast.next:
+            slow = slow.next
+            fast = fast.next.next
+        p1 = self.reverseList(slow)
+        p2 = head
+        while p2!= slow and p2.val == p1.val:
+            p1 = p1.next
+            p2 = p2.next
+        return p2 == slow
+
+    def reverseList(self, head):
+        """
+        :type head: ListNode
+        :rtype: ListNode
+        """
+        dumy = ListNode(None)
+        dumy .next = head
+        prev = dumy
+        curr = head
+        while curr and curr.next:
+            nd = curr.next.next
+            curr.next.next = prev.next
+            prev.next = curr.next
+            curr.next = nd
+        return dumy.next
 #-----------------------------------
 #235. Lowest Common Ancestor of a Binary Search Tree
 """
