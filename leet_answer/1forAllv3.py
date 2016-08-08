@@ -3814,6 +3814,57 @@ class Solution(object):
             ans += n
         return ans
 #-----------------------------------
+#173. Binary Search Tree Iterator
+"""
+Implement an iterator over a binary search tree (BST). Your iterator will be initialized with the root node of a BST.
+
+Calling next() will return the next smallest number in the BST.
+
+Note: next() and hasNext() should run in average O(1) time and uses O(h) memory, where h is the height of the tree. 
+"""
+# Definition for a  binary tree node
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class BSTIterator(object):
+    def __init__(self, root):
+        """
+        :type root: TreeNode
+        """
+        # constructor go to the most left node
+        self.stack =[]
+        self.pushLeft(root)
+        
+
+    def hasNext(self):
+        """
+        :rtype: bool
+        """
+        return self.stack != []
+
+    def next(self):
+        """
+        :rtype: int
+        """
+        top = self.stack.pop()
+        self.pushLeft(top.right)
+        return top.val
+        
+        
+    def pushLeft(self,root):
+        #push node into stack untill
+        # find the most left node
+        while root:
+            self.stack.append(root)
+            root = root.left
+        
+
+# Your BSTIterator will be called like this:
+# i, v = BSTIterator(root), []
+# while i.hasNext(): v.append(i.next())
 #-----------------------------------
 #-----------------------------------
 #187. Repeated DNA Sequences
@@ -5152,6 +5203,64 @@ class Solution(object):
         sumn = sum(nums)
         return n*(n+1)/2 - sumn
 #-----------------------------------
+#272. Zigzag Iterator
+"""
+Given two 1d vectors, implement an iterator to return their elements alternately.
+
+For example, given two 1d vectors:
+
+v1 = [1, 2]
+v2 = [3, 4, 5, 6]
+By calling next repeatedly until hasNext returns false, the order of elements returned by next should be: [1, 3, 2, 4, 5, 6].
+
+Follow up: What if you are given k 1d vectors? How well can your code be extended to such cases?
+
+Clarification for the follow up question - Update (2015-09-18):
+The "Zigzag" order is not clearly defined and is ambiguous for k > 2 cases. If "Zigzag" does not look right to you, replace "Zigzag" with "Cyclic". For example, given the following input:
+
+[1,2,3]
+[4,5,6,7]
+[8,9]
+It should return [1,4,8,2,5,9,3,6,7].
+"""
+class ZigzagIterator(object):  
+  
+    def __init__(self, v1, v2):  
+        """ 
+        Initialize your data structure here. 
+        :type v1: List[int] 
+        :type v2: List[int] 
+        """  
+        self.l = []  
+        i = 0  
+        while i < max(len(v1), len(v2)):  
+            if i < len(v1):  
+                self.l.append(v1[i])  
+            if i < len(v2):  
+                self.l.append(v2[i])  
+            i += 1  
+        self.index = 0  
+  
+    def next(self):  
+        """ 
+        :rtype: int 
+        """  
+        cur = self.l[self.index]  
+        self.index += 1  
+        return cur  
+  
+    def hasNext(self):  
+        """ 
+        :rtype: bool 
+        """  
+        if self.index < len(self.l):  
+            return True  
+        else:  
+            return False  
+  
+# Your ZigzagIterator object will be instantiated and called as such:  
+# i, v = ZigzagIterator(v1, v2), []  
+# while i.hasNext(): v.append(i.next())  
 #-----------------------------------
 #274. H-Index
 """
@@ -5269,6 +5378,93 @@ class Solution(object):
         return -1
 #-----------------------------------
 #-----------------------------------
+#284. Peeking Iterator
+"""
+Given an Iterator class interface with methods: next() and hasNext(), design and implement a PeekingIterator that support the peek() operation -- it essentially peek() at the element that will be returned by the next call to next().
+
+Here is an example. Assume that the iterator is initialized to the beginning of the list: [1, 2, 3].
+
+Call next() gets you 1, the first element in the list.
+
+Now you call peek() and it returns 2, the next element. Calling next() after that still return 2.
+
+You call next() the final time and it returns 3, the last element. Calling hasNext() after that should return false.
+
+Hint:
+
+    Think of "looking ahead". You want to cache the next element.
+    Is one variable sufficient? Why or why not?
+    Test your design with call order of peek() before next() vs next() before peek().
+
+Follow up: How would you extend your design to be generic and work with all types, not just integer?
+"""
+# Below is the interface for Iterator, which is already defined for you.
+#
+# class Iterator(object):
+#     def __init__(self, nums):
+#         """
+#         Initializes an iterator object to the beginning of a list.
+#         :type nums: List[int]
+#         """
+#
+#     def hasNext(self):
+#         """
+#         Returns true if the iteration has more elements.
+#         :rtype: bool
+#         """
+#
+#     def next(self):
+#         """
+#         Returns the next element in the iteration.
+#         :rtype: int
+#         """
+
+class PeekingIterator(object):
+    #http://bookshadow.com/weblog/2015/09/21/leetcode-peeking-iterator/
+    # peekFlag : peek has been executed, iter has been moved
+    # nextElement :  result of peek
+    def __init__(self, iterator):
+        """
+        Initialize your data structure here.
+        :type iterator: Iterator
+        """
+        self.iter = iterator
+        self.peekFlag = False
+        self.nextElement = None
+
+    def peek(self):
+        """
+        Returns the next element in the iteration without advancing the iterator.
+        :rtype: int
+        """
+        if not self.peekFlag:
+            self.nextElement = self.iter.next()
+            self.peekFlag = True
+        return self.nextElement
+
+    def next(self):
+        """
+        :rtype: int
+        """
+        if not self.peekFlag:
+            return self.iter.next()
+        else:
+            nextElement = self.nextElement
+            self.nextElement = None
+            self.peekFlag = False
+            return nextElement
+
+    def hasNext(self):
+        """
+        :rtype: bool
+        """
+        return self.peekFlag or self.iter.hasNext()
+
+# Your PeekingIterator object will be instantiated and called as such:
+# iter = PeekingIterator(Iterator(nums))
+# while iter.hasNext():
+#     val = iter.peek()   # Get the next element but not advance the iterator.
+#     iter.next()   
 #-----------------------------------
 #-----------------------------------
 #292. Nim Game
@@ -6528,7 +6724,7 @@ class NestedIterator(object):
         """
         self.stack = []
         self.list = nestedList
-        
+
 
     def next(self):
         """
