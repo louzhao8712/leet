@@ -13,8 +13,8 @@ def cyclic(g):
     """
     path = set()
     visited = set()
-    # visited here is only used to skip the point
-    # path is used to check cycle
+    # visited here is only used to skip the point, it use when we loop start point
+    # path is used to check cycle, it's like the traditional vistied for one start
     def visit(vertex):
         if vertex in visited:
             return False
