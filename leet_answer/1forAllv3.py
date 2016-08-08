@@ -2644,7 +2644,71 @@ class Solution(object):
             self.dfs(root.left,level+1)
             self.dfs(root.right,level+1)
 #-----------------------------------
+#108. Convert Sorted Array to Binary Search Tre
+"""
+Given an array where elements are sorted in ascending order, convert it to a height balanced BST.
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def sortedArrayToBST(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: TreeNode
+        """
+        return self.dfs(nums,0,len(nums)-1)
+        
+    def dfs(self,nums,start,end):
+        if start > end : return None
+        mid = start + (end-start)/2
+        root = TreeNode(nums[mid])
+        root.left = self.dfs(nums,start,mid-1)
+        root.right = self.dfs(nums,mid +1 ,end)
+        return root
 #-----------------------------------
+#109. Convert Sorted List to Binary Search Tree
+"""
+Given a singly linked list where elements are sorted in ascending order, convert it to a height balanced BST.
+"""
+# Definition for singly-linked list.
+# class ListNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+# trick: convert to array first
+class Solution(object):
+    def sortedListToBST(self, head):
+        """
+        :type head: ListNode
+        :rtype: TreeNode
+        """
+        nums = []
+        curr = head
+        while curr:
+            nums.append(curr.val)
+            curr = curr.next
+        return self.dfs(nums,0,len(nums)-1)
+        
+    def dfs(self,nums,start,end):
+        if start > end : return None
+        mid = (start + end)/2
+        root = TreeNode(nums[mid])
+        root.left = self.dfs(nums,start,mid-1)
+        root.right = self.dfs(nums,mid +1 ,end)
+        return root 
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
@@ -2653,6 +2717,29 @@ class Solution(object):
 #114 Flatten Binary Tree to Linked List
 """
 Given a binary tree, flatten it to a linked list in-place. 
+ For example,
+Given
+
+         1
+        / \
+       2   5
+      / \   \
+     3   4   6
+
+The flattened tree should look like:
+
+   1
+    \
+     2
+      \
+       3
+        \
+         4
+          \
+           5
+            \
+             6
+
 """
 # Definition for a binary tree node.
 # class TreeNode(object):
