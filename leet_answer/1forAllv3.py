@@ -5692,6 +5692,69 @@ class Solution(object):
         if n == 0 : return False
         else: return True
 #-----------------------------------
+#295. Find Median from Data Stream
+"""
+Median is the middle value in an ordered integer list. If the size of the list is even, there is no middle value. So the median is the mean of the two middle value.
+Examples:
+
+[2,3,4] , the median is 3
+
+[2,3], the median is (2 + 3) / 2 = 2.5
+
+Design a data structure that supports the following two operations:
+
+    void addNum(int num) - Add a integer number from the data stream to the data structure.
+    double findMedian() - Return the median of all elements so far.
+
+For example:
+
+add(1)
+add(2)
+findMedian() -> 1.5
+add(3) 
+findMedian() -> 2
+
+"""
+from heapq import *
+class MedianFinder:
+    def __init__(self):
+        """
+        Initialize your data structure here.
+        """
+        self.small = [] #maxheap, all the values are revert
+        self.large = [] # python default meanheap
+        # size of small N
+        # size of large N+ or N
+        
+
+    def addNum(self, num):
+        """
+        Adds a num into the data structure.
+        :type num: int
+        :rtype: void
+        """
+        if len(self.small) == len(self.large):
+            heappush(self.large, -heapq.heappushpop(self.small, -num))
+        else: #large size already == small size +1
+            heappush(self.small, -heapq.heappushpop(self.large, num))
+        
+
+    def findMedian(self):
+        """
+        Returns the median of current data stream
+        :rtype: float
+        """
+        if len(self.small) == len(self.large):
+            return float(self.large[0]-self.small[0])/2
+        else:
+            return float(self.large[0])
+        
+        
+
+# Your MedianFinder object will be instantiated and called as such:
+# mf = MedianFinder()
+# mf.addNum(1)
+# mf.findMedian()
 #-----------------------------------
 #-----------------------------------
 #297. Serialize and Deserialize Binary Tree
