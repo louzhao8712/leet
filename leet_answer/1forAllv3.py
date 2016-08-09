@@ -1873,6 +1873,66 @@ class Solution(object):
 
         return st[w-1]
 #-----------------------------------
+#65. Valid Number
+"""
+Validate if a given string is numeric.
+
+Some examples:
+"0" => true
+" 0.1 " => true
+"abc" => false
+"1 a" => false
+"2e10" => true
+
+Note: It is intended for the problem statement to be ambiguous. You should gather all requirements up front before implementing one. 
+"""
+class Solution(object):
+    def isNumber(self, s):
+        """
+        :type s: str
+        :rtype: bool
+        """
+
+
+        eSet = False
+        dotSet = False
+
+        
+        s= s.strip()
+        if s == "": return False
+        for idx,x in enumerate(s):
+            if x == " ": 
+                return False
+            elif x in ["+","-"]:
+                if idx == len(s)-1: return False
+                elif idx == 0:
+                    if s[idx+1].isdigit() or s[idx+1] == ".": continue
+                    else:                       return False
+
+                else: 
+                    if s[idx-1] == "e" and (s[idx+1].isdigit() ): continue
+                    else: return False
+
+            elif x == "e":
+                if eSet or idx==0 or idx ==len(s)-1 : return False
+                if s[idx+1].isdigit() or s[idx+1] in ["+","-"]: eSet = True
+                else: return False
+            elif x == ".":
+                if dotSet: return False
+                before = False if idx == 0 else s[idx-1].isdigit()
+                after = False if idx == len(s)-1 else s[idx+1].isdigit()
+                if before ==False and after == False: return False
+                if before and eSet: return False
+                
+
+                dotSet = True
+            else:
+                if not x.isdigit(): return False
+        return True
+        "sign the 1st one or after e"
+        "e only one"
+        ". only one"
+        
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
@@ -6319,6 +6379,7 @@ class Solution(object):
         return dp[0][n - 1]
 
 #-----------------------------------
+
 #-----------------------------------
 #319. Bulb Switcher
 """
