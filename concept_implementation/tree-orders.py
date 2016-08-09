@@ -53,6 +53,12 @@ class TreeOrders:
             self.result.append(top.val)
             root = top.right
     return self.result
+    
+  def recursiveInOrder(self,root):
+    if root:
+        self.recursive(root.left)
+        self.ans.append(root.val)
+        self.recursive(root.right)
 
   def preOrder(self):
     self.result = []
