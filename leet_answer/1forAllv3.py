@@ -894,6 +894,43 @@ class Solution(object):
                 if j == ln-1: return i
                 
         return -1
+#--------binary search---------------------------
+#29. Divide Two Integers
+"""
+ Divide two integers without using multiplication, division and mod operator.
+
+If it is overflow, return MAX_INT.
+"""
+class Solution(object):
+    def divide(self, dividend, divisor):
+        """
+        :type dividend: int
+        :type divisor: int
+        :rtype: int
+        """
+        #return self.sol1(dividend,divisor)
+        return self.sol2(dividend,divisor)
+
+    def sol1(self,a,b):
+        MAX_INT = 2**31 -1
+        MIN_INT = -1*(2**31)
+        if b == 0 or (a==MIN_INT and b == -1):
+            return MAX_INT
+        if (a>0)^(b>0): sign = -1
+        else:           sign =1
+        res = 0
+        sum =0
+        a= abs(a);b=abs(b)
+        while a >=b :
+            count =1
+            sum =b
+            while sum+sum <=a:
+                sum += sum
+                count += count
+            a -=sum
+            res += count
+        if sign ==1: return res
+        else: return 0-res
 #-----------------------------------
 #31. Next Permutation
 """
@@ -3599,6 +3636,39 @@ class Solution(object):
             p0 = p0.next
             if p0 == p1 : return True
         return False
+#-----------------------------------
+#142. Linked List Cycle II
+"""
+ Given a linked list, return the node where the cycle begins. If there is no cycle, return null.
+
+Note: Do not modify the linked list.
+
+Follow up:
+Can you solve it without using extra space? 
+"""
+# Definition for singly-linked list.
+# class ListNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution(object):
+    def detectCycle(self, head):
+        """
+        :type head: ListNode
+        :rtype: ListNode
+        """
+        p1 = p2 = head
+        while p2 and p2.next:
+            p1 = p1.next
+            p2 = p2.next.next
+            if p1 == p2:
+                p0 = head
+                while p0!=p1:
+                    p0 = p0.next
+                    p1 = p1.next
+                return p0
+        return None
 #-----------------------------------
 #144.Binary Tree Preorder Traversal
 """
