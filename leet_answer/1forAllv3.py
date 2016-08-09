@@ -95,7 +95,7 @@ class Solution3(object):
         ret = max(ret,currlen)
         return ret
 #---------binary search, divide and con--------------------------
-# Median of Two Sorted Arrays
+#4. Median of Two Sorted Arrays
 """
 There are two sorted arrays nums1 and nums2 of size m and n respectively. 
 Find the median of the two sorted arrays. The overall run time complexity should be O(log (m+n)).
@@ -1442,6 +1442,22 @@ class Solution(object):
             res.append(sorted(tb[key]))
         return res
 #-----------------------------------
+#50. Pow(x, n)
+"""
+Implement pow(x, n).
+"""
+class Solution(object):
+    def myPow(self, x, n):
+        """
+        :type x: float
+        :type n: int
+        :rtype: float
+        """
+        if n == 0: return 1
+        elif n < 0 : return 1/self.myPow(x,-n)
+        elif n%2: return x*self.myPow(x*x,n/2)
+        else: return self.myPow(x*x,n/2)
+#-----------------------------------
 #53. Maximum Subarray
 """
  Find the contiguous subarray within an array (containing at least one number) which has the largest sum.
@@ -1861,6 +1877,44 @@ class Solution(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#69. Sqrt(x)
+"""
+Implement int sqrt(int x).
+
+Compute and return the square root of x.
+"""
+class Solution(object):
+    def mySqrt(self, x):
+        """
+        :type x: int
+        :rtype: int
+        """
+        return self.sol2(x)
+        
+    def sol2(self,x):
+        #http://www.matrix67.com/blog/archives/361
+        # newton method
+        t = x
+        while t**2 >x:
+            t = int(t/2.0+x/(2.0*t))
+        return t
+        
+        
+    def sol1(self,x):
+        #binary search method
+        if x == 0 : return 0
+        if x <0 : return None
+        lo=1
+        hi = x/2 +1
+        while lo <= hi:
+            center = (lo + hi)/2
+            if center **2 == x:
+                return center
+            elif center **2 < x:
+                lo = center +1
+            else:
+                hi = center-1
+        return hi
 #-----------------------------------
 #70. Climbing Stairs
 """
@@ -3367,7 +3421,7 @@ class Solution(object):
         :rtype: bool
         """
         return self.bfs(s,wordDict)
-        
+
     def bfs(self, s, wordDict):
         # 将当前单词拆分为前后两半，若前缀可以在字典dict中找到，则将后缀加入队列
         q = [s]
@@ -3399,7 +3453,72 @@ class Solution(object):
                     break
         return dp[n]
 #-----------------------------------
+#140. Word Break II
+"""
+ Given a string s and a dictionary of words dict, add spaces in s to construct a sentence where each word is a valid dictionary word.
 
+Return all such possible sentences.
+
+For example, given
+s = "catsanddog",
+dict = ["cat", "cats", "and", "sand", "dog"].
+
+A solution is ["cats and dog", "cat sand dog"]. 
+"""
+class Solution(object):
+    def wordBreak(self, s, wordDict):
+        """
+        :type s: str
+        :type wordDict: Set[str]
+        :rtype: List[str]
+        """
+        return self.sol2(s,wordDict)
+    
+    def sol2(self,s,wordDict):
+        tokenDict = {} #key is string suffix, value is a list how it is splited
+        def dfs(s):
+            ans = []
+            if s in wordDict: ans.append(s)
+            for x in xrange(len(s)-1):
+                prefix,suffix =  s[:x+1],s[x+1:]
+                if prefix not in wordDict: continue
+                rest = []
+                if suffix in tokenDict: rest = tokenDict[suffix]
+                else:                  rest = dfs(suffix)
+                for n in rest:
+                    ans.append(prefix + ' ' + n)
+            tokenDict[s] = ans
+            return ans
+        
+        return dfs(s)
+    
+    #----------------------    
+    def sol1(self, s, wordDict):
+        # use the dp method + dfs, not efficient
+        self.res = []
+        self.dfs(s,wordDict,'')
+        return self.res
+        
+        
+    def dfs(self,s,wordDict,vstr):
+        if self.check(s,wordDict):
+            if len(s) == 0: 
+                self.res.append(vstr[1:])
+            for i in xrange(1,len(s)+1):
+                if s[:i] in wordDict:
+                    self.dfs(s[i:],wordDict,vstr+ ' ' + s[:i])
+        
+    def check(self,s,wordDict):
+        n = len(s)
+        dp = [False for i in xrange(n+1)]
+        dp[0] = True
+        for i in xrange(1,n+1):
+            for j in xrange(0,i):
+                if dp[j] and s[j:i] in wordDict: 
+                    dp[i] = True
+                    break
+        return dp[-1]
+        
 #-----------------------------------
 #141. Linked List Cycle
 """
@@ -7095,6 +7214,44 @@ class Solution(object):
                 c[x] -=1
         return ans
 #-----------------------------------
+#372. Super Pow
+"""
+ Your task is to calculate ab mod 1337 where a is a positive integer and b is an extremely large positive integer given in the form of an array.
+
+Example1:
+
+a = 2
+b = [3]
+
+Result: 8
+
+Example2:
+
+a = 2
+b = [1,0]
+
+Result: 1024
+
+"""
+class Solution(object):
+
+    def superPow(self, a, b):
+        """
+        :type a: int
+        :type b: List[int]
+        :rtype: int
+        """
+        #2^23 = (2^2)^10 * 2^3,
+        # http://www.cnblogs.com/grandyang/p/5651982.html
+        res = 1
+        for i in xrange(len(b)):
+            res = self.pow(res,10)*self.pow(a,b[i])%1337
+        return res
+        
+    def pow(self,x,n):
+        if n == 0: return 1
+        if n == 1: return x%1337
+        return self.pow(x%1337,n/2) *self. pow(x%1337,n-n/2) %1337
 #-----------------------------------
 #373. Find K Pairs with Smallest Sums 
 """

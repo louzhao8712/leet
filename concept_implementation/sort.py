@@ -34,7 +34,7 @@ def qsort1(alist):
                [pivot] + \
                qsort1([x for x in alist[1:] if x >= pivot])
 
-def qsort2(alist):
+def qsort2(alist,l,u):
     #in place
     print(alist)
     if l >= u:
