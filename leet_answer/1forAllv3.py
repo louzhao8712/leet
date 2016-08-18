@@ -7408,6 +7408,42 @@ class Solution(object):
                 c[x] -=1
         return ans
 #-----------------------------------
+#371. Sum of Two Integers
+"""
+Calculate the sum of two integers a and b, but you are not allowed to use the operator + and -.
+
+Example:
+Given a = 1 and b = 2, return 3. 
+"""
+class Solution(object):
+    def getSum(self, a, b):
+        """
+        :type a: int
+        :type b: int
+        :rtype: int
+        """
+        #http://bookshadow.com/weblog/2016/06/30/leetcode-sum-of-two-integers/
+        #https://discuss.leetcode.com/topic/51999/python-solution-with-no-completely-bit-manipulation-guaranteed/4
+        MAX_INT = 0x7FFFFFFF
+        MIN_INT = 0x80000000
+        MASK = 0xFFFFFFFF
+        while b:
+            a, b = (a ^ b) & MASK, ((a & b) << 1) & MASK
+        return a if a <= MAX_INT else ~(a ^ MASK )
+"""
+#java soltion
+public class Solution {
+    public int getSum(int a, int b) {
+        while (b != 0) {
+            int c = a ^ b;
+            b = (a & b) << 1;
+            a = c;
+        }
+        return a;
+    }
+}
+"""
+#-----------------------------------
 #372. Super Pow
 """
  Your task is to calculate ab mod 1337 where a is a positive integer and b is an extremely large positive integer given in the form of an array.
