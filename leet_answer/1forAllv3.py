@@ -3936,55 +3936,7 @@ class Solution(object):
         else: return nums[hi]
 
 
-#-----------------------------------
-#166. Fraction to Recurring Decimal
 
-class Solution(object):
-    """
-    Given two integers representing the numerator and denominator of a fraction, return the fraction in string format.
-
-    If the fractional part is repeating, enclose the repeating part in parentheses.
-
-    For example,
-
-        Given numerator = 1, denominator = 2, return "0.5".
-        Given numerator = 2, denominator = 1, return "2".
-        Given numerator = 2, denominator = 3, return "0.(6)".
-
-    """
-    def fractionToDecimal(self, numerator, denominator):
-        """
-        :type numerator: int
-        :type denominator: int
-        :rtype: str
-        """
-        if denominator == 0: return None
-        sign = "-" if numerator*denominator < 0 else ""
-        numerator= abs(numerator)
-        denominator = abs(denominator)
-        rl = [] #return list
-        db = {}
-        cnt = 0
-        repstr = None
-        while True:
-            rl.append(numerator/denominator)
-            cnt += 1
-            tmp = numerator%denominator
-            if tmp == 0: break
-            numerator = 10*tmp
-            if db.get(numerator) : # repeat start
-                # cnt +=1 so that make sure the last character in rl is included
-                repstr = "".join([str(x) for x in rl[db.get(numerator):cnt]])
-                break
-            db[numerator] = cnt
-        
-        res = str(rl[0])
-        if len(rl) > 1: res += "."
-        if repstr:
-            res += "".join([str(x) for x in rl[1:db.get(numerator)]]) + "(" + repstr + ")"
-        else:
-            res += "".join([str(x) for x in rl[1:]])
-        return sign + res
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
@@ -4061,48 +4013,58 @@ class MinStack(object):
 """
 Write a program to find the node at which the intersection of two singly linked lists begins.
 """
-# Definition for singly-linked list.
-# class ListNode(object):
-#     def __init__(self, x):
-#         self.val = x
-#         self.next = None
+vs
+#-----------------------------------
+#-----------------------------------
+#-----------------------------------
+#166. Fraction to Recurring Decimal
 
 class Solution(object):
-    def getIntersectionNode(self, headA, headB):
+    """
+    Given two integers representing the numerator and denominator of a fraction, return the fraction in string format.
+
+    If the fractional part is repeating, enclose the repeating part in parentheses.
+
+    For example,
+
+        Given numerator = 1, denominator = 2, return "0.5".
+        Given numerator = 2, denominator = 1, return "2".
+        Given numerator = 2, denominator = 3, return "0.(6)".
+
+    """
+    def fractionToDecimal(self, numerator, denominator):
         """
-        :type head1, head1: ListNode
-        :rtype: ListNode
+        :type numerator: int
+        :type denominator: int
+        :rtype: str
         """
-        if not headA or not headB: return None
-        lenA = self.getlen(headA)
-        lenB = self.getlen(headB)
+        if denominator == 0: return None
+        sign = "-" if numerator*denominator < 0 else ""
+        numerator= abs(numerator)
+        denominator = abs(denominator)
+        rl = [] #return list
+        db = {}
+        cnt = 0
+        repstr = None
+        while True:
+            rl.append(numerator/denominator)
+            cnt += 1
+            tmp = numerator%denominator
+            if tmp == 0: break
+            numerator = 10*tmp
+            if db.get(numerator) : # repeat start
+                # cnt +=1 so that make sure the last character in rl is included
+                repstr = "".join([str(x) for x in rl[db.get(numerator):cnt]])
+                break
+            db[numerator] = cnt
         
-        if lenA > lenB:
-            dist = lenA-lenB
-            for i in xrange(dist):
-                headA = headA.next
-        elif lenA < lenB:
-            dist = lenB- lenA
-            for i in xrange(dist):
-                headB= headB.next
-        
-        ret = None
-        while headA and headB:
-            if headA == headB:
-                return headA
-            else:
-                headA = headA.next
-                headB = headB.next
-        return ret
-        
-    def getlen(self,head):
-        ret = 0
-        while head:
-            ret +=1
-            head = head.next
-        return ret
-#-----------------------------------
-#-----------------------------------
+        res = str(rl[0])
+        if len(rl) > 1: res += "."
+        if repstr:
+            res += "".join([str(x) for x in rl[1:db.get(numerator)]]) + "(" + repstr + ")"
+        else:
+            res += "".join([str(x) for x in rl[1:]])
+        return sign + res
 #-----------------------------------
 #169. Majority Element
 """
@@ -4544,6 +4506,29 @@ class Solution(object):
             if n== 1 or (n in l): break
             l.append(n)
         return n==1
+#-----------------------------------
+#204. Count Primes
+"""
+Count the number of prime numbers less than a non-negative number, n.
+"""
+class Solution(object):
+    def countPrimes(self, n):
+        """
+        :type n: int
+        :rtype: int
+        """
+        if n < 2 : return 0
+        tb = [True for i in xrange(n)]
+
+        for i in xrange(2,n):
+            if i**2 >=n : break
+            if not tb[i] : continue
+            for j in xrange(i**2,n,i):
+                tb[j] = False
+        cnt =0
+        for i in xrange(2,n):
+            if tb[i]: cnt +=1
+        return cnt
 #-----------------------------------
 #206 Reverse Linked List
 # Definition for singly-linked list.
