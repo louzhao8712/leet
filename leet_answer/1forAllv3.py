@@ -4013,7 +4013,85 @@ class MinStack(object):
 """
 Write a program to find the node at which the intersection of two singly linked lists begins.
 """
-vs
+# Definition for singly-linked list.
+# class ListNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution(object):
+    def getIntersectionNode(self, headA, headB):
+        """
+        :type head1, head1: ListNode
+        :rtype: ListNode
+        """
+        return self.sol2(headA,headB)
+        
+    def sol2(self,headA,headB):
+        """
+        
+    Maintain two pointers pA and pB initialized at the head of A and B, respectively. Then let them both traverse through the lists, one node at a time.
+    When pA reaches the end of a list, then redirect it to the head of B (yes, B, that's right.); similarly when pB reaches the end of a list, redirect it the head of A.
+    If at any point pA meets pB, then pA/pB is the intersection node.
+    To see why the above trick would work, consider the following two lists: A = {1,3,5,7,9,11} and B = {2,4,9,11}, which are intersected at node '9'. Since B.length (=4) < A.length (=6), pB would reach the end of the merged list first, because pB traverses exactly 2 nodes less than pA does. By redirecting pB to head A, and pA to head B, we now ask pB to travel exactly 2 more nodes than pA would. So in the second iteration, they are guaranteed to reach the intersection node at the same time.
+    If two lists have intersection, then their last nodes must be the same one. So when pA/pB reaches the end of a list, record the last element of A/B respectively. If the two last elements are not the same one, then the two lists have no intersections.
+        """
+        if not headA or not headB: return None
+        pa = headA
+        pb = headB
+        count = 0
+        Aend = None
+        Bend = None
+        while pa.next or pb.next:
+
+            if pa.next == None : 
+                Aend = pa.val
+                pa.next = headB
+                count +=1
+            if pb.next == None:
+                Bend = pb.val
+                pb.next = headA
+                count +=1
+            if count == 2:
+                if Aend != Bend : return False
+            if count == 2 and pa == pb: return pa
+            pa = pa.next
+            pb = pb.next
+        
+        return False   
+        
+        
+    
+    def sol1(self,headA,headB):
+        if not headA or not headB: return None
+        lenA = self.getlen(headA)
+        lenB = self.getlen(headB)
+        
+        if lenA > lenB:
+            dist = lenA-lenB
+            for i in xrange(dist):
+                headA = headA.next
+        elif lenA < lenB:
+            dist = lenB- lenA
+            for i in xrange(dist):
+                headB= headB.next
+        
+        ret = None
+        while headA and headB:
+            if headA == headB:
+                return headA
+            else:
+                headA = headA.next
+                headB = headB.next
+        return ret
+        
+    def getlen(self,head):
+        ret = 0
+        while head:
+            ret +=1
+            head = head.next
+        return ret
+        
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
