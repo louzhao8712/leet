@@ -495,6 +495,7 @@ class Solution14(object):
 Given an array S of n integers, are there elements a, b, c in S 
 such that a + b + c = 0? Find all unique triplets in the array which gives the sum of zero.
 """
+# sort + 2 pointers
 class Solution(object):
     def threeSum(self, A):
         """
@@ -529,6 +530,7 @@ Given an array S of n integers, find three integers in S such that the sum is cl
     The sum that is closest to the target is 2. (-1 + 2 + 1 = 2).
 
 """
+#sort + 2 pointers
 class Solution(object):
     def threeSumClosest(self, A, target):
         """
@@ -606,6 +608,7 @@ A solution set is:
 ]
 
 """
+# sort + hash table + 2loop
 class Solution(object):
     def fourSum(self, A, target):
         """
@@ -1972,6 +1975,46 @@ class Solution(object):
         
 #-----------------------------------
 #-----------------------------------
+#67. Add Binary
+"""
+ Given two binary strings, return their sum (also a binary string).
+
+For example,
+a = "11"
+b = "1"
+Return "100". 
+"""
+class Solution(object):
+    def addBinary(self, a, b):
+        """
+        :type a: str
+        :type b: str
+        :rtype: str
+        """
+    def addBinary(self, a, b):
+        res = ''
+        ia = len(a)-1
+        ib = len(b)-1
+        carry = 0
+        while ia >=0 and ib>=0:
+          temp = int(a[ia]) + int(b[ib]) + carry
+          carry = temp/2
+          res = str(temp%2) + res
+          ia -= 1
+          ib -=1
+        while ia >=0:
+          temp = int(a[ia]) + carry
+          carry = temp/2
+          res = str(temp%2) + res
+          ia -=1
+        while ib >=0:
+          temp = int(b[ib]) + carry
+          carry = temp/2
+          res = str(temp%2) + res
+          ib -=1
+        if carry > 0:
+            res = str(carry) + res
+        return res
 #-----------------------------------
 #-----------------------------------
 #69. Sqrt(x)
@@ -5776,6 +5819,45 @@ class Solution(object):
             return hi
         return -1
 #-----------------------------------
+#283. Move Zeroes
+"""
+ Given an array nums, write a function to move all 0's to the end of it while maintaining the relative order of the non-zero elements.
+
+For example, given nums = [0, 1, 0, 3, 12], after calling your function, nums should be [1, 3, 12, 0, 0]. 
+"""
+class Solution(object):
+    def moveZeroes(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: void Do not return anything, modify nums in-place instead.
+        """
+        # 2 pointer method
+        n = len(nums)
+        if n <= 1: return
+        
+        Pmove = 0
+        Preplace = 0
+        while Pmove < n:
+            if nums[Pmove]!= 0:
+                nums[Preplace] = nums[Pmove]
+                Preplace += 1
+            Pmove +=1
+        for i in xrange(Preplace,n):
+            nums[i] = 0
+class Solution(object):
+    def moveZeroes(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: void Do not return anything, modify nums in-place instead.
+        """
+        p0 = 0
+        p1 = 0
+        for i in xrange(len(nums)):
+            if nums[i] != 0 : 
+                p1 = i
+                nums[p1],nums[p0] = nums[p0],nums[p1]
+                p0 +=1
+
 #-----------------------------------
 #284. Peeking Iterator
 """
