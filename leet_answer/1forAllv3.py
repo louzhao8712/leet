@@ -2245,6 +2245,55 @@ class Solution(object):
             else:
                 i += 1
 #-----------------------------------
+#76. Minimum Window Substring
+"""
+iven a string S and a string T, find the minimum window in S which will contain all the characters in T in complexity O(n).
+
+For example,
+S = "ADOBECODEBANC"
+T = "ABC"
+
+Minimum window is "BANC". 
+"""
+#hash table and two pointer
+class Solution(object):
+    def minWindow(self, s, t):
+        """
+        :type s: str
+        :type t: str
+        :rtype: str
+        """
+        ret = ""
+        ls = len(s); lt = len(t)
+        if ls == 0 or lt == 0 or ls < lt : return ret
+        tb = {}
+        # a table count item in T
+        # 'count'
+        for item in t:
+            tb[item] = tb.get(item,0) +1
+        prev = 0
+        count =0
+        minLen = float('inf')
+        minStart = 0
+        for i in xrange(ls):
+            if s[i] in tb: 
+                if tb[s[i]] > 0 : count += 1
+                tb[s[i]] -= 1 #important, negative means duplication
+                while count == lt:
+                    if s[prev] in tb:
+                        tb[s[prev]] += 1
+                        if tb[s[prev]] > 0: #s[prev] no more duplication
+                           if minLen > ( i - prev +1):
+                               minLen = i - prev +1
+                               minStart = prev
+                           count -=1        
+                    
+                    prev += 1
+                
+        if minLen == float('inf'): return ""
+        else: return s[minStart:minStart + minLen]
+
+#-----------------------------------
 #81. Search in Rotated Sorted Array II
 """
 basic idea: always compare nums[ce] with nums[lo], if equal lo+=1
@@ -4544,6 +4593,23 @@ class Solution(object):
 #-----------------------------------
 #200. Number of Islands
 """Given a 2d grid map of '1's (land) and '0's (water), count the number of islands. An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.
+Example 1:
+
+11110
+11010
+11000
+00000
+
+Answer: 1
+
+Example 2:
+
+11000
+11000
+00100
+00011
+
+Answer: 3
 """
 class Solution(object):
     def numIslands(self, grid):
@@ -5703,6 +5769,46 @@ class ZigzagIterator(object):
 # Your ZigzagIterator object will be instantiated and called as such:  
 # i, v = ZigzagIterator(v1, v2), []  
 # while i.hasNext(): v.append(i.next())  
+#-----------------------------------
+#273. Integer to English Words
+"""
+ Convert a non-negative integer to its english words representation. Given input is guaranteed to be less than 231 - 1.
+
+For example,
+
+123 -> "One Hundred Twenty Three"
+12345 -> "Twelve Thousand Three Hundred Forty Five"
+1234567 -> "One Million Two Hundred Thirty Four Thousand Five Hundred Sixty Seven"
+"""
+class Solution(object):
+    def numberToWords(self, num):
+        """
+        :type num: int
+        :rtype: str
+        """
+        lv1 = "Zero One Two Three Four Five Six Seven Eight Nine Ten \
+               Eleven Twelve Thirteen Fourteen Fifteen Sixteen Seventeen Eighteen Nineteen".split()
+        lv2 = "Twenty Thirty Forty Fifty Sixty Seventy Eighty Ninety".split()
+        lv3 = "Hundred"
+        lv4 = "Thousand Million Billion".split()
+        words, digits = [], 0
+        while num:
+            token, num = num % 1000, num / 1000
+            word = ''
+            if token > 99:
+                word += lv1[token / 100] + ' ' + lv3 + ' '
+                token %= 100
+            if token > 19:
+                word += lv2[token / 10 - 2] + ' '
+                token %= 10
+            if token > 0:
+                word += lv1[token] + ' '
+            word = word.strip()
+            if word:
+                word += ' ' + lv4[digits - 1] if digits else ''
+                words.insert(0,word)
+            digits += 1
+        return ' '.join(words) or 'Zero'
 #-----------------------------------
 #274. H-Index
 """
