@@ -1201,6 +1201,42 @@ class Solution40(object):
 
 #-----------------------------------
 #-----------------------------------
+#43. Multiply Strings
+"""
+Given two numbers represented as strings, return multiplication of the numbers as a string.
+
+Note:
+
+    The numbers can be arbitrarily large and are non-negative.
+    Converting the input string to integer is NOT allowed.
+    You should NOT use internal library such as BigInteger.
+
+"""
+class Solution(object):
+    def multiply(self, num1, num2):
+        """
+        :type num1: str
+        :type num2: str
+        :rtype: str
+        """
+        l1 = len(num1); l2 = len(num2)
+        arr = [0 for i in xrange(l1+l2)]
+        num1=num1[::-1]
+        num2=num2[::-1]
+        for i in xrange(l1):
+            for j in xrange(l2):
+                arr[i+j] += int(num1[i])*int(num2[j]) #most important step!
+        carry = 0
+        res = ''
+        for i in xrange(len(arr)):
+            tmp = arr[i] + carry
+            res = str(tmp%10) + res
+            carry = tmp/10
+        while res[0] == '0' and len(res) > 1: 
+            res = res[1:]
+        return res
+            
+        
 #-----------------------------------
 #44. Wildcard Matching
 """
@@ -2293,6 +2329,45 @@ class Solution(object):
         if minLen == float('inf'): return ""
         else: return s[minStart:minStart + minLen]
 
+#-----------------------------------
+#78. Subsets
+"""
+ Given a set of distinct integers, nums, return all possible subsets.
+
+Note: The solution set must not contain duplicate subsets.
+
+For example,
+If nums = [1,2,3], a solution is:
+
+[
+  [3],
+  [1],
+  [2],
+  [1,2,3],
+  [1,3],
+  [2,3],
+  [1,2],
+  []
+]
+
+"""
+#sort + dfs with depth
+class Solution(object):
+    def subsets(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: List[List[int]]
+        """
+        self.ln = len(nums)
+        self.ans = []
+        self.dfs(nums,0,[])
+        return self.ans
+
+    def dfs(self,nums,depth,vlist):
+        self.ans.append(vlist)
+        if depth == self.ln:  return
+        for i in xrange(len(nums)):
+            self.dfs(nums[i+1:],depth+1,vlist+[nums[i]])
 #-----------------------------------
 #81. Search in Rotated Sorted Array II
 """
@@ -5640,6 +5715,46 @@ class Solution(object):
 
 #-----------------------------------
 #-----------------------------------
+#239. Sliding Window Maximum
+"""
+Given an array nums, there is a sliding window of size k which is moving from the very left of the array to the very right. You can only see the k numbers in the window. Each time the sliding window moves right by one position.
+
+For example,
+Given nums = [1,3,-1,-3,5,3,6,7], and k = 3.
+
+Window position                Max
+---------------               -----
+[1  3  -1] -3  5  3  6  7       3
+ 1 [3  -1  -3] 5  3  6  7       3
+ 1  3 [-1  -3  5] 3  6  7       5
+ 1  3  -1 [-3  5  3] 6  7       5
+ 1  3  -1  -3 [5  3  6] 7       6
+ 1  3  -1  -3  5 [3  6  7]      7
+
+Therefore, return the max sliding window as [3,3,5,5,6,7].
+
+Note:
+You may assume k is always valid, ie: 1 ≤ k ≤ input array's size for non-empty array.
+"""
+class Solution(object):
+    def maxSlidingWindow(self, nums, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: List[int]
+        """
+        dq = []
+        ans = []
+        
+        for i in xrange(len(nums)):
+            while dq!=[] and nums[dq[-1]] < nums[i]:
+                dq.pop()
+            dq.append(i)
+            if dq[0] == i- k: dq.pop(0)
+            if i >= k-1:
+                ans.append(nums[dq[0]])
+        return ans
+
 #-----------------------------------
 #240. Search a 2D Matrix II
 """
@@ -5666,7 +5781,7 @@ class Solution(object):
                 return True
         return False
 #-----------------------------------
-#241
+
 #-----------------------------------
 #242. Valid Anagram
 """
@@ -5685,6 +5800,47 @@ class Solution(object):
         return sorted(s) == sorted(t)
 
 #-----------------------------------
+#257. Binary Tree Paths
+"""
+ Given a binary tree, return all root-to-leaf paths.
+
+For example, given the following binary tree:
+
+   1
+ /   \
+2     3
+ \
+  5
+
+All root-to-leaf paths are:
+
+["1->2->5", "1->3"]
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def binaryTreePaths(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[str]
+        """
+        if root == None : return []
+        self.res = []
+        self.dfs(root,"")
+        return self.res
+    
+    def dfs(self,root,vstr):
+        if root.left == None and root.right == None:
+            self.res.append(vstr+str(root.val))
+            return
+        #vlist.append(str(root.val))
+        if root.left:    self.dfs(root.left,vstr +str(root.val)+'->')
+        if root.right:   self.dfs(root.right,vstr +str(root.val)+'->')
 #-----------------------------------
 #268. Missing Number
 """
