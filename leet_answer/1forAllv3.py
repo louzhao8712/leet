@@ -1130,7 +1130,27 @@ The count-and-say sequence is the sequence of integers beginning as follows:
 
 Given an integer n, generate the nth sequence. 
 """
+class Solution(object):
+    def count(self,s):
+        ret = ''
+        count = 0
+        curr = None
+        for x in s:
+            if x!= curr:
+                if curr!= None:
+                    ret += str(count) + curr
+                count = 1
+                curr =x
+            else:
+                count +=1
+        ret += str(count) + curr
+        return ret
 
+    def countAndSay(self, n):
+        s='1'
+        for i in range(n-1):
+            s=self.count(s)
+        return s
 #-----------------------------------
 #39 Combination Sum
 """
@@ -1732,6 +1752,48 @@ class Solution(object):
                     res.append(inters[i])
         return res
 #-----------------------------------
+#57. Insert Interval
+"""
+Given a set of non-overlapping intervals, insert a new interval into the intervals (merge if necessary).
+
+You may assume that the intervals were initially sorted according to their start times.
+
+Example 1:
+Given intervals [1,3],[6,9], insert and merge [2,5] in as [1,5],[6,9].
+
+Example 2:
+Given [1,2],[3,5],[6,7],[8,10],[12,16], insert and merge [4,9] in as [1,2],[3,10],[12,16].
+
+This is because the new interval [4,9] overlaps with [3,5],[6,7],[8,10]. 
+"""
+# Definition for an interval.
+# class Interval(object):
+#     def __init__(self, s=0, e=0):
+#         self.start = s
+#         self.end = e
+
+class Solution(object):
+    def insert(self, inters, newI):
+        """
+        :type intervals: List[Interval]
+        :type newInterval: Interval
+        :rtype: List[Interval]
+        """
+        inters.append(newI)
+        inters.sort(key= lambda x:x.start)
+        n = len(inters)
+        res = []
+        for i in xrange(n):
+            if res == []:
+                res.append(inters[i])
+            else:
+                if res[-1].start <= inters[i].start <= res[-1].end:
+                    res[-1].end = max(res[-1].end, inters[i].end)
+                else:
+                    res.append(inters[i])
+        return res
+        
+        
 #-----------------------------------
 #59. Spiral Matrix II
 """
@@ -4317,6 +4379,39 @@ class Solution(object):
         return ret
         
 #-----------------------------------
+#161. One Edit Distance
+"""
+Given two strings S and T, determine if they are both one edit distance apart.
+"""
+class Solution(object):
+    def isOneEditDistance(self, s, t):
+        """
+        :type s: str
+        :type t: str
+        :rtype: bool
+        """
+        ln = len(s)
+        lt = len(t)
+        if abs(ln-lt)>1 : return False
+        if ln == lt: return self.isOneModify(s,t)
+        elif ln > lt: return self.isOneDel(s,t)
+        else: return self.isOneDel(t,s)
+        
+    def isOneModify(self,s,t):
+        diff =0
+        for i in xrange(len(s)):
+            if s[i]!=t[i]: diff +=1
+        return diff ==1
+
+    def isOneDel(self,s,t):
+        #assuming ls= lt +1
+        i,j=0,0
+        while i < len(s) and j <len(t):
+            if s[i]!=t[j]: return s[i+1:]==t[j:]
+            i+=1
+            j+=1
+        return True
+
 #-----------------------------------
 #-----------------------------------
 #166. Fraction to Recurring Decimal
@@ -6913,7 +7008,107 @@ class Solution(object):
         return dp[0][n - 1]
 
 #-----------------------------------
+#314. Binary Tree Vertical Order Traversal
+"""
+Given a binary tree, return the vertical order traversal of its nodes' values. (ie, from top to bottom, column by column).
 
+If two nodes are in the same row and column, the order should be from left to right.
+
+Examples:
+
+    Given binary tree [3,9,20,null,null,15,7],
+
+       3
+      /\
+     /  \
+     9  20
+        /\
+       /  \
+      15   7
+
+    return its vertical order traversal as:
+
+    [
+      [9],
+      [3,15],
+      [20],
+      [7]
+    ]
+
+    Given binary tree [3,9,8,4,0,1,7],
+
+         3
+        /\
+       /  \
+       9   8
+      /\  /\
+     /  \/  \
+     4  01   7
+
+    return its vertical order traversal as:
+
+    [
+      [4],
+      [9],
+      [3,0,1],
+      [8],
+      [7]
+    ]
+
+    Given binary tree [3,9,8,4,0,1,7,null,null,null,2,5] (0's right child is 2 and 1's left child is 5),
+
+         3
+        /\
+       /  \
+       9   8
+      /\  /\
+     /  \/  \
+     4  01   7
+        /\
+       /  \
+       5   2
+
+    return its vertical order traversal as:
+
+    [
+      [4],
+      [9,5],
+      [3,0,1],
+      [8,2],
+      [7]
+    ]
+
+
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def verticalOrder(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[List[int]]
+        """
+        #pre order
+        if root == None : return []
+        dic = collections.defaultdict(list) #position: list()
+        queue =[(root,0)] #node,index,level
+        while queue:
+            cur,idx = queue.pop(0)
+            if not cur : continue
+            dic[idx] += cur.val,
+            queue.append((cur.left,idx-1))
+            queue.append((cur.right,idx+1))
+        ret = []
+        if dic:
+            b, e, ret = min(dic.keys()), max(dic.keys()), []
+            for i in range(b, e + 1):
+                ret.append(dic[i])
+        return ret
 #-----------------------------------
 #319. Bulb Switcher
 """
