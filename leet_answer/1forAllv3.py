@@ -1119,6 +1119,18 @@ class Solution(object):
                 if board[(x/3)*3+i][(y/3)*3+j]==tmp: return False
         return True 
 #-----------------------------------
+#38. Count and Say
+"""
+The count-and-say sequence is the sequence of integers beginning as follows:
+1, 11, 21, 1211, 111221, ...
+
+1 is read off as "one 1" or 11.
+11 is read off as "two 1s" or 21.
+21 is read off as "one 2, then one 1" or 1211.
+
+Given an integer n, generate the nth sequence. 
+"""
+
 #-----------------------------------
 #39 Combination Sum
 """
@@ -2368,6 +2380,51 @@ class Solution(object):
         if depth == self.ln:  return
         for i in xrange(len(nums)):
             self.dfs(nums[i+1:],depth+1,vlist+[nums[i]])
+#-----------------------------------
+#79. Word Search
+"""
+ Given a 2D board and a word, find if the word exists in the grid.
+
+The word can be constructed from letters of sequentially adjacent cell, where "adjacent" cells are those horizontally or vertically neighboring. The same letter cell may not be used more than once.
+
+For example,
+Given board =
+
+[
+  ['A','B','C','E'],
+  ['S','F','C','S'],
+  ['A','D','E','E']
+]
+
+word = "ABCCED", -> returns true,
+word = "SEE", -> returns true,
+word = "ABCB", -> returns false.
+"""
+# dfs
+class Solution(object):
+    def exist(self, board, word):
+        def dfs(r,l,depth):
+            if depth == len(word): return True
+            if r<0 or r >=rowl or l <0 or l >=coll  or (board[r][l]!=word[depth]):
+                return False
+            if visited[r][l]==True:
+                return False
+            visited[r][l] = True
+            match = dfs(r-1,l,depth+1) or \
+                     dfs(r+1,l,depth+1) or \
+                     dfs(r,l-1,depth+1) or \
+                      dfs(r,l+1,depth+1)
+            visited[r][l] = False 
+            return match
+         
+        rowl = len(board)
+        coll = len(board[0])
+        visited =[ ['#' for i in xrange(coll)]for i in xrange(rowl)]
+        for i in xrange(rowl):
+            for j in xrange(coll):
+                if dfs(i,j,0):
+                    return True
+        return False
 #-----------------------------------
 #81. Search in Rotated Sorted Array II
 """
