@@ -1338,9 +1338,12 @@ class Solution(object):
         #中心思想 *什么都不匹配，你们先比
         # 不行的话，*占一位，然后你们再比
         # 再不行， *占两位
+        # s for string, p for pattern
+        #ss is used to save the place in s when * happened in p
+        # start is the place in p when * happened
         pPointer = sPointer = ss = 0
         star = -1
-        #ss is used to save the place in s when * happened in p
+
         while sPointer < len(s):
             if pPointer < len(p):
                 if p[pPointer] == s[sPointer] or p[pPointer] == '?':
@@ -1352,13 +1355,18 @@ class Solution(object):
                     ss = sPointer
                     pPointer +=1
                     continue
+            #reach this step means pPointer end but s did not fully match
+            # so we need to use the star
             if star != -1: # e.g. case single '*"
                 pPointer = star +1 #always star +1, we try to match this digit in s
-                ss +=1
+                ss += 1
                 sPointer = ss
                 continue
             return False
+
         while pPointer < len(p) and p[pPointer] == "*":
+            # we don't need entire P and can already match S
+            # the rest of P need to be "*"
             pPointer +=1
         return pPointer == len(p)
 #-----------------------------------
@@ -4093,7 +4101,6 @@ class LRUCache(object):
         else:
             return -1
 
-
     def set(self, key, value):
         """
         :type key: int
@@ -4293,7 +4300,95 @@ class MinStack(object):
         if self.stack2!=[]:return self.stack2[-1]
         else: return None
 #-----------------------------------
+#157. Read N Characters Given Read4
+"""
+ The API: int read4(char *buf) reads 4 characters at a time from a file.
+
+The return value is the actual number of characters read. For example, it returns 3 if there is only 3 characters left in the file.
+
+By using the read4 API, implement the function int read(char *buf, int n) that reads n characters from the file.
+
+Note:
+The read function will only be called once for each test case. 
+"""
+# The read4 API is already defined for you.
+# @param buf, a list of characters
+# @return an integer
+# def read4(buf):
+
+class Solution(object):
+    def read(self, buf, n):
+        """
+        :type buf: Destination buffer (List[str])
+        :type n: Maximum number of characters to read (int)
+        :rtype: The number of characters read (int)
+        """
+        #the actual file that read4 reads from is hidden from us. read4 reads the file and put it in buf4 and chars in buf4 are put into buf
+        idx = 0
+        while n > 0:
+            # read file to buf4
+            buf4 = [""]*4
+            l = read4(buf4)
+            # if no more char in file, return
+            if not l:
+                return idx
+            # write buf4 into buf directly
+            for i in range(min(l, n)):
+                buf[idx] = buf4[i]
+                idx += 1
+                n -= 1
+        return idx
 #-----------------------------------
+#158. Read N Characters Given Read4 II - Call multiple times
+"""
+ The API: int read4(char *buf) reads 4 characters at a time from a file.
+
+The return value is the actual number of characters read. For example, it returns 3 if there is only 3 characters left in the file.
+
+By using the read4 API, implement the function int read(char *buf, int n) that reads n characters from the file.
+
+Note:
+The read function may be called multiple times
+"""
+# The read4 API is already defined for you.
+# @param buf, a list of characters
+# @return an integer
+# def read4(buf):
+
+class Solution(object):
+
+    def __init__(self):
+        self.queue = [] # global "buffer"
+    
+    def read(self, buf, n):
+        idx = 0
+    
+        # if queue is large enough, read from queue
+        while self.queue and n > 0:
+            buf[idx] = self.queue.pop(0)
+            idx += 1
+            n -= 1
+        
+        while n > 0:
+            # read file to buf4
+            buf4 = [""]*4
+            l = read4(buf4)
+    
+            # if no more char in file, return
+            if not l:
+                return idx
+    
+            # if buf can not contain buf4, save to queue
+            # l > n, we read more than we need, save the extra to queue
+            if l > n:
+                self.queue += buf4[n:l]
+    
+            # write buf4 into buf directly
+            for i in range(min(l, n)):
+                buf[idx] = buf4[i]
+                idx += 1
+                n -= 1
+        return idx   
 #-----------------------------------
 #160. Intersection of Two Linked Lists
 """
@@ -5265,8 +5360,82 @@ class Solution(object):
                 if degrees[child] == 0:
                     delqueue.append(child)
         return [[],ans][len(A) == 0]
-        
+
 #-----------------------------------
+#211. Add and Search Word - Data structure design
+"""
+ Design a data structure that supports the following two operations:
+
+void addWord(word)
+bool search(word)
+
+search(word) can search a literal word or a regular expression string containing 
+only letters a-z or .. A . means it can represent any one letter.
+
+For example:
+
+addWord("bad")
+addWord("dad")
+addWord("mad")
+search("pad") -> false
+search("bad") -> true
+search(".ad") -> true
+search("b..") -> true
+
+"""
+class WordDictionary(object):
+    def __init__(self):
+        """
+        initialize your data structure here.
+        """
+        self.root = TrieNode()
+
+    def addWord(self, word):
+        """
+        Adds a word into the data structure.
+        :type word: str
+        :rtype: void
+        """
+        p = self.root
+        for x in word:
+            if x not in p.childs:
+                child = TrieNode()
+                p.childs[x] = child
+            p = p.childs[x]
+        p.isWord = True
+
+    def search(self, word):
+        """
+        Returns if the word is in the data structure. A word could
+        contain the dot character '.' to represent any one letter.
+        :type word: str
+        :rtype: bool
+        """
+        return self.dfs(self.root,word)
+
+    def dfs(self,node,word):
+        if word == "" : return node.isWord
+        if word[0] == ".":
+            for x in node.childs:
+                if self.dfs(node.childs[x],word[1:]):
+                    return True
+        else:
+            child = node.childs.get(word[0])
+            if child:
+                return self.dfs(child,word[1:])
+        return False
+
+class TrieNode(object):
+    def __init__(self):
+        """
+        Initialize your data structure here.
+        """
+        self.isWord = False
+        self.childs = {}
+# Your WordDictionary object will be instantiated and called as such:
+# wordDictionary = WordDictionary()
+# wordDictionary.addWord("word")
+# wordDictionary.search("pattern")
 #-----------------------------------
 #213. House Robber II
 """
@@ -6233,6 +6402,51 @@ class Solution(object):
             return hi
         return -1
 #-----------------------------------
+#282. Expression Add Operators
+"""
+ Given a string that contains only digits 0-9 and a target value, return all possibilities to add binary operators (not unary) +, -, or * between the digits so they evaluate to the target value.
+
+Examples:
+
+"123", 6 -> ["1+2+3", "1*2*3"] 
+"232", 8 -> ["2*3+2", "2+3*2"]
+"105", 5 -> ["1*0+5","10-5"]
+"00", 0 -> ["0+0", "0-0", "0*0"]
+"3456237490", 9191 -> []
+
+"""
+#dfs solution
+class Solution(object):
+    def addOperators(self, num, target):
+        """
+        :type num: str
+        :type target: int
+        :rtype: List[str]
+        """
+        #https://leetcode.com/discuss/70597/clean-python-dfs-with-comments
+        #num: remaining num string
+        #temp: temporally string with operators added
+        #cur: current result of "temp" string
+        #last: last multiply-level number in "temp". if next operator is "multiply", "cur" and "last" will be updated
+        #res: result to return
+        res = []
+        self.target = target
+        for i in xrange(1,len(num)+1):
+            if i == 1 or (i>1 and num[0] != '0'):
+                self.dfs(num[i:],num[:i],int(num[:i]),int(num[:i]),res)
+        return res
+    def dfs(self,num,temp,curr,last,res):
+        if not num: 
+            if curr ==  self.target:    res.append(temp)
+            return
+        for i in xrange(1,len(num)+1):
+            val = num[:i]
+            if i == 1 or (i>1 and num[0] != '0'):
+                self.dfs(num[i:],temp+'+'+val,curr+int(val),int(val),res)
+                self.dfs(num[i:],temp+'-'+val,curr-int(val),-int(val),res)
+                self.dfs(num[i:],temp+'*'+val,curr-last+last*int(val),last*int(val),res)
+#divide and conquer
+#-----------------------------------
 #283. Move Zeroes
 """
  Given an array nums, write a function to move all 0's to the end of it while maintaining the relative order of the non-zero elements.
@@ -6962,6 +7176,84 @@ class Solution(object):
                         newLeaves.append(y)
             leaves = newLeaves
         return leaves
+        
+#-----------------------------------
+#311. Sparse Matrix Multiplication
+"""
+Given two sparse matrices A and B, return the result of AB.
+
+You may assume that A's column number is equal to B's row number.
+
+Example:
+
+A = [
+  [ 1, 0, 0],
+  [-1, 0, 3]
+]
+
+B = [
+  [ 7, 0, 0 ],
+  [ 0, 0, 0 ],
+  [ 0, 0, 1 ]
+]
+
+
+     |  1 0 0 |   | 7 0 0 |   |  7 0 0 |
+AB = | -1 0 3 | x | 0 0 0 | = | -7 0 3 |
+                  | 0 0 1 |
+
+"""
+class Solution(object):
+    def multiply(self, A, B):
+        """
+        :type A: List[List[int]]
+        :type B: List[List[int]]
+        :rtype: List[List[int]]
+        """
+        return self.sol1(A,B)
+
+
+    def sol2(self, A, B):
+        """
+        :type A: List[List[int]]
+        :type B: List[List[int]]
+        :rtype: List[List[int]]
+        """
+        #with hashtable for B
+        if A is None or B is None: return None
+        m, n, l = len(A), len(A[0]), len(B[0])
+        if len(B) != n:
+            raise Exception("A's column number must be equal to B's row number.")
+        C = [[0 for _ in range(l)] for _ in range(m)]
+        tableB = {}
+        for k, row in enumerate(B):
+            tableB[k] = {}
+            for j, eleB in enumerate(row):
+                if eleB: tableB[k][j] = eleB
+        for i, row in enumerate(A):
+            for k, eleA in enumerate(row):
+                if eleA:
+                    for j, eleB in tableB[k].iteritems():
+                        C[i][j] += eleA * eleB
+        return C
+        
+    def sol1(self,A,B):
+        # time limit exceed
+        lrA = len(A) #row
+        lcA = len(A[0])
+        lrB = len(B)
+        lcB = len(B[0])
+        assert lcA == lrB
+        #output is lrA x lcB
+        C = [[0 for _ in xrange(lcB)] for _ in xrange(lrA)]
+        for i, row in enumerate(A):
+            for k, eleA in enumerate(row):
+                if eleA: #prunting
+                    for j, eleB in enumerate(B[k]):
+                        if eleB: C[i][j] += eleA * eleB
+
+        return C
+ 
         
 #-----------------------------------
 #312. Burst Balloons
