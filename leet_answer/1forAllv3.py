@@ -2604,6 +2604,44 @@ class Solution(object):
         return maxArea
 
 #-----------------------------------
+#90. Subsets II
+"""
+ Given a collection of integers that might contain duplicates, nums, return all possible subsets.
+
+Note: The solution set must not contain duplicate subsets.
+
+For example,
+If nums = [1,2,2], a solution is:
+
+[
+  [2],
+  [1],
+  [1,2,2],
+  [2,2],
+  [1,2],
+  []
+]
+
+"""
+class Solution(object):
+    def subsetsWithDup(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: List[List[int]]
+        """
+
+        nums.sort()
+        self.ln = len(nums)
+        self.ans = set([])
+        self.dfs(nums,0,[])
+        return [list(item) for item in set(self.ans)]
+
+    def dfs(self,nums,depth,vlist):
+
+        self.ans.add(tuple(vlist))
+        if depth == self.ln:  return
+        for i in xrange(len(nums)):
+            self.dfs(nums[i+1:],depth+1,vlist+[nums[i]])
 #-----------------------------------
 #91. Decode Ways
 """
@@ -3639,6 +3677,40 @@ class Solution(object):
                             wordList.remove(nextWord)
         return 0
 #-----------------------------------
+#128. Longest Consecutive Sequence
+"""
+ Given an unsorted array of integers, find the length of the longest consecutive elements sequence.
+
+For example,
+Given [100, 4, 200, 1, 3, 2],
+The longest consecutive elements sequence is [1, 2, 3, 4]. Return its length: 4.
+
+Your algorithm should run in O(n) complexity.
+"""
+class Solution(object):
+    def longestConsecutive(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        # use extra space hashtable to save space
+        visit = {x: False for x in nums} #Flase means not visitd
+        maxLen =0
+        for i in visit:
+            if not visit[i]:
+                left = visit.get(i-1,0)
+                right = visit.get(i+1,0)
+                sum = left+right+1
+                visit[i] = sum
+                
+                maxLen =  max(maxLen,sum)
+                # only update the boundary. because all the elements in side the
+                #interval has already been visited. Boundary is the interface
+                visit[i-left] = sum
+                visit[i+right] = sum
+                
+
+        return maxLen
 #-------dfs----------------------------
 #131. Palindrome Partitioning
 """
@@ -4868,7 +4940,7 @@ Don't worry about handling ties, it is guaranteed that each word's frequency cou
 
 #uniq -c: uniq用来对连续出现的行去重，-c参数为计数
 
-#sort -rn: -r 倒序排列， -n 按照数值大小排序（感谢网友 长弓1990 指正）
+#sort -rn: -r 倒序排列， -n 按照数值大小排序
 
 #awk '{ print $2, $1 }': 格式化输出，将每一行的内容用空格分隔成若干部分，$i为第i个部分。
 cat words.txt | tr -s ' ' '\n' | sort | uniq -c | sort -rn | awk '{print $2" "$1}'
@@ -6500,6 +6572,53 @@ class Solution(object):
 
 #-----------------------------------
 #-----------------------------------
+#277. Find the Celebrity
+"""
+ Suppose you are at a party with n people (labeled from 0 to n - 1) and among them, there may exist one celebrity. The definition of a celebrity is that all the other n - 1 people know him/her but he/she does not know any of them.
+
+Now you want to find out who the celebrity is or verify that there is not one. The only thing you are allowed to do is to ask questions like: "Hi, A. Do you know B?" to get information of whether A knows B. You need to find out the celebrity (or verify there is not one) by asking as few questions as possible (in the asymptotic sense).
+
+You are given a helper function bool knows(a, b) which tells you whether A knows B. Implement a function int findCelebrity(n), your function should minimize the number of calls to knows.
+
+Note: There will be exactly one celebrity if he/she is in the party. Return the celebrity's label if there is a celebrity in the party. If there is no celebrity, return -1
+"""
+
+# The knows API is already defined for you.
+# @param a, person a
+# @param b, person b
+# @return a boolean, whether a knows b
+# def knows(a, b):
+
+class Solution(object):
+    def findCelebrity(self, n):
+        """
+        :type n: int
+        :rtype: int
+        """
+        #O(n) solution
+        if n <= 1: return -1
+        stack = range(n)
+        while len(stack)>1:
+            if knows(stack[-1],stack[-2]): #stack[-1] is normal people
+                stack.pop()
+            else: #stack[-2] is normal
+                end = stack.pop()
+                stack.pop()
+                stack.append(end)
+        
+        candidate = stack[0]
+        # someone must know the candidate
+        # and candidate cannot know anyone
+        count = 0
+        for i in range(0,candidate)+range(candidate+1,n):
+                if knows(candidate, i): return -1
+                if  knows(i,candidate): count += 1
+
+
+        if count and count == n-1: return candidate
+        else: return -1
+                
+
 #-----------------------------------
 #278. First Bad Version
 """
