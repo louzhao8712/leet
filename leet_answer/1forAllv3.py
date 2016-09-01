@@ -1353,11 +1353,13 @@ class Solution(object):
                 elif p[pPointer] == "*" :
                     star = pPointer
                     ss = sPointer
-                    pPointer +=1
+                    pPointer +=1 #don't use *for now
                     continue
             #reach this step means pPointer end but s did not fully match
             # so we need to use the star
             if star != -1: # e.g. case single '*"
+                #pPointer always go back to same location, but sPointer moves forward
+                #i.e * in P start to match more characters
                 pPointer = star +1 #always star +1, we try to match this digit in s
                 ss += 1
                 sPointer = ss
@@ -5577,7 +5579,7 @@ class Solution(object):
 
         return heapq.heappop(h)
 #-----------------------------------
-#216
+
 #-----------------------------------
 #217. Contains Duplicate
 """
@@ -5596,6 +5598,75 @@ class Solution(object):
         return False
         # method2 sort nums 1st o(nlgn), space o(1)
 #-----------------------------------
+#218. The Skyline Problem
+"""
+A city's skyline is the outer contour of the silhouette formed by all the buildings in that city when viewed from a distance. Now suppose you are given the locations and height of all the buildings as shown on a cityscape photo (Figure A), write a program to output the skyline formed by these buildings collectively (Figure B).
+Buildings Skyline Contour
+
+The geometric information of each building is represented by a triplet of integers [Li, Ri, Hi], where Li and Ri are the x coordinates of the left and right edge of the ith building, respectively, and Hi is its height. It is guaranteed that 0 ≤ Li, Ri ≤ INT_MAX, 0 < Hi ≤ INT_MAX, and Ri - Li > 0. You may assume all buildings are perfect rectangles grounded on an absolutely flat surface at height 0.
+
+For instance, the dimensions of all buildings in Figure A are recorded as: [ [2 9 10], [3 7 15], [5 12 12], [15 20 10], [19 24 8] ] .
+
+The output is a list of "key points" (red dots in Figure B) in the format of [ [x1,y1], [x2, y2], [x3, y3], ... ] that uniquely defines a skyline. A key point is the left endpoint of a horizontal line segment. Note that the last key point, where the rightmost building ends, is merely used to mark the termination of the skyline, and always has zero height. Also, the ground in between any two adjacent buildings should be considered part of the skyline contour.
+
+For instance, the skyline in Figure B should be represented as:[ [2 10], [3 15], [7 12], [12 0], [15 10], [20 8], [24, 0] ].
+
+Notes:
+
+    The number of buildings in any input list is guaranteed to be in the range [0, 10000].
+    The input list is already sorted in ascending order by the left x position Li.
+    The output list must be sorted by the x position.
+    There must be no consecutive horizontal lines of equal height in the output skyline. For instance, [...[2 3], [4 5], [7 5], [11 5], [12 7]...] is not acceptable; the three lines of height 5 should be merged into one in the final output as such: [...[2 3], [4 5], [12 7], ...]
+
+"""
+#using heap
+#https://leetcode.com/discuss/37630/my-c-code-using-one-priority-queue-812-ms
+#https://leetcode.com/discuss/37736/108-ms-17-lines-body-explained
+#
+
+#The idea is to do line sweep and just process the buildings only at the start and end points. 
+#The key is to use a priority queue to save all the buildings that are still "alive". 
+#The queue is sorted by its height and end time (the larger height first and if equal height, the one with a bigger end time first). 
+#For each iteration, we first find the current process time, which is either the next new building start time 
+#   or the end time of the top entry of the live queue.
+#If the new building start time is larger than the top one end time, then process the one in the queue first
+#   (pop them until it is empty or find the first one that ends after the new building);
+#otherswise, if the new building starts before the top one ends, then process the new building
+#   (just put them in the queue). After processing, output it to the resulting vector if the height changes.
+#Complexity is the worst case O(NlogN)
+#Very nice idea, keeping smaller buildings alive under larger ones even though they ended already.
+from heapq import *
+class Solution(object):
+    def getSkyline(self, LRH):
+        """
+        :type buildings: List[List[int]]
+        :rtype: List[List[int]]
+        """
+        
+        skyline = []
+        i,n = 0, len(LRH)
+        liveHR = [] #the heap
+        while i < n or liveHR:
+            if not liveHR or (i<n and LRH[i][0] <= -liveHR[0][1]):
+                # LRH[i][0] is the new building, LRH[i][0] <= -liveHR[0][1], push it to the heap
+                x = LRH[i][0]
+                while i < n and LRH[i][0] == x:
+                    #push all the new buildings start from the same place
+                    heappush(liveHR,(-LRH[i][2],-LRH[i][1]))
+                    i+=1
+            else: #no new building found
+                x = -liveHR[0][1] # save the heap top right for the case of point(x,0)
+                while liveHR and -liveHR[0][1] <=x: #remove all the building on the left of the top building
+                    heappop(liveHR)
+            if liveHR: height = -liveHR[0][0]
+            else:       height = 0
+            if not skyline or height != skyline[-1][1]:
+                skyline.append([x,height]) # why insert x?
+        return skyline
+
+
+
+
 #-----------------------------------
 #219. Contains Duplicate II
 """
@@ -6121,6 +6192,67 @@ class Solution(object):
         return sorted(s) == sorted(t)
 
 #-----------------------------------
+#252. Meeting Rooms
+"""
+Given an array of meeting time intervals consisting of start and end times [[s1,e1],[s2,e2],...] (si < ei), determine if a person could attend all meetings.
+
+For example,
+Given [[0, 30],[5, 10],[15, 20]],
+return false. 
+"""
+# Definition for an interval.
+# class Interval(object):
+#     def __init__(self, s=0, e=0):
+#         self.start = s
+#         self.end = e
+
+class Solution(object):
+    def canAttendMeetings(self, intervals):
+        """
+        :type intervals: List[Interval]
+        :rtype: bool
+        """
+        if intervals == []: return True
+        leni = len(intervals)
+        intervals.sort(key =lambda x: x.start)
+        for i in xrange(leni-1):
+            if intervals[i].end > intervals[i+1].start:
+                return False
+        return True
+
+#-----------------------------------
+#253. Meeting Rooms II
+"""
+Given an array of meeting time intervals consisting of start and end times [[s1,e1],[s2,e2],...] (si < ei), find the minimum number of conference rooms required.
+
+For example,
+Given [[0, 30],[5, 10],[15, 20]],
+return 2. 
+"""
+# Definition for an interval.
+# class Interval(object):
+#     def __init__(self, s=0, e=0):
+#         self.start = s
+#         self.end = e
+
+from heapq import *
+class Solution(object):
+    def minMeetingRooms(self, intervals):
+        """
+        :type intervals: List[Interval]
+        :rtype: int
+        """
+        if intervals == []: return 0
+        intervals.sort(key =lambda x: x.start)
+        meetingRooms = [intervals[0].end] # sort by end time, which is a heap
+        for item in intervals[1:]:
+            if item.start < meetingRooms[0]: #minheap top, the 1st availabe room
+                heappush(meetingRooms,item.end)
+            else: #add meeting in the same room
+                top = heappop(meetingRooms)
+                heappush(meetingRooms,item.end)
+        return len(meetingRooms)
+#-----------------------------------
 #257. Binary Tree Paths
 """
  Given a binary tree, return all root-to-leaf paths.
@@ -6575,6 +6707,38 @@ class PeekingIterator(object):
 #     val = iter.peek()   # Get the next element but not advance the iterator.
 #     iter.next()   
 #-----------------------------------
+#285. Inorder Successor in BST
+"""
+Given a binary search tree and a node in it, find the in-order successor of that node in the BST. 
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def inorderSuccessor(self, root, p):
+        """
+        :type root: TreeNode
+        :type p: TreeNode
+        :rtype: TreeNode
+        """
+        self.prev = None
+        self.p = p
+        self.res = None
+        self.recursive(root)
+        return self.res
+        
+    def recursive(self,root):
+        #inorder traverse
+        if root:
+            self.recursive(root.left)
+            if self.prev == self.p:
+                self.res = root
+            self.prev = root
+            self.recursive(root.right)
 #-----------------------------------
 #292. Nim Game
 """
