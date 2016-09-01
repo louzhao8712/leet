@@ -5654,7 +5654,7 @@ class Solution(object):
                     #push all the new buildings start from the same place
                     heappush(liveHR,(-LRH[i][2],-LRH[i][1]))
                     i+=1
-            else: #no new building found
+            else: #no new building found, need to print out (x,0) case
                 x = -liveHR[0][1] # save the heap top right for the case of point(x,0)
                 while liveHR and -liveHR[0][1] <=x: #remove all the building on the left of the top building
                     heappop(liveHR)
