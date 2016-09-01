@@ -2149,7 +2149,7 @@ class Solution(object):
         :type x: int
         :rtype: int
         """
-        return self.sol2(x)
+        return self.sol1(x)
         
     def sol2(self,x):
         #http://www.matrix67.com/blog/archives/361
@@ -2158,23 +2158,23 @@ class Solution(object):
         while t**2 >x:
             t = int(t/2.0+x/(2.0*t))
         return t
-        
-        
+
     def sol1(self,x):
         #binary search method
         if x == 0 : return 0
         if x <0 : return None
         lo=1
         hi = x/2 +1
-        while lo <= hi:
-            center = (lo + hi)/2
+        while lo +1 < hi:
+            center = lo + (hi-lo)/2
             if center **2 == x:
                 return center
             elif center **2 < x:
-                lo = center +1
+                lo = center
             else:
-                hi = center-1
-        return hi
+                hi = center
+        if hi **2 <= x : return hi
+        else: return lo
 #-----------------------------------
 #70. Climbing Stairs
 """
@@ -2209,7 +2209,46 @@ class Solution(object):
             dp[i] = dp[i-1] +dp[i-2]
         return dp[n]
 #----------------------------------
-#-----------------------------------
+#71. Simplify Path
+"""
+Given an absolute path for a file (Unix-style), simplify it.
+
+For example,
+path = "/home/", => "/home"
+path = "/a/./b/../../c/", => "/c"
+
+click to show corner cases.
+Corner Cases:
+
+    Did you consider the case where path = "/../"?
+    In this case, you should return "/".
+    Another corner case is the path might contain multiple slashes '/' together, such as "/home//foo/".
+    In this case, you should ignore redundant slashes and return "/home/foo".
+"""
+class Solution(object):
+    def simplifyPath(self, path):
+        """
+        :type path: str
+        :rtype: str
+        """
+        stack = []
+        # if stack already empty and still get .., then keep the same
+        
+        #round2, try to do the loop in one run to handle the space
+        tmp = filter(None,path.split('/'))
+        for item in tmp:
+            if item == ".": continue
+            if item == ".." :
+                if stack !=[]: stack.pop()
+                else: continue
+            else:
+                stack.append(item)
+        if stack == []: return '/'
+        ret = ''
+        for item in stack:
+            ret += '/'+ item 
+        return ret
+        
 #-------dp----------------------------
 #72 Edit Distance
 """
@@ -5217,7 +5256,7 @@ class TrieNode(object):
         """
         Initialize your data structure here.
         """
-        self.childs = {}
+        self.childs = {} #val:newNode
         self.isWord = False
 
 
@@ -6178,6 +6217,34 @@ class Solution(object):
             node = None
 
 #-----------------------------------
+#238. Product of Array Except Self
+"""
+ Given an array of n integers where n > 1, nums, return an array output such that output[i] is equal to the product of all the elements of nums except nums[i].
+
+Solve it without division and in O(n).
+
+For example, given [1,2,3,4], return [24,12,8,6].
+
+Follow up:
+Could you solve it with constant space complexity? (Note: The output array does not count as extra space for the purpose of space complexity analysis.)
+"""
+class Solution(object):
+    def productExceptSelf(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: List[int]
+        """
+        n = len(nums)
+        ret = [ 1 for i in xrange(n)]
+        leftp = 1
+        for i in xrange(n-1):
+            leftp *= nums[i]
+            ret[i+1] *= leftp
+        rightp =1
+        for i in xrange(n-1,0,-1):
+            rightp *=nums[i]
+            ret[i-1] *= rightp
+        return  ret
 #-----------------------------------
 #239. Sliding Window Maximum
 """
@@ -6858,6 +6925,90 @@ class Solution(object):
                 self.res = root
             self.prev = root
             self.recursive(root.right)
+#-----------------------------------
+#286. Walls and Gates
+"""
+ You are given a m x n 2D grid initialized with these three possible values.
+
+    -1 - A wall or an obstacle.
+    0 - A gate.
+    INF - Infinity means an empty room. We use the value 231 - 1 = 2147483647 to represent INF as you may assume that the distance to a gate is less than 2147483647.
+
+Fill each empty room with the distance to its nearest gate. If it is impossible to reach a gate, it should be filled with INF.
+
+For example, given the 2D grid:
+
+INF  -1  0  INF
+INF INF INF  -1
+INF  -1 INF  -1
+  0  -1 INF INF
+
+After running your function, the 2D grid should be:
+
+  3  -1   0   1
+  2   2   1  -1
+  1  -1   2  -1
+  0  -1   3   4
+"""
+class Solution(object):
+    def wallsAndGates(self, rooms):
+        """
+        :type rooms: List[List[int]]
+        :rtype: void Do not return anything, modify rooms in-place instead.
+        """
+        self.sol1(rooms)
+
+    def sol1(self,rooms):
+        #dfs method
+        lrow = len(rooms)
+        if lrow == 0: return
+        lcol = len(rooms[0])
+        if lcol == 0: return
+        queue = []
+        INF = 2147483647
+        #find all gates first
+        for i in xrange(lrow):
+            for j in xrange(lcol):
+                if rooms[i][j] == 0: #add all gate
+                    self.dfs(rooms,i,j,0)
+                    
+    def dfs(self,rooms,i,j,dist):
+        if i<0 or i >=len(rooms) or j<0 or j>=len(rooms[0]) or rooms[i][j] < dist: return #all the -1 points get skipped
+        rooms[i][j] = dist
+        self.dfs(rooms,i-1,j,dist+1)
+        self.dfs(rooms,i+1,j,dist+1)
+        self.dfs(rooms,i,j-1,dist+1)
+        self.dfs(rooms,i,j+1,dist+1)
+        
+    def sol1bfs(self,rooms):
+        lrow = len(rooms)
+        if lrow == 0: return
+        lcol = len(rooms[0])
+        if lcol == 0: return
+        queue = []
+        INF = 2147483647
+        #find all gates first
+        for i in xrange(lrow):
+            for j in xrange(lcol):
+                if rooms[i][j] == 0: #add all gate
+                    queue.append([i,j])
+
+        # the most important part is all gates 0 added to the queue first
+        # then spread to far away points
+        while queue:
+            row,col = queue.pop(0)
+            if row > 0 and rooms[row-1][col] == INF:
+                rooms[row-1][col] = rooms[row][col] +1
+                queue.append([row-1,col])
+            if row < lrow -1 and rooms[row+1][col] == INF:
+                rooms[row+1][col] = rooms[row][col] +1
+                queue.append([row+1,col])
+            if col >0 and rooms[row][col-1] == INF:
+                rooms[row][col-1] = rooms[row][col] +1
+                queue.append([row,col-1])
+            if col < lcol -1 and rooms[row][col+1] == INF:
+                rooms[row][col+1] = rooms[row][col] +1
+                queue.append([row,col+1])
 #-----------------------------------
 #292. Nim Game
 """
@@ -7818,6 +7969,55 @@ void wiggleSort(vector<int>& nums) {
 }
 
 """
+#-----------------------------------
+#325. Maximum Size Subarray Sum Equals k
+"""
+ Given an array nums and a target value k, find the maximum length of a subarray that sums to k. If there isn't one, return 0 instead.
+
+Example 1:
+
+Given nums = [1, -1, 5, -2, 3], k = 3,
+return 4. (because the subarray [1, -1, 5, -2] sums to 3 and is the longest)
+
+Example 2:
+
+Given nums = [-2, -1, 2, 1], k = 1,
+return 2. (because the subarray [-1, 2] sums to 1 and is the longest)
+
+Follow Up:
+Can you do it in O(n) time?
+
+
+"""
+class Solution(object):
+    def maxSubArrayLen(self, nums, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: int
+        """
+        #https://discuss.leetcode.com/topic/33537/java-o-n-explain-how-i-come-up-with-this-idea
+        """
+        The subarray sum reminds me the range sum problem. Preprocess the input array such that you get
+        the range sum in constant time.
+        sum[i] means the sum from 0 to i inclusively
+        the sum from i to j is sum[j] - sum[i - 1] except that from 0 to j is sum[j].
+        
+        j-i is equal to the length of subarray of original array. we want to find the max(j - i)
+        for any sum[j] we need to find if there is a previous sum[i] such that sum[j] - sum[i] = k
+        Instead of scanning from 0 to j -1 to find such i, we use hashmap to do the job in constant time.
+        However, there might be duplicate value of of sum[i] we should avoid overriding its index as we want the max j - i, so we want to keep i as left as possible.
+        """
+        ret = 0
+        tb = collections.defaultdict(list) #sumToi : index_i
+        tb[0].append(-1) # sum==0 without any value
+        sum = 0
+        for j in xrange(len(nums)):
+            sum += nums[j]
+            tb[sum].append(j)
+            if (sum - k) in tb:
+                ret = max(j -tb[sum-k][0],ret)
+        return ret
 #-----------------------------------
 #326. Power of Three
 """
