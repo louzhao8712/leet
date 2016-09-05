@@ -5439,7 +5439,8 @@ There are a total of 2 courses to take. To take course 1 you should have finishe
 
 4, [[1,0],[2,0],[3,1],[3,2]]
 
-There are a total of 4 courses to take. To take course 3 you should have finished both courses 1 and 2. Both courses 1 and 2 should be taken after you finished course 0. So one correct course order is [0,1,2,3]. Another correct ordering is[0,2,1,3].
+There are a total of 4 courses to take. To take course 3 you should have finished both courses 1 and 2. 
+Both courses 1 and 2 should be taken after you finished course 0. So one correct course order is [0,1,2,3]. Another correct ordering is[0,2,1,3].
 """
 class Solution(object):
     def findOrder(self, numCourses, prerequisites):
@@ -6562,9 +6563,12 @@ class Solution(object):
 """
  Given an array of citations (each citation is a non-negative integer) of a researcher, write a function to compute the researcher's h-index.
 
-According to the definition of h-index on Wikipedia: "A scientist has index h if h of his/her N papers have at least h citations each, and the other N − h papers have no more than h citations each."
+According to the definition of h-index on Wikipedia: "A scientist has index h if h of his/her N papers have at least h citations each, 
+and the other N − h papers have no more than h citations each."
 
-For example, given citations = [3, 0, 6, 1, 5], which means the researcher has 5 papers in total and each of them had received 3, 0, 6, 1, 5 citations respectively. Since the researcher has 3 papers with at least 3 citations each and the remaining two with no more than 3 citations each, his h-index is 3
+For example, given citations = [3, 0, 6, 1, 5], which means the researcher has 5 papers in total and each of them had 
+received 3, 0, 6, 1, 5 citations respectively. Since the researcher has 3 papers with at least 
+3 citations each and the remaining two with no more than 3 citations each, his h-index is 3
 
 """
 class Solution(object):
