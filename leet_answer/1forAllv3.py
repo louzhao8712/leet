@@ -770,6 +770,62 @@ class Solution(object):
                 heapq.heappush(heap,(top[1].next.val,top[1].next))
         return dummy.next
 #-----------------------------------
+#25. Reverse Nodes in k-Group
+"""
+Given a linked list, reverse the nodes of a linked list k at a time and return its modified list.
+
+If the number of nodes is not a multiple of k then left-out nodes in the end should remain as it is.
+
+You may not alter the values in the nodes, only nodes itself may be changed.
+
+Only constant memory is allowed.
+
+For example,
+Given this linked list: 1->2->3->4->5
+
+For k = 2, you should return: 2->1->4->3->5
+
+For k = 3, you should return: 3->2->1->4->5
+"""
+# Definition for singly-linked list.
+# class ListNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution(object):
+    def reverseKGroup(self, head, k):
+        """
+        :type head: ListNode
+        :type k: int
+        :rtype: ListNode
+        """
+        if head == None: return None
+        dumy = ListNode(None)
+        dumy.next = head
+        start  = dumy
+        while start.next:
+            end = start
+            for i in xrange(k):
+                end = end.next
+                if (end.next == None) and i != (k-1) : 
+                    return dumy.next
+            res = self.reverse(start.next,end)
+            start.next = res[0]
+            start = res[1]
+            
+        return dumy.next
+        
+    def reverse(self,start,end):
+        prev = ListNode(None)
+        prev.next = start
+        curr = start
+        while prev.next != end:
+            nd = curr.next.next
+            curr.next.next = prev.next
+            prev.next = curr.next
+            curr.next = nd
+        return [end,start]
 #-----------------------------------
 #26. Remove Duplicates from Sorted Array
 """
@@ -2642,6 +2698,19 @@ class Solution(object):
             maxArea = max(maxArea,tmpArea)
         return maxArea
 
+#-----------------------------------
+#85. Maximal Rectangle
+"""
+Given a 2D binary matrix filled with 0's and 1's, find the largest rectangle containing only 1's and return its area.
+
+For example, given the following matrix:
+
+1 0 1 0 0
+1 0 1 1 1
+1 1 1 1 1
+1 0 0 1 0
+Return 6.
+"""
 #-----------------------------------
 #88. Merge Sorted Array
 """
