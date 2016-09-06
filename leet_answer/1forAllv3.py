@@ -2711,6 +2711,105 @@ For example, given the following matrix:
 1 0 0 1 0
 Return 6.
 """
+class Solution(object):
+    def maximalRectangle(self, matrix):
+        """
+        :type matrix: List[List[str]]
+        :rtype: int
+        """
+        #solution 1 using the histogram method
+        #return self.solution1(matrix)
+        return self.sol2(matrix)
+        
+    def sol2(self,matrix):
+        #dp method
+        """
+        The DP solution proceeds row by row, starting from the first row. Let the maximal rectangle area at row i and column j be computed by [right(i,j) - left(i,j)]*height(i,j).
+        
+        All the 3 variables left, right, and height can be determined by the information from previous row, and also information from the current row. So it can be regarded as a DP solution. The transition equations are:
+        
+        left(i,j) = max(left(i-1,j), cur_left), cur_left can be determined from the current row
+        right(i,j) = min(right(i-1,j), cur_right), cur_right can be determined from the current row
+        height(i,j) = height(i-1,j) + 1, if matrix[i][j]=='1';
+        height(i,j) = 0, if matrix[i][j]=='0 
+        """
+        ret = 0
+        h = len(matrix)
+        if h == 0: return 0
+        w = len(matrix[0])
+        height = [0 for _ in xrange(w)]
+        left = [ 0 for _ in xrange(w)]
+        right = [ w for _ in xrange(w)]
+        for i in xrange(h):
+            curr_left = 0 #index
+            curr_right = w #index
+            #process each row
+            for j in xrange(w):
+                if matrix[i][j] == '0': height[j] = 0
+                else:   height[j]+=1
+            for j in xrange(w):
+                if matrix[i][j] == '0':
+                    left[j] = 0
+                    curr_left = j+1
+                else:
+                    left[j]=max(left[j],curr_left)
+            for j in xrange(w-1,-1,-1):
+                if matrix[i][j] == '0':
+                    right[j] = w
+                    curr_right = j
+                else:
+                    right[j] = min(right[j],curr_right)
+            
+            for j in xrange(w):
+                ret = max(ret,(right[j]-left[j])*height[j])
+        return ret
+        
+        
+    def solution1(self,matrix):
+        ret = 0
+        h = len(matrix)
+        if h == 0: return 0
+        w = len(matrix[0])
+        a = [0 for i in xrange(w)]
+        for i in xrange(h):
+            for j in xrange(w):
+                a[j] = 0 if matrix[i][j] == '0' else a[j]+1
+        
+            ret = max(ret,self.largestRectangleArea(a))
+        return ret
+        
+        
+    def largestRectangleArea(self, height):
+        """
+        :type height: List[int]
+        :rtype: int
+        """
+        # use stacks to store height and index
+        # if height[i] > stack top, push in
+        # if height[i] == stack top,ignore
+        # if height[i] < stacktop, pop and calculate tmp area untill stack top <= height[i]
+        stackH = []
+        stackI = [] #index
+        maxArea = 0
+        for i in xrange(len(height)):
+            if stackH == [] or height[i] > stackH[-1]:
+                stackH.append(height[i])
+                stackI.append(i)
+            elif height[i] < stackH[-1]:
+                lastIndex = 0
+                while stackH and height[i] < stackH[-1]:
+                    lastIndex = stackI.pop()
+                    tmpArea = stackH.pop() * (i-lastIndex)
+                    maxArea = max(maxArea,tmpArea)
+                if stackH == [] or stackH[-1] < height[i]:
+                    stackH.append(height[i])
+                    stackI.append(lastIndex) #very important !! 
+        n =len(height) 
+        while stackH:
+            tmpArea = stackH.pop() * (n -stackI.pop())
+            maxArea = max(maxArea,tmpArea)
+        return maxArea 
+        
 #-----------------------------------
 #88. Merge Sorted Array
 """
