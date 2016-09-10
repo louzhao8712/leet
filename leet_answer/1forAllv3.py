@@ -3228,6 +3228,7 @@ class Solution(object):
             self.res[level].append(root.val)
             self.dfs(root.left,level+1)
             self.dfs(root.right,level+1)
+##
 #-----------bfs------------------------
 #103. Binary Tree Zigzag Level Order Traversal
 """
