@@ -3611,9 +3611,131 @@ class Solution(object):
 
         return dp[len(T)]
 #-----------------------------------
+#116. Populating Next Right Pointers in Each Node
+"""
+ Given a binary tree
+
+    struct TreeLinkNode {
+      TreeLinkNode *left;
+      TreeLinkNode *right;
+      TreeLinkNode *next;
+    }
+
+Populate each next pointer to point to its next right node. If there is no next right node, the next pointer should be set to NULL.
+
+Initially, all next pointers are set to NULL.
+
+Note:
+
+    You may only use constant extra space.
+    You may assume that it is a perfect binary tree (ie, all leaves are at the same level, and every parent has two children).
+
+For example,
+Given the following perfect binary tree,
+
+         1
+       /  \
+      2    3
+     / \  / \
+    4  5  6  7
+
+After calling your function, the tree should look like:
+
+         1 -> NULL
+       /  \
+      2 -> 3 -> NULL
+     / \  / \
+    4->5->6->7 -> NULL
+
+"""
+# Definition for binary tree with next pointer.
+# class TreeLinkNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+#         self.next = None
+
+class Solution(object):
+    def connect(self, root):
+        """
+        :type root: TreeLinkNode
+        :rtype: nothing
+        """
+        curr = root
+        while curr:
+            prev = None # next level we tried to connext
+            fistNodeNext = None
+            while curr: # working on the connection of one layer
+                if not fistNodeNext:
+                    fistNodeNext = curr.left if curr.left else curr.right
+                if curr.left:
+                    if prev: prev.next = curr.left
+                    prev = curr.left
+                if curr.right: 
+                    if prev: prev.next = curr.right
+                    prev = curr.right
+                curr = curr.next
+            curr = fistNodeNext
+        
 #-----------------------------------
-#-----------------------------------
-#-----------------------------------
+#117. Populating Next Right Pointers in Each Node II
+"""
+Follow up for problem "Populating Next Right Pointers in Each Node".
+
+What if the given tree could be any binary tree? Would your previous solution still work?
+
+Note:
+
+    You may only use constant extra space.
+
+For example,
+Given the following binary tree,
+
+         1
+       /  \
+      2    3
+     / \    \
+    4   5    7
+
+After calling your function, the tree should look like:
+
+         1 -> NULL
+       /  \
+      2 -> 3 -> NULL
+     / \    \
+    4-> 5 -> 7 -> NULL
+
+"""
+# Definition for binary tree with next pointer.
+# class TreeLinkNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+#         self.next = None
+
+class Solution(object):
+    def connect(self, root):
+        """
+        :type root: TreeLinkNode
+        :rtype: nothing
+        """
+        curr = root
+        while curr:
+            nextFistNode = None
+            prev = None # the level we try to connext
+            while curr:
+                if not nextFistNode: 
+                    nextFistNode = curr.left if curr.left else curr.right
+                if curr.left:
+                    if prev: prev.next = curr.left
+                    prev = curr.left
+                if curr.right:
+                    if prev: prev.next = curr.right
+                    prev = curr.right
+                curr = curr.next
+            curr = nextFistNode
 #-----------------------------------
 #118. Pascal's Triangle
 """
@@ -9150,3 +9272,45 @@ class Solution(object):
             if j ==0:
                 push(i+1,0)
         return ans
+#-----------------------------------
+#377. Combination Sum IV
+"""
+ Given an integer array with all positive numbers and no duplicates, find the number of possible combinations that add up to a positive integer target.
+
+Example:
+
+nums = [1, 2, 3]
+target = 4
+
+The possible combination ways are:
+(1, 1, 1, 1)
+(1, 1, 2)
+(1, 2, 1)
+(1, 3)
+(2, 1, 1)
+(2, 2)
+(3, 1)
+
+Note that different sequences are counted as different combinations.
+
+Therefore the output is 7.
+
+Follow up:
+What if negative numbers are allowed in the given array?
+How does it change the problem?
+What limitation we need to add to the question to allow negative numbers? 
+"""
+class Solution(object):
+    def combinationSum4(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: int
+        """
+        dp = [0 for _ in xrange(target+1)]
+        dp[0] = 1
+        for x in xrange(target +1):
+            for y in nums:
+                if x +y <= target:
+                    dp[x+y] += dp[x]
+        return dp[target]
