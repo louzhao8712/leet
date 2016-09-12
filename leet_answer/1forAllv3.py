@@ -5020,6 +5020,34 @@ class Solution(object):
             res += "".join([str(x) for x in rl[1:]])
         return sign + res
 #-----------------------------------
+#168. Excel Sheet Column Title
+"""
+Given a positive integer, return its corresponding column title as appear in an Excel sheet.
+
+For example:
+
+    1 -> A
+    2 -> B
+    3 -> C
+    ...
+    26 -> Z
+    27 -> AA
+    28 -> AB 
+"""
+class Solution(object):
+    def convertToTitle(self, n):
+        """
+        :type n: int
+        :rtype: str
+        """
+        dat="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        res = ""
+        while n :
+            temp = (n-1)%26 
+            res = dat[temp] + res
+            n= (n-1)/26
+        return res
+#-----------------------------------
 #169. Majority Element
 """
 Given an array of size n, find the majority element. The majority element is the element that appears more than ⌊ n/2 ⌋ times.
@@ -5045,9 +5073,33 @@ class Solution(object):
                 count -=1
         return ret
 #-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
+#171. Excel Sheet Column Number
+"""
+Related to question Excel Sheet Column Title
+
+Given a column title as appear in an Excel sheet, return its corresponding column number.
+
+For example:
+
+    A -> 1
+    B -> 2
+    C -> 3
+    ...
+    Z -> 26
+    AA -> 27
+    AB -> 28 
+"""
+class Solution(object):
+    def titleToNumber(self, s):
+        """
+        :type s: str
+        :rtype: int
+        """
+        res = 0
+        for x in s:
+            digit = ord(x)-ord('A')+1
+            res = res*26 + digit
+        return res
 #-----------------------------------
 #172. Factorial Trailing Zeroes 
 """
@@ -9508,3 +9560,31 @@ class Solution(object):
                 if x +y <= target:
                     dp[x+y] += dp[x]
         return dp[target]
+#-----------------------------------
+#398. Random Pick Index
+"""
+ Given an array of integers with possible duplicates, randomly output the index of a given target number. You can assume that the given target number must exist in the array.
+
+Note:
+The array size can be very large. Solution that uses too much extra space will not pass the judge.
+
+Example:
+
+int[] nums = new int[] {1,2,3,3,3};
+Solution solution = new Solution(nums);
+
+// pick(3) should return either index 2, 3, or 4 randomly. Each index should have equal probability of returning.
+solution.pick(3);
+
+// pick(1) should return 0. Since in the array only nums[0] is equal to 1.
+solution.pick(1);
+
+"""
+class Solution(object):
+
+    def __init__(self, nums):
+        self.nums = nums
+        
+
+    def pick(self, target):
+        return random.choice([k for k, v in enumerate(self.nums) if v == target])
