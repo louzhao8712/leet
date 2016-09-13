@@ -6965,6 +6965,73 @@ class Solution(object):
         sumn = sum(nums)
         return n*(n+1)/2 - sumn
 #-----------------------------------
+#269. Alien Dictionary
+"""
+ There is a new alien language which uses the latin alphabet. However, the order among letters are unknown to you. You receive a list of words from the dictionary, where words are sorted lexicographically by the rules of this new language. Derive the order of letters in this language.
+
+For example,
+Given the following words in dictionary,
+
+[
+  "wrt",
+  "wrf",
+  "er",
+  "ett",
+  "rftt"
+]
+
+The correct order is: "wertf".
+
+Note:
+
+    You may assume all letters are in lowercase.
+    If the order is invalid, return an empty string.
+    There may be multiple valid order of letters, return any one of them is fine.
+
+"""
+from pdb import set_trace as bkp
+import collections
+class Solution(object):
+    def alienOrder(self, words):
+        """
+        :type words: List[str]
+        :rtype: str
+        """
+        # using topology sort
+        # check leetcode 210 first
+        chars = set("".join(words))
+        degrees = {x:0 for x in chars}
+        graph = collections.defaultdict(list)
+        # graph is the like the childs array in leetcode Course Schedult
+        for pair in zip(words, words[1:]): #zip can eliminate the extra item in one list
+            for x, y in zip(*pair):
+                bkp()
+                if x != y:
+                    graph[x].append(y)
+                    degrees[y] += 1
+                    break
+                    
+        queue = filter(lambda x: degrees[x] == 0, degrees.keys())
+        ret = ""
+        while queue:
+            x = queue.pop()
+            ret += x
+            for n in graph[x]:
+                degrees[n] -= 1
+                if degrees[n] == 0:
+                    queue.append(n)
+               
+        return ret * (set(ret) == chars) #return ret or ""
+
+c = Solution()
+print c.alienOrder([
+  "wrt",
+  "wrf",
+  "er",
+  "ett",
+  "rftt"
+])
+#-----------------------------------
 #272. Zigzag Iterator
 """
 Given two 1d vectors, implement an iterator to return their elements alternately.
