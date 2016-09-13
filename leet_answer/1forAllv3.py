@@ -5073,6 +5073,42 @@ class Solution(object):
                 count -=1
         return ret
 #-----------------------------------
+#170. Two Sum III - Data structure design
+"""
+Design and implement a TwoSum class. It should support the following operations: add and find.
+
+add - Add the number to an internal data structure.
+find - Find if there exists any pair of numbers which sum is equal to the value.
+
+For example,
+
+add(1); add(3); add(5);
+find(4) -> true
+find(7) -> false
+
+"""
+class TwoSum(object):
+
+    def __init__(self):
+        self.d = {}
+        
+    def add(self, n):
+        self.d[n] = self.d.get(n, 0) + 1
+
+    def find(self, v):
+        d = self.d
+        for nbr in d:
+            t = v - nbr
+            if t in d and d[t] - (t == nbr):
+                #d[t] - (t == nbr) means when 2*t == v, num of t in d >=2
+                return True
+        return False
+
+# Your TwoSum object will be instantiated and called as such:
+# twoSum = TwoSum()
+# twoSum.add(number)
+# twoSum.find(value)
+#-----------------------------------
 #171. Excel Sheet Column Number
 """
 Related to question Excel Sheet Column Title
