@@ -2150,6 +2150,28 @@ class Solution(object):
         ". only one"
         
 #-----------------------------------
+#66. Plus One
+"""
+Given a non-negative number represented as an array of digits, plus one to the number.
+
+The digits are stored such that the most significant digit is at the head of the list.
+"""
+class Solution(object):
+    def plusOne(self, digits):
+        """
+        :type digits: List[int]
+        :rtype: List[int]
+        """
+        carry = 1
+        for i in xrange(len(digits)-1,-1,-1):
+            sum = digits[i] + carry
+            carry = sum/10
+            digits[i] = sum%10
+        if carry ==1:
+            digits.insert(0,1)
+        return digits
+        
+        
 #-----------------------------------
 #67. Add Binary
 """
@@ -5464,7 +5486,9 @@ class Solution(object):
 #-----------------------------------
 #-----------------------------------
 #200. Number of Islands
-"""Given a 2d grid map of '1's (land) and '0's (water), count the number of islands. An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.
+"""Given a 2d grid map of '1's (land) and '0's (water), count the number of islands.
+An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically.
+You may assume all four edges of the grid are all surrounded by water.
 Example 1:
 
 11110
@@ -6830,6 +6854,29 @@ class Solution(object):
                 heappush(meetingRooms,item.end)
         return len(meetingRooms)
 #-----------------------------------
+#256. Paint House
+"""
+ There are a row of n houses, each house can be painted with one of the three colors: red, blue or green. The cost of painting each house with a certain color is different. You have to paint all the houses such that no two adjacent houses have the same color.
+
+The cost of painting each house with a certain color is represented by a n x 3 cost matrix. For example, costs[0][0] is the cost of painting house 0 with color red; costs[1][2] is the cost of painting house 1 with color green, and so on... Find the minimum cost to paint all houses. 
+"""
+class Solution(object):
+    def minCost(self, costs):
+        """
+        :type costs: List[List[int]]
+        :rtype: int
+        """
+        """
+        The 1st row is the prices for the 1st house, we can change the matrix to present sum of prices from the 2nd row. i.e, the costs[1][0] represent minimum price to paint the second house red plus the 1st house.
+        """
+        n = len(costs)
+        if n == 0: return 0
+        for i in xrange(1,n):
+            costs[i][0] += min(costs[i-1][1],costs[i-1][2])
+            costs[i][1] += min(costs[i-1][0],costs[i-1][2])
+            costs[i][2] += min(costs[i-1][0],costs[i-1][1])
+        return min(costs[n-1])
+#-----------------------------------
 #257. Binary Tree Paths
 """
  Given a binary tree, return all root-to-leaf paths.
@@ -6975,6 +7022,31 @@ class Solution(object):
          # Comment: A great example to topologically sort a undirected graph. 
          #For directed graph, we always start with nodes with 0 in-degree. 
          #For undirected graph, we first turn every undirected edge into two directed edges, and then start with nodes with 1 in-degree, or out-degree.
+#-----------------------------------
+#265. Paint House II
+"""
+There are a row of n houses, each house can be painted with one of the k colors. The cost of painting each house with a certain color is different. You have to paint all the houses such that no two adjacent houses have the same color.
+
+The cost of painting each house with a certain color is represented by a n x k cost matrix. For example, costs[0][0] is the cost of painting house 0 with color 0; costs[1][2] is the cost of painting house 1 with color 2, and so on... Find the minimum cost to paint all houses. 
+"""
+class Solution(object):
+    def minCostII(self, costs):
+        """
+        :type costs: List[List[int]]
+        :rtype: int
+        """
+        """
+        The 1st row is the prices for the 1st house, we can change the matrix to present sum of prices from the 2nd row. i.e, the costs[1][0] represent minimum price to paint the second house red plus the 1st house.
+        """
+        n = len(costs)
+        if n == 0: return 0
+        k = len(costs[0])
+        if k == 0: return 0
+        for i in xrange(1,n):
+            for j in xrange(k):
+                costs[i][j] += min(costs[i-1][:j]+costs[i-1][j+1:])
+
+        return min(costs[n-1])        
 #-----------------------------------
 #268. Missing Number
 """
@@ -9712,6 +9784,62 @@ class Solution(object):
                 if x +y <= target:
                     dp[x+y] += dp[x]
         return dp[target]
+#-------hash table----------------------------
+#388. Longest Absolute File Path
+"""
+Suppose we abstract our file system by a string in the following manner:
+
+The string "dir\n\tsubdir1\n\tsubdir2\n\t\tfile.ext" represents:
+
+dir
+    subdir1
+    subdir2
+        file.ext
+
+The directory dir contains an empty sub-directory subdir1 and a sub-directory subdir2 containing a file file.ext.
+
+The string "dir\n\tsubdir1\n\t\tfile1.ext\n\t\tsubsubdir1\n\tsubdir2\n\t\tsubsubdir2\n\t\t\tfile2.ext" represents:
+
+dir
+    subdir1
+        file1.ext
+        subsubdir1
+    subdir2
+        subsubdir2
+            file2.ext
+
+The directory dir contains two sub-directories subdir1 and subdir2. subdir1 contains a file file1.ext and an empty second-level sub-directory subsubdir1. subdir2 contains a second-level sub-directory subsubdir2 containing a file file2.ext.
+
+We are interested in finding the longest (number of characters) absolute path to a file within our file system. For example, in the second example above, the longest absolute path is "dir/subdir2/subsubdir2/file2.ext", and its length is 32 (not including the double quotes).
+
+Given a string representing the file system in the above format, return the length of the longest absolute path to file in the abstracted file system. If there is no file in the system, return 0.
+
+Note:
+
+    The name of a file contains at least a . and an extension.
+    The name of a directory or sub-directory will not contain a ..
+
+Time complexity required: O(n) where n is the size of the input string.
+"""
+class Solution(object):
+    def lengthLongestPath(self, input):
+        """
+        :type input: str
+        :rtype: int
+        """
+        #https://discuss.leetcode.com/topic/55097/simple-python-solution
+        maxlen = 0
+        pathlen = {0:0} # depth: current_path_length
+        #we can keep updating this dictionary
+        for line in input.split('\n'):
+            name = line.lstrip('\t')
+            depth = len(line)-len(name)
+            if '.' in name: #file"
+                maxlen = max(maxlen,pathlen[depth] + len(name))
+            else:
+                #depth + 1 because the current folder name len is for next layer folder/file
+                pathlen[depth +1] = pathlen[depth] + len(name) + 1 #1 is for '/'
+        return maxlen
 #-----------------------------------
 #398. Random Pick Index
 """
