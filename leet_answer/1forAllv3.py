@@ -4785,6 +4785,89 @@ class MinStack(object):
         if self.stack2!=[]:return self.stack2[-1]
         else: return None
 #-----------------------------------
+#156. Binary Tree Upside Down
+"""
+ Given a binary tree where all the right nodes are either leaf nodes with a sibling (a left node that shares the same parent node) or empty, flip it upside down and turn it into a tree where the original right nodes turned into left leaf nodes. Return the new root.
+For example:
+Given a binary tree {1,2,3,4,5},
+
+    1
+   / \
+  2   3
+ / \
+4   5
+
+return the root of the binary tree [4,5,2,#,#,3,1].
+
+   4
+  / \
+ 5   2
+    / \
+   3   1  
+
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    """
+    https://discuss.leetcode.com/topic/40924/java-recursive-o-logn-space-and-iterative-solutions-o-1-space-with-explanation-and-figure
+    https://xlinux.nist.gov/dads/HTML/binaryTreeRepofTree.html
+    After some struggling and googling, I saw the graph in binary tree representation of trees.
+    
+    It's not directly the same, but give me a sense of how to do it.
+    
+    The transform of the base three-node case is like below:
+    
+                             Root                   L
+                             /  \                  /  \
+                            L    R                R   Root
+    
+    You can image you grab the L to the top, then the Root becomes it's right node, and the R becomes its left node.
+    
+
+    """
+    def upsideDownBinaryTree(self, root):
+        """
+        :type root: TreeNode
+        :rtype: TreeNode
+        """
+        #return self.recursive(root)
+        return self.iterative(root)
+        
+    def recursive(self,root):
+        if root == None or root.left == None:
+            return root
+        newRoot = self.recursive(root.left)
+        #root.left is actually newRoot now
+        root.left.left = root.right
+        root.left.right = root
+        root.left = None
+        root.right = None
+        return newRoot
+    
+    def iterative(self,root):
+        """
+        For the iterative solution, it follows the same thought, the only thing we need to pay attention to is to save the node information that will be overwritten.
+        """
+        curr = root
+        next = None
+        prev = None
+        sibling = None
+        while curr:
+            next = curr.left
+            # swapping nodes now
+            curr.left = sibling
+            sibling = curr.right
+            curr.right = prev
+            prev = curr
+            curr = next
+        return prev
+#-----------------------------------
 #157. Read N Characters Given Read4
 """
  The API: int read4(char *buf) reads 4 characters at a time from a file.
