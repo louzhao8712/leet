@@ -20,6 +20,7 @@ class Solution1(object):
                 tb[nums[i]] = i
         
 #------list-----------------------------
+#2. Add Two Numbers
 """
 You are given two linked lists representing two non-negative numbers.
 The digits are stored in reverse order and each of their nodes contain a single digit.
@@ -53,7 +54,7 @@ class Solution2(object):
         return dumy.next
 
 #-----hash and 2 pointer------------------------------
-#2 Add Two numbers
+#3. Longest Substring Without Repeating Characters
 """
 Given a string, find the length of the longest substring without repeating characters.
 
@@ -4992,6 +4993,43 @@ class Solution(object):
         return True
 
 #-----------------------------------
+#163. Missing Ranges
+"""
+ Given a sorted integer array where the range of elements are [lower, upper] inclusive, return its missing ranges.
+
+For example, given [0, 1, 3, 50, 75], lower = 0 and upper = 99, return ["2", "4->49", "51->74", "76->99"]. 
+"""
+class Solution(object):
+    def findMissingRanges(self, nums, lower, upper):
+        """
+        :type nums: List[int]
+        :type lower: int
+        :type upper: int
+        :rtype: List[str]
+        """
+        n = len(nums)
+        if n == 0: 
+            if lower == upper : return [str(lower)]
+            else: return [ str(lower) + "->" + str(upper) ]
+        #if nums[0] != lower: nums.insert(0,lower)
+        #if nums[-1] != upper: nums.append(upper)
+        
+        res = []
+        if nums[0] - lower >= 2:
+            res.append(str(lower) + "->" + str(nums[0]-1))
+        elif nums[0] - lower ==1: 
+            res.append(str(lower))
+            
+        for i in xrange(1,len(nums)):
+            if nums[i]-nums[i-1] == 2 : res.append(str(nums[i-1]+1))
+            elif nums[i]-nums[i-1] > 2: res.append( str(nums[i-1]+1) + "->"  + str(nums[i]-1))
+        
+        if upper - nums[-1] >=2:
+            res.append(str(nums[-1]+1) + "->" + str(upper))
+        elif upper - nums[-1] == 1:
+            res.append(str(upper))
+        return res
+        
 #-----------------------------------
 #166. Fraction to Recurring Decimal
 
@@ -7326,7 +7364,8 @@ class Solution(object):
 """
 here is a fence with n posts, each post can be painted with one of the k colors.
 
-You have to paint all the posts such that no more than two adjacent fence posts have the same color.
+You have to paint all the posts such that no more than two adjacent fence posts 
+have the same color.
 
 Return the total number of ways you can paint the fence.
 
@@ -7365,11 +7404,10 @@ class Solution(object):
         So we could write the following codes:
         """
         if n == 0: return 0
-        if n ==1: return k
+        if n == 1: return k
         same,dif = k,k*(k-1)   #for n==2 case
-        for x in xrange(3,n+11):
-            same = dif
-            dif = same*(k-1) + dif*(k-1)
+        for x in xrange(3,n+1):
+            same,dif = dif,same*(k-1) + dif*(k-1)
         return same +dif
 #-----------------------------------
 #277. Find the Celebrity
@@ -7742,6 +7780,78 @@ class Solution(object):
             if col < lcol -1 and rooms[row][col+1] == INF:
                 rooms[row][col+1] = rooms[row][col] +1
                 queue.append([row,col+1])
+#-----------------------------------
+#288. Unique Word Abbreviation
+"""
+An abbreviation of a word follows the form <first letter><number><last letter>. Below are some examples of word abbreviations:
+
+a) it                      --> it    (no abbreviation)
+
+     1
+b) d|o|g                   --> d1g
+
+              1    1  1
+     1---5----0----5--8
+c) i|nternationalizatio|n  --> i18n
+
+              1
+     1---5----0
+d) l|ocalizatio|n          --> l10n
+
+Assume you have a dictionary and given a word, find whether its abbreviation is unique in the dictionary. A word's abbreviation is unique if no other word from the dictionary has the same abbreviation.
+
+Example:
+
+Given dictionary = [ "deer", "door", "cake", "card" ]
+
+isUnique("dear") -> false
+isUnique("cart") -> true
+isUnique("cane") -> false
+isUnique("make") -> true
+
+"""
+class ValidWordAbbr(object):
+    """
+    We are trying to search for a word in a dictionary. If this word (also this word’s abbreviation) is not in the dictionary 
+        OR this word and only it’s abbreviation in the dictionary. We call a word’s abbreviation unique.
+    """
+    def __init__(self, dictionary):
+        """
+        initialize your data structure here.
+        :type dictionary: List[str]
+        """
+        self.db = {}
+        
+        dictionary = set(dictionary)
+        self.dictionary = dictionary
+        for item in dictionary:
+            key = self.genKey(item)
+            if key in self.db: self.db[key] = False
+            else:              self.db[key] = True
+        
+    def genKey(self,item):
+        if len(item) <=2 :          key = item
+        else: key = item[0] +str(len(item)-2) +item[-1]
+        return key
+
+    def isUnique(self, word):
+        """
+        check if a word is unique.
+        :type word: str
+        :rtype: bool
+        """
+        key = self.genKey(word)
+        if (word not in self.dictionary) and key not in self.db: return True
+        elif (word in self.dictionary and self.db[key] == True): return True
+        else: return False
+
+        
+
+
+# Your ValidWordAbbr object will be instantiated and called as such:
+# vwa = ValidWordAbbr(dictionary)
+# vwa.isUnique("word")
+# vwa.isUnique("anotherWord")
 #-----------------------------------
 #292. Nim Game
 """
