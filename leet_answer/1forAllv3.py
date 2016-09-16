@@ -4958,6 +4958,67 @@ class Solution(object):
                 n -= 1
         return idx   
 #-----------------------------------
+#159. Longest Substring with At Most Two Distinct Characters
+"""
+ Given a string, find the length of the longest substring T that contains at most 2 distinct characters.
+
+For example, Given s = “eceba”,
+
+T is "ece" which its length is 3. 
+For example, Given s = “eeccbbbb”,
+s length is 5.
+"""
+
+class Solution(object):
+    def lengthOfLongestSubstringTwoDistinct(self, s):
+        """
+        :type s: str
+        :rtype: int
+        """
+        if len(s) == 0: return 0
+        db = collections.defaultdict(list)
+        # { e: [0,2], c:[1]} #db can only have 2 items, list also can only have 2 items
+        
+        ret = 0
+        minidx = 0 #min idx in all values in the 2 keys
+        maxidx = 0 #max idx in all values in the 2 keys
+        for idx,item in enumerate(s):
+            if len(db) < 2:
+                db[item].append(idx)
+                minidx = min(minidx,idx)
+                maxidx = max(maxidx,idx)
+                ret = maxidx - minidx +1
+            else:  #db already has 2 items
+                if item in db:
+                    if len(db[item]) == 1: #only one item
+                        db[item].append(idx)
+                        maxidx = max(maxidx,idx)
+                        ret = max(ret,maxidx - minidx +1)
+                    else:
+                        db[item].append(idx)
+                        maxidx = max(maxidx,idx)
+                        ret = max(ret, maxidx - minidx +1 )
+                else: # new item, need to update db
+                    #find the current maxidx item, and make it minidx
+                    for currKey in db:
+                        if maxidx in db[currKey]:
+                            
+                            minidx = maxidx
+                            for j in xrange(len(db[currKey])-2,-1,-1):
+                                if db[currKey][j+1] - db[currKey][j] ==1:
+                                    minidx = db[currKey][j]
+                                else:
+                                    break
+                            #reset db
+                            db = collections.defaultdict(list)
+                            db[currKey] = [minidx]
+                            
+                            db[item].append(idx)
+                            maxidx = idx
+                            ret = max(ret, maxidx - minidx +1)
+                            break
+        return max(ret,maxidx-minidx+1)
+#-----------------------------------
 #160. Intersection of Two Linked Lists
 """
 Write a program to find the node at which the intersection of two singly linked lists begins.
@@ -4967,7 +5028,6 @@ Write a program to find the node at which the intersection of two singly linked 
 #     def __init__(self, x):
 #         self.val = x
 #         self.next = None
-
 class Solution(object):
     def getIntersectionNode(self, headA, headB):
         """
@@ -5041,6 +5101,9 @@ class Solution(object):
             head = head.next
         return ret
         
+
+                    
+
 #-----------------------------------
 #161. One Edit Distance
 """
