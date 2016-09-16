@@ -4644,6 +4644,36 @@ class Solution(object):
         return res
 
 #-----------------------------------
+#151. Reverse Words in a String
+"""
+ Given an input string, reverse the string word by word.
+
+For example,
+Given s = "the sky is blue",
+return "blue is sky the".
+
+Update (2015-02-12):
+For C programmers: Try to solve it in-place in O(1) space.
+
+click to show clarification.
+Clarification:
+
+    What constitutes a word?
+    A sequence of non-space characters constitutes a word.
+    Could the input string contain leading or trailing spaces?
+    Yes. However, your reversed string should not contain leading or trailing spaces.
+    How about multiple spaces between two words?
+    Reduce them to a single space in the reversed string.
+
+"""
+class Solution(object):
+    def reverseWords(self, s):
+        """
+        :type s: str
+        :rtype: str
+        """
+        return " ".join(s.split()[::-1])
+#-----------------------------------
 #153. Find Minimum in Rotated Sorted Array
 """
 Suppose a sorted array is rotated at some pivot unknown to you beforehand.
@@ -5226,6 +5256,45 @@ class Solution(object):
             res += "".join([str(x) for x in rl[1:]])
         return sign + res
 #-----------------------------------
+#167. Two Sum II - Input array is sorted
+"""
+Given an array of integers that is already sorted in ascending order, find two numbers such that they add up to a specific target number.
+
+The function twoSum should return indices of the two numbers such that they add up to the target, where index1 must be less than index2. Please note that your returned answers (both index1 and index2) are not zero-based.
+
+You may assume that each input would have exactly one solution.
+
+Input: numbers={2, 7, 11, 15}, target=9
+Output: index1=1, index2=2 
+"""
+class Solution(object):
+    def twoSum(self, numbers, target):
+        """
+        :type numbers: List[int]
+        :type target: int
+        :rtype: List[int]
+        """
+        #3 methods, 2 pointer, dictionary, binary search
+        #binary search method basically just fix the 1st number, do a binary search for the rest
+        # if not found, increase the 1st number so worst case o(nlgn)
+        
+        #using 2 pointer method
+        n = len(numbers)
+        if n<=1 :
+            return []
+        lo = 0
+        hi = n-1
+        
+        while lo+1 < hi:
+            if numbers[lo] +numbers[hi] == target:
+                return [lo+1,hi+1]
+            elif numbers[lo] +numbers[hi] < target:
+                lo +=1
+            else:
+                hi -=1
+        if lo!=hi and numbers[lo] +numbers[hi] == target: return [lo+1,hi+1]
+        else: return []
+#-----------------------------------
 #168. Excel Sheet Column Title
 """
 Given a positive integer, return its corresponding column title as appear in an Excel sheet.
@@ -5412,6 +5481,57 @@ class BSTIterator(object):
 # i, v = BSTIterator(root), []
 # while i.hasNext(): v.append(i.next())
 #-----------------------------------
+#186. Reverse Words in a String II
+"""
+ Given an input string, reverse the string word by word. A word is defined as a sequence of non-space characters.
+
+The input string does not contain leading or trailing spaces and the words are always separated by a single space.
+
+For example,
+Given s = "the sky is blue",
+return "blue is sky the".
+
+Could you do it in-place without allocating extra space?
+
+Related problem: Rotate Array
+"""
+class Solution(object):
+    def reverseWords(self, s):
+        """
+        :type s: a list of 1 length strings (List[str])
+        :rtype: nothing
+        """
+        def reverse(i, j):
+            while 0 <= i < j < len(s):
+                s[i], s[j] = s[j], s[i]
+                i, j = i + 1, j - 1
+    
+        s.append(" ")
+        start = 0
+        for i, v in enumerate(s):
+            if v == " ":
+            	reverse(start, i - 1)
+            	start = i + 1
+        s.pop()
+        reverse(0, len(s) - 1)
+ 
+#--sol2 A.reverse() will reverse A. reversed(A) will return an iterator that can be assigned
+class Solution(object):
+    def reverseWords(self, s):
+        """
+        :type s: a list of 1 length strings (List[str])
+        :rtype: nothing
+        """
+        s.reverse()
+
+        index = 0
+        for i in range(len(s)):
+            if s[i] == " ":
+                s[index: i] = reversed(s[index: i])
+                index = i + 1
+
+        s[index: ] = reversed(s[index: ])
+
 #-----------------------------------
 #187. Repeated DNA Sequences
 """
@@ -6976,6 +7096,93 @@ class Solution(object):
         """
         return sorted(s) == sorted(t)
 
+#-----------------------------------
+#243. Shortest Word Distance
+"""
+Given a list of words and two words word1 and word2, return the shortest distance between these two words in the list.
+
+For example,
+Assume that words = ["practice", "makes", "perfect", "coding", "makes"].
+
+Given word1 = “coding”, word2 = “practice”, return 3.
+Given word1 = "makes", word2 = "coding", return 1.
+
+Note:
+You may assume that word1 does not equal to word2, and word1 and word2 are both in the list
+"""
+class Solution(object):
+    def shortestDistance(self, words, word1, word2):
+        """
+        :type words: List[str]
+        :type word1: str
+        :type word2: str
+        :rtype: int
+        """
+        idx1 = None
+        idx2 = None
+        dist = float('inf')
+        for x in xrange(len(words)):
+            if words[x] == word1  : idx1 = x
+            elif words[x] == word2: idx2 = x
+            
+            if idx1!=None and idx2!=None:
+                dist = min(dist,abs(idx1-idx2))
+        return dist
+
+#-----hash table-----------------------
+#244. Shortest Word Distance II
+"""
+This is a follow up of Shortest Word Distance. The only difference is now you are given the list of words and your method will be called repeatedly many times with different parameters. How would you optimize it?
+
+Design a class which receives a list of words in the constructor, and implements a method that takes two words word1 and word2 and return the shortest distance between these two words in the list.
+
+For example,
+Assume that words = ["practice", "makes", "perfect", "coding", "makes"].
+
+Given word1 = “coding”, word2 = “practice”, return 3.
+Given word1 = "makes", word2 = "coding", return 1. 
+Note:
+You may assume that word1 does not equal to word2, and word1 and word2 are both in the list. 
+
+"""
+from itertools import product
+class WordDistance(object):
+    def __init__(self, words):
+        """
+        initialize your data structure here.
+        :type words: List[str]
+        """
+        self.tb = collections.defaultdict(list)
+        self.lenwords = len(words)
+        for idx,word in enumerate(words):
+            self.tb[word].append(idx)
+        
+
+    def shortest(self, word1, word2):
+        """
+        Adds a word into the data structure.
+        :type word1: str
+        :type word2: str
+        :rtype: int
+        """
+        arr1 = self.tb[word1]
+        arr2 = self.tb[word2]
+        #res = sorted(product(arr1, arr2), key=lambda t: abs(t[0]-t[1]))[0]
+        #return abs(res[0]-res[1])
+        m,n = len(arr1), len(arr2)
+        dist = float('inf')
+        i,j = 0,0
+        # We don't need to test or i,j combination
+        while i<m and j <n:
+            dist = min(dist,abs(arr1[i]-arr2[j]))
+            if arr1[i] < arr2[j]: i+=1
+            else: j+=1
+        return dist
+
+# Your WordDistance object will be instantiated and called as such:
+# wordDistance = WordDistance(words)
+# wordDistance.shortest("word1", "word2")
+# wordDistance.shortest("anotherWord1", "anotherWord2")
 #-----------------------------------
 #252. Meeting Rooms
 """
