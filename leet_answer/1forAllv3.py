@@ -7184,6 +7184,143 @@ class WordDistance(object):
 # wordDistance.shortest("word1", "word2")
 # wordDistance.shortest("anotherWord1", "anotherWord2")
 #-----------------------------------
+#245. Shortest Word Distance III
+"""
+This is a follow up of Shortest Word Distance. The only difference is now word1 could be the same as word2.
+
+Given a list of words and two words word1 and word2, return the shortest distance between these two words in the list.
+
+word1 and word2 may be the same and they represent two individual words in the list.
+
+For example,
+Assume that words = ["practice", "makes", "perfect", "coding", "makes"].
+
+Given word1 = “makes”, word2 = “coding”, return 1.
+Given word1 = "makes", word2 = "makes", return 3.
+
+Note:
+You may assume word1 and word2 are both in the list. 
+"""
+class Solution(object):
+    def shortestWordDistance(self, words, word1, word2):
+        """
+        :type words: List[str]
+        :type word1: str
+        :type word2: str
+        :rtype: int
+        """
+
+        self.tb = collections.defaultdict(list)
+        self.lenwords = len(words)
+        for idx,word in enumerate(words):
+            self.tb[word].append(idx)
+        if word1!= word2: 
+            arr1 = self.tb[word1]
+            arr2 = self.tb[word2]
+    
+            #res = sorted(product(arr1, arr2), key=lambda t: abs(t[0]-t[1]))[0]
+            #return abs(res[0]-res[1])
+            m,n = len(arr1), len(arr2)
+            dist = float('inf')
+            i,j = 0,0
+            # We don't need to test or i,j combination
+            while i<m and j <n:
+                dist = min(dist,abs(arr1[i]-arr2[j]))
+                if arr1[i] < arr2[j]: i+=1
+                else: j+=1
+
+        else:
+            arr1 = self.tb[word1]
+            if len(arr1) <=1 : return 0
+
+            dist = arr1[1]-arr1[0]
+            for i in xrange(1,len(arr1)):
+                dist = min(dist,arr1[i]-arr1[i-1])
+ 
+        return dist
+#-----------------------------------
+#246. Strobogrammatic Number
+"""
+A strobogrammatic number is a number that looks the same when rotated 180 degrees (looked at upside down).
+
+Write a function to determine if a number is strobogrammatic. The number is represented as a string.
+
+For example, the numbers "69", "88", and "818" are all strobogrammatic.
+"""
+class Solution(object):
+    def isStrobogrammatic(self, num):
+        """
+        :type num: str
+        :rtype: bool
+        """
+        # single digit candidate  6 and 9 is a pair,
+        # 1,8,0 can only pair with itself and can be the middle of odd len number
+        db1 = { '6':'9','9':'6','1':'1','8':'8','0':'0'}
+        middle = ['1','8','0']
+        n = len(num)
+        if n == 0 : return False
+
+        for i in xrange(n/2):
+            if num[i] not in db1: return False
+            else:
+                if num[n-1-i]!= db1[num[i]] : return False
+        if n%2 == 1 and (num[n/2 ] not in middle):
+            return False
+        return True
+
+#-----------------------------------
+#247. Strobogrammatic Number II
+"""
+A strobogrammatic number is a number that looks the same when rotated 180 degrees (looked at upside down).
+
+Find all strobogrammatic numbers that are of length = n.
+
+For example,
+Given n = 2, return ["11","69","88","96"].
+
+Hint:
+
+    Try to use recursion and notice that it should recurse with n - 2 instead of n - 1.
+
+"""
+class Solution(object):
+    def findStrobogrammatic(self, n):
+        """
+        :type n: int
+        :rtype: List[str]
+        """
+        # single digit candidate  6 and 9 is a pair,
+        # 1,8,0 can only pair with itself and can be the middle of odd len number
+        db1 = { '6':'9','9':'6','1':'1','8':'8','0':'0'}
+        middle = ['1','8','0']
+        ret = []
+     
+        l1 = n/2
+        isOdd = (n%2 == 1)
+        
+        
+        def dfs(currstr,currlen,isOdd):
+            if currlen == 0:
+                right = ""
+                for x in currstr[::-1]:
+                    right += db1[x]
+                if isOdd:
+                    for x in middle:
+                        ret.append(currstr+x + right)
+                    return
+                else:
+                    ret.append(currstr+right)
+                    return
+            for item in db1.keys():
+                if currstr == "" and item == '0': continue # "010" is not valid
+                dfs(currstr+item,currlen-1,isOdd)
+                
+        
+        dfs("",l1,isOdd)
+        ret.sort()
+        return ret
+            
+#-----------------------------------
 #252. Meeting Rooms
 """
 Given an array of meeting time intervals consisting of start and end times [[s1,e1],[s2,e2],...] (si < ei), determine if a person could attend all meetings.
