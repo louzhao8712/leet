@@ -7319,7 +7319,89 @@ class Solution(object):
         dfs("",l1,isOdd)
         ret.sort()
         return ret
-            
+
+#-----------------------------------
+#248. Strobogrammatic Number III
+"""
+A strobogrammatic number is a number that looks the same when rotated 180 degrees (looked at upside down).
+
+Write a function to count the total strobogrammatic numbers that exist in the range of low <= num <= high.
+
+For example,
+Given low = "50", high = "100", return 3. Because 69, 88, and 96 are three strobogrammatic numbers.
+
+Note:
+Because the range might be a large number, the low and high numbers are represented as string. 
+"""
+
+class Solution(object):
+    """
+    Note int(number) in my solution is not optimized, ideally when the len(number) >=9
+    we are not able to use int, then we need to divide this string to several substring
+    and use int to compae
+    
+    This solution reuse the code in StrobogrammaticII, for the boundary it check
+    the result to make sure it >=low and <=high
+    """
+    def strobogrammaticInRange(self, low, high):
+        """
+        :type low: str
+        :type high: str
+        :rtype: int
+        """
+        self.lenlow = len(low)
+        self.lenhigh = len(high)
+        count = 0
+        for ll in xrange(self.lenlow,self.lenhigh+1):
+            count += self.findStrobogrammatic(ll,low,high)
+        return count
+    
+        
+    def findStrobogrammatic(self, n,low,high):
+        """
+        :type n: int
+        :rtype: List[str]
+        """
+        # single digit candidate  6 and 9 is a pair,
+        # 1,8,0 can only pair with itself and can be the middle of odd len number
+        db1 = { '6':'9','9':'6','1':'1','8':'8','0':'0'}
+        middle = ['1','8','0']
+        ret = []
+     
+        l1 = n/2
+        isOdd = (n%2 == 1)
+        
+        
+        def dfs(currstr,currlen,isOdd):
+            if currlen == 0:
+                right = ""
+                for x in currstr[::-1]:
+                    right += db1[x]
+                if isOdd:
+                    for x in middle:
+                        ts = currstr+x + right
+                        if ( len(ts) == len(low) and int(ts) < int(low) ) or \
+                            ( len(ts) == len(high) and int(ts) > int(high) ):
+                            continue
+                        ret.append(ts)
+                    return
+                else:
+                    ts = currstr + right
+                    if ( len(ts) == len(low) and int(ts) < int(low) ) or \
+                        ( len(ts) == len(high) and int(ts) > int(high) ):
+                        return
+                    ret.append(ts)
+                    return
+            for item in db1.keys():
+                if currstr == "" and item == '0': continue # "010" is not valid
+                dfs(currstr+item,currlen-1,isOdd)
+                
+        
+        dfs("",l1,isOdd)
+
+        return len(ret)
+        
+
 #-----------------------------------
 #252. Meeting Rooms
 """
@@ -7449,7 +7531,8 @@ class Solution(object):
 #-----------------------------------
 #261. Graph Valid Tree
 """
- Given n nodes labeled from 0 to n - 1 and a list of undirected edges (each edge is a pair of nodes), write a function to check whether these edges make up a valid tree.
+ Given n nodes labeled from 0 to n - 1 and a list of undirected edges (each edge is a pair of nodes), 
+ write a function to check whether these edges make up a valid tree.
 
 For example:
 
@@ -7460,7 +7543,9 @@ Given n = 5 and edges = [[0, 1], [1, 2], [2, 3], [1, 3], [1, 4]], return false.
 Hint:
 
     Given n = 5 and edges = [[0, 1], [1, 2], [3, 4]], what should your return? Is this case a valid tree?
-    According to the definition of tree on Wikipedia: “a tree is an undirected graph in which any two vertices are connected by exactly one path. In other words, any connected graph without simple cycles is a tree.”
+    According to the definition of tree on Wikipedia: 
+    “a tree is an undirected graph in which any two vertices are connected by exactly one path. 
+    In other words, any connected graph without simple cycles is a tree.”
 
 """
 class Solution(object):
@@ -7484,6 +7569,8 @@ class Solution(object):
         for e in edges:
             x,y = map(find,e)
             if x == y: return False
+            #2 nodes in e already share parent
+            #if they are connected, there is a circle
             parent[x] = y
         return len(edges) == n-1
         
@@ -7500,7 +7587,7 @@ class Solution(object):
         #visit(0)
         stack = [0]
         while stack and neighbors:
-            stack += neighbors.pop(stack.pop(), [])        
+            stack += neighbors.pop(stack.pop(), [])
         return not neighbors
         
         """
@@ -8334,14 +8421,61 @@ class ValidWordAbbr(object):
         if (word not in self.dictionary) and key not in self.db: return True
         elif (word in self.dictionary and self.db[key] == True): return True
         else: return False
-
-        
-
-
 # Your ValidWordAbbr object will be instantiated and called as such:
 # vwa = ValidWordAbbr(dictionary)
 # vwa.isUnique("word")
 # vwa.isUnique("anotherWord")
+#-----------------------------------
+#290. Word Pattern
+"""
+Given a pattern and a string str, find if str follows the same pattern.
+
+Here follow means a full match, such that there is a bijection between a letter in pattern and a non-empty word in str.
+
+Examples:
+
+    pattern = "abba", str = "dog cat cat dog" should return true.
+    pattern = "abba", str = "dog cat cat fish" should return false.
+    pattern = "aaaa", str = "dog cat cat dog" should return false.
+    pattern = "abba", str = "dog dog dog dog" should return false.
+
+Notes:
+You may assume pattern contains only lowercase letters, and str contains lowercase letters separated by a single space. 
+"""
+class Solution(object):
+    """
+    str and patter should be bi direction one-one mapping. So we need to loop twice
+    """
+    def wordPattern(self, pattern, str):
+        """
+        :type pattern: str
+        :type str: str
+        :rtype: bool
+        """
+        n = len(pattern)
+
+        str = str.split()
+        if len(str) == 1: 
+            str = str[0]
+            if n==1 : return True
+            else : return False
+        if len(str)!=n : return False
+        tb = {}
+        for i in xrange(len(pattern)):
+
+            if pattern[i] in tb:
+                if tb[pattern[i]] != str[i]: return False
+            else:
+                tb[pattern[i]] = str[i]
+        tb = {}      
+        for i in xrange(len(pattern)):
+
+            if str[i] in tb:
+                if tb[str[i]] != pattern[i]: return False
+            else:
+                tb[str[i]] = pattern[i]           
+                
+        return True       
 #-----------------------------------
 #292. Nim Game
 """
