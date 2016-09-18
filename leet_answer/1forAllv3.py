@@ -1013,7 +1013,7 @@ class Solution(object):
         """
         #https://discuss.leetcode.com/topic/52275/easy-python-solution-based-on-lexicographical-permutation-algorithm
 
-        # step1: find the longest non increaseing suffix
+        # step1: find the longest non increasing suffix
         #find nums[i] < nums[i + 1], Loop backwards
         i = -1
         for t in xrange(len(nums) - 2, -1, -1):
@@ -7395,13 +7395,54 @@ class Solution(object):
             for item in db1.keys():
                 if currstr == "" and item == '0': continue # "010" is not valid
                 dfs(currstr+item,currlen-1,isOdd)
-                
-        
         dfs("",l1,isOdd)
-
         return len(ret)
-        
+#-----------------------------------
+#249. Group Shifted Strings
+"""
+Given a string, we can "shift" each of its letter to its successive letter, for example: "abc" -> "bcd". We can keep "shifting" which forms the sequence:
 
+"abc" -> "bcd" -> ... -> "xyz"
+
+Given a list of strings which contains only lowercase alphabets, group all strings that belong to the same shifting sequence.
+
+For example, given: ["abc", "bcd", "acef", "xyz", "az", "ba", "a", "z"],
+A solution is:
+
+[
+  ["abc","bcd","xyz"],
+  ["az","ba"],
+  ["acef"],
+  ["a","z"]
+]
+"""
+class Solution(object):
+    def groupStrings(self, strings):
+        """
+        :type strings: List[str]
+        :rtype: List[List[str]]
+        """
+        #the distance in ASCII value should be same
+        #use hashtable
+        tb = collections.defaultdict(list) #key is ASCII value
+        for item in strings:
+            key = ""
+            if len(item) > 0: base = ord(item[0])
+            for x in item:
+                key += str((ord(x)-base)%26) + '_'
+                #for python -1%26 == 25
+            tb[key].append(item)
+        ret = []
+        for key in tb.keys():
+            ret.append(tb[key])
+        return ret
+        
+    def sol2(self,strings):
+        #for tuple can be the key of a hashtable
+        groups = collections.defaultdict(list)
+        for s in strings:
+            groups[tuple((ord(c) - ord(s[0])) % 26 for c in s)] += s,
+        return  groups.values()
 #-----------------------------------
 #252. Meeting Rooms
 """
@@ -8446,6 +8487,7 @@ class Solution(object):
     """
     str and patter should be bi direction one-one mapping. So we need to loop twice
     """
+class Solution(object):
     def wordPattern(self, pattern, str):
         """
         :type pattern: str
@@ -8455,10 +8497,7 @@ class Solution(object):
         n = len(pattern)
 
         str = str.split()
-        if len(str) == 1: 
-            str = str[0]
-            if n==1 : return True
-            else : return False
+        if len(str) == 1 and n ==1: return True
         if len(str)!=n : return False
         tb = {}
         for i in xrange(len(pattern)):
@@ -8466,16 +8505,55 @@ class Solution(object):
             if pattern[i] in tb:
                 if tb[pattern[i]] != str[i]: return False
             else:
+                if str[i] in tb.values(): return False #str[i] already belong to other pattern
                 tb[pattern[i]] = str[i]
-        tb = {}      
-        for i in xrange(len(pattern)):
+        return True
+#-----------------------------------
+#291. Word Pattern II
+"""
+Given a pattern and a string str, find if str follows the same pattern.
 
-            if str[i] in tb:
-                if tb[str[i]] != pattern[i]: return False
-            else:
-                tb[str[i]] = pattern[i]           
-                
-        return True       
+Here follow means a full match, such that there is a bijection between a letter in pattern and a non-empty substring in str.
+
+Examples:
+
+    pattern = "abab", str = "redblueredblue" should return true.
+    pattern = "aaaa", str = "asdasdasdasd" should return true.
+    pattern = "aabb", str = "xyzabcxzyabc" should return false.
+
+Notes:
+You may assume both pattern and str contains only lowercase letters. 
+"""
+class Solution(object):
+    def wordPatternMatch(self, pattern, str):
+        """
+        :type pattern: str
+        :type str: str
+        :rtype: bool
+        """
+        return self.dfs(pattern,str,{})
+
+    def dfs(self, pattern, str, hashtable):
+
+        if len(pattern) == len(str) == 0:
+            return True
+        if len(pattern) == 0 or len(str) == 0:
+            return False
+
+        for end in range(1, len(str)-len(pattern)+2): 
+            # +2 because it is the "end of an end"
+            # patthern[0] in theory can only match len in str up to len(str)-len(pattern)
+            #otherwise other pattern[i] has nothing to match
+            if pattern[0] not in hashtable and str[:end] not in hashtable.values():
+                hashtable[pattern[0]] = str[:end]
+                if self.dfs(pattern[1:], str[end:], hashtable):
+                    return True
+                del hashtable[pattern[0]]
+            elif pattern[0] in hashtable and hashtable[pattern[0]] == str[:end]:
+                #found existing pattern word pair
+                if self.dfs(pattern[1:], str[end:], hashtable):
+                    return True
+        return False   
 #-----------------------------------
 #292. Nim Game
 """
@@ -8709,7 +8787,8 @@ class Solution(object):
 #-----------------------------------
 #301. Remove Invalid Parentheses
 """
- Remove the minimum number of invalid parentheses in order to make the input string valid. Return all possible results.
+ Remove the minimum number of invalid parentheses in order to make the input string valid.
+ Return all possible results.
 
 Note: The input string may contain letters other than the parentheses ( and ).
 
@@ -8736,7 +8815,6 @@ class Solution(object):
         cur = self.cal(s)
         if cur == 0: return [s]
         ans = []
-
         for i in xrange(len(s)):
             if s[i] in ('(',')'):
                 ns = s[:i]+s[i+1:]
@@ -8744,7 +8822,7 @@ class Solution(object):
                     self.visited.add(ns)
                     ans.extend(self.dfs(ns))
         return ans
-        
+
     def bfs(self,s):
         ans = []
         queue = [s]
@@ -8752,13 +8830,15 @@ class Solution(object):
         while queue!= []:
             t = queue.pop(0)
             cur = self.cal(t)
-            if cur == 0: 
-                done = True
+            if cur == 0:
+                done = True 
+                #done == True means no need to add new items in the queue
+                #let's finish the existing items in the queue with equal this length
                 ans.append(t)
             if done: continue
             for i in xrange(len(t)):
                  if t[i] in ('(',')'):
-                     ns = t[:i]+t[i+1:]
+                     ns = t[:i]+t[i+1:] #remove ti
                      if ns not in self.visited and self.cal(ns) < cur:
                         self.visited.add(ns)
                         queue.append(ns)
@@ -8766,7 +8846,7 @@ class Solution(object):
         
     def cal(self,s):
         # a is count of left ( imbalance
-        # b is count of right ) imblance
+        # b is count of right ) imbalance
         # return total imbalance
         a = b = 0
         for x in s:
@@ -10041,17 +10121,20 @@ class Solution(object):
 """
 Given a nested list of integers, implement an iterator to flatten it.
 
-Each element is either an integer, or a list -- whose elements may also be integers or other lists.
+Each element is either an integer, or a list -- 
+    whose elements may also be integers or other lists.
 
 Example 1:
 Given the list [[1,1],2,[1,1]],
 
-By calling next repeatedly until hasNext returns false, the order of elements returned by next should be: [1,1,2,1,1].
+By calling next repeatedly until hasNext returns false, 
+    the order of elements returned by next should be: [1,1,2,1,1].
 
 Example 2:
 Given the list [1,[4,[6]]],
 
-By calling next repeatedly until hasNext returns false, the order of elements returned by next should be: [1,4,6]. 
+By calling next repeatedly until hasNext returns false, 
+    the order of elements returned by next should be: [1,4,6]. 
 """
 # """
 # This is the interface that allows for creating nested lists.
@@ -10100,18 +10183,19 @@ class NestedIterator(object):
         :rtype: bool
         """
         while self.stack or self.list:
-            if not self.stack:
+            if not self.stack: #only read item from list when the stack is empty
                 self.stack.append(self.list.pop(0))
             while self.stack and not self.stack[-1].isInteger():
                 #need to flat the last item
                 top = self.stack.pop().getList()
-                for e in top[::-1]: #push in reverse order
+                for e in top[::-1]:
+                    #push in reverse order, so the top of the stack is the most left item
+                    # in the original list
                     self.stack.append(e)
             if self.stack and self.stack[-1].isInteger():
                 return True
         return False
-            
-        
+
 
 # Your NestedIterator object will be instantiated and called as such:
 # i, v = NestedIterator(nestedList), []
