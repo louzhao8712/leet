@@ -7444,6 +7444,122 @@ class Solution(object):
             groups[tuple((ord(c) - ord(s[0])) % 26 for c in s)] += s,
         return  groups.values()
 #-----------------------------------
+#250. Count Univalue Subtrees
+"""
+Given a binary tree, count the number of uni-value subtrees.
+
+A Uni-value subtree means all nodes of the subtree have the same value.
+
+For example:
+Given binary tree,
+
+              5
+             / \
+            1   5
+           / \   \
+          5   5   5
+
+return 4.
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def countUnivalSubtrees(self, root):
+        """
+        :type root: TreeNode
+        :rtype: int
+        """
+        self.count = 0
+        
+        def dfs(root):
+            if root == None: return True
+            
+            if root.left == None and root.right == None: #found a leaf node
+                self.count += 1
+                return True
+            lresult = dfs(root.left)
+            rresult = dfs(root.right)
+            # both left and right need to be univalue tree
+            #if they have value, all their values and root.value should be same
+            if lresult and rresult:
+                tmpl = []
+                if root.left: tmpl.append(root.left.val)
+                if root.right: tmpl.append(root.right.val)
+                for val in tmpl:
+                    if val != root.val: return False
+                self.count +=1
+                return True
+            return False
+        dfs(root)
+        return self.count
+
+#-----------------------------------
+#251. Flatten 2D Vector
+"""
+251. Flatten 2D Vector
+
+    Total Accepted: 13860
+    Total Submissions: 38064
+    Difficulty: Medium
+
+Implement an iterator to flatten a 2d vector.
+
+For example,
+Given 2d vector =
+
+[
+  [1,2],
+  [3],
+  [4,5,6]
+]
+
+By calling next repeatedly until hasNext returns false, the order of elements returned by next should be: [1,2,3,4,5,6].
+
+Hint:
+
+    How many variables do you need to keep track?
+    Two variables is all you need. Try with x and y.
+    Beware of empty rows. It could be the first few rows.
+    To write correct code, think about the invariant to maintain. What is it?
+    The invariant is x and y must always point to a valid point in the 2d vector. Should you maintain your invariant ahead of time or right when you need it?
+    Not sure? Think about how you would implement hasNext(). Which is more complex?
+    Common logic in two different places should be refactored into a common method.
+
+Follow up:
+As an added challenge, try to code it using only iterators in C++ or iterators in Java. 
+"""
+class Vector2D(object):
+
+    def __init__(self, vec2d):
+        self.row = 0
+        self.col = 0
+        self.vec = vec2d
+        
+    def next(self):
+        val = self.vec[self.row][self.col]
+        self.col += 1
+        return val
+    
+    def hasNext(self):
+        #while loop is used to skip empty array
+        # normal case it will return True
+        while self.row < len(self.vec):
+            while self.col < len(self.vec[self.row]):
+                return True
+            self.row += 1
+            self.col = 0
+        return False
+        
+
+# Your Vector2D object will be instantiated and called as such:
+# i, v = Vector2D(vec2d), []
+# while i.hasNext(): v.append(i.next())
+#-----------------------------------
 #252. Meeting Rooms
 """
 Given an array of meeting time intervals consisting of start and end times [[s1,e1],[s2,e2],...] (si < ei), determine if a person could attend all meetings.
@@ -7796,64 +7912,125 @@ print c.alienOrder([
   "rftt"
 ])
 #-----------------------------------
-#272. Zigzag Iterator
+#270. Closest Binary Search Tree Value
 """
-Given two 1d vectors, implement an iterator to return their elements alternately.
+ Given a non-empty binary search tree and a target value, find the value in the BST that is closest to the target.
 
-For example, given two 1d vectors:
+Note:
 
-v1 = [1, 2]
-v2 = [3, 4, 5, 6]
-By calling next repeatedly until hasNext returns false, the order of elements returned by next should be: [1, 3, 2, 4, 5, 6].
+    Given target value is a floating point.
+    You are guaranteed to have only one unique value in the BST that is closest to the target.
 
-Follow up: What if you are given k 1d vectors? How well can your code be extended to such cases?
-
-Clarification for the follow up question - Update (2015-09-18):
-The "Zigzag" order is not clearly defined and is ambiguous for k > 2 cases. If "Zigzag" does not look right to you, replace "Zigzag" with "Cyclic". For example, given the following input:
-
-[1,2,3]
-[4,5,6,7]
-[8,9]
-It should return [1,4,8,2,5,9,3,6,7].
 """
-class ZigzagIterator(object):  
-  
-    def __init__(self, v1, v2):  
-        """ 
-        Initialize your data structure here. 
-        :type v1: List[int] 
-        :type v2: List[int] 
-        """  
-        self.l = []  
-        i = 0  
-        while i < max(len(v1), len(v2)):  
-            if i < len(v1):  
-                self.l.append(v1[i])  
-            if i < len(v2):  
-                self.l.append(v2[i])  
-            i += 1  
-        self.index = 0  
-  
-    def next(self):  
-        """ 
-        :rtype: int 
-        """  
-        cur = self.l[self.index]  
-        self.index += 1  
-        return cur  
-  
-    def hasNext(self):  
-        """ 
-        :rtype: bool 
-        """  
-        if self.index < len(self.l):  
-            return True  
-        else:  
-            return False  
-  
-# Your ZigzagIterator object will be instantiated and called as such:  
-# i, v = ZigzagIterator(v1, v2), []  
-# while i.hasNext(): v.append(i.next())  
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def closestValue(self, root, target):
+        """
+        :type root: TreeNode
+        :type target: float
+        :rtype: int
+        """
+        #You are guaranteed to have only one unique value in the BST that is closest to the target.
+        #non-empty tree
+        diff = abs(root.val - target)
+        ret = root.val
+        while root:
+            if target == root.val: return root.val
+            elif target < root.val: root = root.left
+            elif target > root.val: root = root.right
+            if root:
+                if  abs(root.val - target) < diff:
+                    diff = abs(root.val - target)
+                    ret = root.val
+        return ret
+#-----------------------------------
+#272. Closest Binary Search Tree Value II
+"""
+ Given a non-empty binary search tree and a target value, find k values in the BST that are closest to the target.
+
+Note:
+
+    Given target value is a floating point.
+    You may assume k is always valid, that is: k ≤ total nodes.
+    You are guaranteed to have only one unique set of k values in the BST that are closest to the target.
+
+Follow up:
+Assume that the BST is balanced, could you solve it in less than O(n) runtime (where n = total nodes)?
+
+Hint:
+
+    Consider implement these two helper functions:
+        getPredecessor(N), which returns the next smaller node to N.
+        getSuccessor(N), which returns the next larger node to N.
+    Try to assume that each node has a parent pointer, it makes the problem much easier.
+    Without parent pointer we just need to keep track of the path from the root to the current node using a stack.
+    You would need two stacks to track the path in finding predecessor and successor node separately.
+
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def closestKValues(self, root, target, k):
+        """
+        :type root: TreeNode
+        :type target: float
+        :type k: int
+        :rtype: List[int]
+        """
+        self.inorderList = []
+        self.inorderTraversal(root)
+        # find the closet idx
+        
+        if target <= self.inorderList[0]: return self.inorderList[:k]
+        elif target >= self.inorderList[-1]: return self.inorderList[-k:]
+        
+        #search the point where diff switch from negative to positive
+        for i,item in enumerate(self.inorderList):
+            diff = self.inorderList[i] - target
+            if diff >= 0:
+                left = i-1
+                right = i
+                break
+        res = []
+        n = len(self.inorderList)
+        while len(res) != k:
+            unfinish = k - len(res)
+            if left< 0: 
+                res.extend(self.inorderList[right:right + unfinish])
+                break
+            elif right >= n:
+                res.extend(self.inorderList[left+1-unfinish:left+1])
+                break
+            
+            if  abs(self.inorderList[left] - target) < abs(self.inorderList[right] - target):
+                res.append(self.inorderList[left])
+                left -=1
+            else:
+                res.append(self.inorderList[right])
+                right +=1
+        return res
+    
+    def inorderTraversal(self,root):
+        stack = []
+        while root or stack:
+            if root:
+                stack.append(root)
+                root = root.left
+            else:
+                top = stack.pop()
+                self.inorderList.append(top.val)
+                root = top.right
 #-----------------------------------
 #273. Integer to English Words
 """
@@ -8108,6 +8285,65 @@ class Solution(object):
         if isBadVersion(hi):
             return hi
         return -1
+#------------------------------------------------------------
+#281. Zigzag Iterator
+"""
+Given two 1d vectors, implement an iterator to return their elements alternately.
+
+For example, given two 1d vectors:
+
+v1 = [1, 2]
+v2 = [3, 4, 5, 6]
+By calling next repeatedly until hasNext returns false, the order of elements returned by next should be: [1, 3, 2, 4, 5, 6].
+
+Follow up: What if you are given k 1d vectors? How well can your code be extended to such cases?
+
+Clarification for the follow up question - Update (2015-09-18):
+The "Zigzag" order is not clearly defined and is ambiguous for k > 2 cases. If "Zigzag" does not look right to you, replace "Zigzag" with "Cyclic". For example, given the following input:
+
+[1,2,3]
+[4,5,6,7]
+[8,9]
+It should return [1,4,8,2,5,9,3,6,7].
+"""
+class ZigzagIterator(object):  
+  
+    def __init__(self, v1, v2):  
+        """ 
+        Initialize your data structure here. 
+        :type v1: List[int] 
+        :type v2: List[int] 
+        """  
+        self.l = []  
+        i = 0  
+        while i < max(len(v1), len(v2)):  
+            if i < len(v1):  
+                self.l.append(v1[i])  
+            if i < len(v2):  
+                self.l.append(v2[i])  
+            i += 1  
+        self.index = 0  
+  
+    def next(self):  
+        """ 
+        :rtype: int 
+        """  
+        cur = self.l[self.index]  
+        self.index += 1  
+        return cur  
+  
+    def hasNext(self):  
+        """ 
+        :rtype: bool 
+        """  
+        if self.index < len(self.l):  
+            return True  
+        else:  
+            return False  
+  
+# Your ZigzagIterator object will be instantiated and called as such:  
+# i, v = ZigzagIterator(v1, v2), []  
+# while i.hasNext(): v.append(i.next())  
 #-----------------------------------
 #282. Expression Add Operators
 """
