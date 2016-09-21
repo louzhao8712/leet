@@ -1211,20 +1211,22 @@ class Solution(object):
 #-----------------------------------
 #39 Combination Sum
 """
-Given a set of candidate numbers (C) and a target number (T), find all unique combinations in C where the candidate numbers sums to T.
+Given a set of candidate numbers (C) and a target number (T), 
+find all unique combinations in C where the candidate numbers sums to T.
 
 The same repeated number may be chosen from C unlimited number of times.
 
 Note:
 All numbers (including target) will be positive integers.
-Elements in a combination (a1, a2, … , ak) must be in non-descending order. (ie, a1 ≤ a2 ≤ … ≤ ak).
+Elements in a combination (a1, a2, … , ak) must be in non-descending order. 
+(ie, a1 ≤ a2 ≤ … ≤ ak).
 The solution set must not contain duplicate combinations.
 For example, given candidate set 2,3,6,7 and target 7,
 A solution set is:
 [7]
 [2, 2, 3]
 """
-class Solution39(object):
+class Solution(object):
     def combinationSum(self, C, T):
         """
         :type C: List[int]
@@ -7621,6 +7623,70 @@ class Solution(object):
                 heappush(meetingRooms,item.end)
         return len(meetingRooms)
 #-----------------------------------
+#254. Factor Combinations
+"""
+Numbers can be regarded as product of its factors. For example,
+
+8 = 2 x 2 x 2;
+  = 2 x 4.
+
+Write a function that takes an integer n and return all possible combinations of its factors.
+
+Note:
+
+    You may assume that n is always positive.
+    Factors should be greater than 1 and less than n.
+
+Examples:
+input: 1
+output:
+
+[]
+
+input: 37
+output:
+
+[]
+
+input: 12
+output:
+
+[
+  [2, 6],
+  [2, 2, 3],
+  [3, 4]
+]
+
+input: 32
+output:
+
+[
+  [2, 16],
+  [2, 2, 8],
+  [2, 2, 2, 4],
+  [2, 2, 2, 2, 2],
+  [2, 4, 4],
+  [4, 8]
+]
+
+"""
+class Solution:
+    def getFactors(self, n):
+        """
+        :type n: int
+        :rtype: List[List[int]]
+        """
+        res = []
+        
+        for i in range(2, int(n**0.5) + 1):
+            if n%i == 0:
+                m = n//i
+                for q in self.getFactors(m):
+                    if q[0] >= i: #important, so [3,2,2] won't appear
+                        res.append([i] + q)
+                res.append([i, m])
+        return res
+#-----------------------------------
 #256. Paint House
 """
  There are a row of n houses, each house can be painted with one of the three colors: red, blue or green. The cost of painting each house with a certain color is different. You have to paint all the houses such that no two adjacent houses have the same color.
@@ -8915,6 +8981,94 @@ class Codec:
 # codec = Codec()
 # codec.deserialize(codec.serialize(root))
 #-----------------------------------
+#298. Binary Tree Longest Consecutive Sequence
+"""
+ Given a binary tree, find the length of the longest consecutive sequence path.
+
+The path refers to any sequence of nodes from some starting node to any node in the tree along the parent-child connections. The longest consecutive path need to be from parent to child (cannot be the reverse).
+
+For example,
+
+   1
+    \
+     3
+    / \
+   2   4
+        \
+         5
+
+Longest consecutive sequence path is 3-4-5, so return 3.
+
+   2
+    \
+     3
+    / 
+   2    
+  / 
+ 1
+
+Longest consecutive sequence path is 2-3,not3-2-1, so return 2. 
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def longestConsecutive(self, root):
+        """
+        :type root: TreeNode
+        :rtype: int
+        """
+        return self.sol3(root)
+        
+    def sol1(self,root):
+        #top down approadch
+        #use dfs, pass root.val to next layer and compare, take the advantage of consective
+        # next layer target can only be root.val +1
+        if root == None: return 0
+        self.maxlen = 0
+        def dfs(root,target,curlen):
+            if root == None: return
+            if root.val == target: curlen +=1
+            else: curlen = 1
+            self.maxlen = max(self.maxlen,curlen)
+            dfs(root.left,root.val+1,curlen)
+            dfs(root.right,root.val+1,curlen)
+        dfs(root,root.val,0)
+        return self.maxlen
+
+    def sol2(self,root):
+        #top down approadch
+        #use dfs, pass root.val to next layer and compare, take the advantage of consective
+        # next layer target can only be root.val +1
+        #similar to sol2, avoid using global maxlen
+        if root == None: return 0
+ 
+        def dfs(root,target,curlen):
+            if root == None: return curlen
+            if root.val == target: curlen +=1
+            else: curlen = 1
+            return max(curlen, dfs(root.left,root.val+1,curlen) ,dfs(root.right,root.val+1,curlen))
+        return dfs(root,root.val,0)
+
+    def sol3(self,root):
+        #bottom up dfs. not recommened
+        self.maxlen = 0
+        def dfs(root):
+            if root == None: return 0
+            L = dfs(root.left) +1
+            R = dfs(root.right) +1
+            if root.left and root.left.val!=root.val +1 : L =1
+            if root.right and root.right.val!= root.val +1: R =1
+            curlen = max(L,R)
+            self.maxlen = max(self.maxlen,curlen)
+            return curlen
+        dfs(root)
+        return self.maxlen
+
 #-----------------------------------
 #299. Bulls and Cows
 """
