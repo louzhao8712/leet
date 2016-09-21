@@ -6515,6 +6515,7 @@ Notes:
 #Complexity is the worst case O(NlogN)
 #Very nice idea, keeping smaller buildings alive under larger ones even though they ended already.
 from heapq import *
+from heapq import *
 class Solution(object):
     def getSkyline(self, LRH):
         """
@@ -6526,21 +6527,22 @@ class Solution(object):
         i,n = 0, len(LRH)
         liveHR = [] #the heap
         while i < n or liveHR:
-            if not liveHR or (i<n and LRH[i][0] <= -liveHR[0][1]):
-                # LRH[i][0] is the new building, LRH[i][0] <= -liveHR[0][1], push it to the heap
-                x = LRH[i][0]
+            if not liveHR or (i<n and LRH[i][0] <= -liveHR[0][1]): #new build's left small then top heap right
+                x = LRH[i][0] #!!! new building's left
                 while i < n and LRH[i][0] == x:
-                    #push all the new buildings start from the same place
+                    #push all new building has same height, sort by height, then right
+                    # if the new building is low, the height variable won't get updated
                     heappush(liveHR,(-LRH[i][2],-LRH[i][1]))
                     i+=1
-            else: #no new building found, need to print out (x,0) case
-                x = -liveHR[0][1] # save the heap top right for the case of point(x,0)
+            else: #no new building found
+                x = -liveHR[0][1] # save the heap top right
                 while liveHR and -liveHR[0][1] <=x: #remove all the building on the left of the top building
                     heappop(liveHR)
             if liveHR: height = -liveHR[0][0]
-            else:       height = 0
-            if not skyline or height != skyline[-1][1]:
-                skyline.append([x,height]) # why insert x?
+            else:       height = 0 #floor case
+            if not skyline or height != skyline[-1][1]: 
+                #wehn a samll new builing add to the heap, even x get updated, the height is still the old tall building. so height == skyline[-1][1]
+                skyline.append([x,height]) 
         return skyline
 
 
