@@ -7687,6 +7687,54 @@ class Solution:
                 res.append([i, m])
         return res
 #-----------------------------------
+#255. Verify Preorder Sequence in Binary Search Tree
+"""
+Given an array of numbers, verify whether it is the correct preorder traversal sequence of a binary search tree.
+
+You may assume each number in the sequence is unique.
+
+Follow up:
+Could you do it using only constant space complexity?
+"""
+class Solution(object):
+    def verifyPreorder(self, preorder):
+        """
+        :type preorder: List[int]
+        :rtype: bool
+        """
+        return self.sol2(preorder)
+
+    def sol1(self,preorder):
+        #o(n) space solution with stack
+        # keeping a stack of nodes (just their values) of which we're still in the left subtree. If the next number is smaller than the last stack value, then we're still in the left subtree of all stack nodes, so just push the new one onto the stack.
+        # If stack[-1] < curnode, means we are now in some right sub tree
+        #keep pop all smaller items,the last pop item is the root of this subtree, make it 'low;
+        
+        low = -float('inf') #low is the left boundary, no element should small then this one
+        stack = []
+        for p in preorder:
+            if p < low: return False
+            while stack and stack[-1] < p:
+                low = stack.pop()
+            stack.append(p)
+        return True
+
+    def sol2(self,preorder):
+        #same as sol1 but resuse the preorder as stack
+        # O(1) space
+        
+        low = -float('inf') #low is the left boundary, no element should small then this one
+        i = -1 #the pointer of stack top
+        for p in preorder:
+            if p < low: return False
+            
+            while i>=0 and preorder[i] < p:
+                low = preorder[i]
+                i -=1
+            i+=1
+            preorder[i] = p
+        return True
+#-----------------------------------
 #256. Paint House
 """
  There are a row of n houses, each house can be painted with one of the three colors: red, blue or green. The cost of painting each house with a certain color is different. You have to paint all the houses such that no two adjacent houses have the same color.
@@ -10213,6 +10261,59 @@ class Solution(object):
             return [start] + left + right
         return solve("JFK")        
 #-----------------------------------
+#333. Largest BST Subtree
+"""
+Given a binary tree, find the largest subtree which is a Binary Search Tree (BST), where largest means subtree with largest number of nodes in it.
+
+Note:
+A subtree must include all of its descendants.
+Here's an example:
+
+    10
+    / \
+   5  15
+  / \   \ 
+ 1   8   7
+
+The Largest BST Subtree in this case is the highlighted one.
+The return value is the subtree's size, which is 3.
+
+Hint:
+
+    You can recursively use algorithm similar to 98. Validate Binary Search Tree at each node of the tree, which will result in O(nlogn) time complexity.
+
+Follow up:
+Can you figure out ways to solve it with O(n) time complexity? 
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def largestBSTSubtree(self, root):
+        """
+        :type root: TreeNode
+        :rtype: int
+        """
+        #use dfs
+        #return 4 values
+        #N largest num of sub BST for visited trace
+        #n total number of nodes if BST,otherwise -flot('inf'). The beauty is -inf + x == -inf
+        #    so if left or right is not BST, the tree of node is also not
+        #min, min value of visited tree
+        #max, max value of visited tree
+        def dfs(root):
+            if not root:
+                return 0,0,float('inf'),-float('inf')
+            N1,n1,min1,max1 = dfs(root.left)
+            N2,n2,min2,max2 = dfs(root.right)
+            n = n1 + 1 + n2 if max1 <root.val<min2 else -float('inf')
+            return max(N1,N2,n),n,min(min1,root.val),max(max2,root.val)
+            
+        return dfs(root)[0]
 #-----------------------------------
 #334. Increasing Triplet Subsequence
 """
@@ -10844,6 +10945,70 @@ class Solution(object):
                 ans.append(x)
                 c[x] -=1
         return ans
+#-----------------------------------
+#366. Find Leaves of Binary Tree
+"""
+Given a binary tree, collect a tree's nodes as if you were doing this: Collect and remove all leaves, repeat until the tree is empty.
+
+Example:
+Given binary tree
+
+          1
+         / \
+        2   3
+       / \     
+      4   5    
+
+Returns [4, 5, 3], [2], [1].
+
+Explanation:
+
+1. Removing the leaves [4, 5, 3] would result in this tree:
+
+          1
+         / 
+        2          
+
+2. Now removing the leaf [2] would result in this tree:
+
+          1          
+
+3. Now removing the leaf [1] would result in the empty tree:
+
+          []         
+
+Returns [4, 5, 3], [2], [1]. 
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def findLeaves(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[List[int]]
+        """
+        #backtracking
+        #The essential of problem is not to find the leaves, but group leaves of same level together and also to cut the tree
+        # height of leave is 0, height of None is -1, height(node) = 1 + max(height(node.left),height(node.right))
+        self.res = []
+        self.height(root)
+        return self.res
+        
+    def height(self,node):
+        if not node: return -1
+        level = 1 + max(self.height(node.left),self.height(node.right))
+        if len(self.res) < level +1:
+            self.res.append([])
+        self.res[level].append(node.val)
+        node.left = None
+        node.right = None
+        return level
+
 #-----------------------------------
 #371. Sum of Two Integers
 """
