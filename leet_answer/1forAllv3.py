@@ -8445,6 +8445,37 @@ class Solution(object):
             return hi
         return -1
 #------------------------------------------------------------
+#280. Wiggle Sort
+"""
+ Given an unsorted array nums, reorder it in-place such that nums[0] <= nums[1] >= nums[2] <= nums[3]....
+
+For example, given nums = [3, 5, 2, 1, 6, 4], one possible answer is [1, 6, 2, 5, 3, 4]. 
+"""
+class Solution(object):
+    def wiggleSort(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: void Do not return anything, modify nums in-place instead.
+        """
+        #greedy algorith
+        # need to satisfy
+        # 1. if i is odd nums[i-1] <= nums[i]
+        # 2. if i is even nums[i-1] >= nums[i]
+        # if does not satisfy, swap nums[i-1] and nums[i]
+        # this one want to work if the condition is < > (wiggle sort II)
+        # e.g
+        """
+         Input: [1,2,2,1,2,1,1,1,1,2,2,2]
+        Output: [1,2,1,2,1,2,1,1,1,2,2,2]
+        Expect: [1,2,1,2,1,2,1,2,1,2,1,2] 
+        """
+        for i in xrange(1,len(nums)):
+            #odd num
+            if i&1 and nums[i-1] > nums[i] :
+                nums[i-1],nums[i] = nums[i],nums[i-1]
+            elif i&1 ==0 and nums[i-1] < nums[i]:
+                nums[i-1],nums[i] = nums[i],nums[i-1]
+#------------------------------------------------------------
 #281. Zigzag Iterator
 """
 Given two 1d vectors, implement an iterator to return their elements alternately.
@@ -10027,10 +10058,15 @@ class Solution(object):
             nums[x] = snums.pop()       
 """
 解法II O(n)时间复杂度+O(1)空间复杂度解法：
+https://discuss.leetcode.com/topic/32929/o-n-o-1-after-median-virtual-indexing
+https://discuss.leetcode.com/topic/32920/o-n-time-o-1-space-solution-with-detail-explanations
+three way partition method
+https://en.wikipedia.org/wiki/Dutch_national_flag_problem#Pseudocode
 
 1. 使用O(n)时间复杂度的quickSelect算法，从未经排序的数组nums中选出中位数mid
 
-2. 参照解法I的思路，将nums数组的下标x通过函数idx()从[0, 1, 2, ... , n - 1, n] 映射到 [1, 3, 5, ... , 0, 2, 4, ...]，得到新下标ix
+2. 参照解法I的思路，将nums数组的下标x通过函数idx()从[0, 1, 2, ... , n - 1, n] 
+映射到 [1, 3, 5, ... , 0, 2, 4, ...]，得到新下标ix
 
 3. 以中位数mid为界，将大于mid的元素排列在ix的较小部分，而将小于mid的元素排列在ix的较大部分。
 
@@ -10047,6 +10083,18 @@ void wiggleSort(vector<int>& nums) {
 
     // Index-rewiring.
     #define A(i) nums[(1+2*(i)) % (n|1)]
+    """
+    Accessing A(0) actually accesses nums[1].
+    Accessing A(1) actually accesses nums[3].
+    Accessing A(2) actually accesses nums[5].
+    Accessing A(3) actually accesses nums[7].
+    Accessing A(4) actually accesses nums[9].
+    Accessing A(5) actually accesses nums[0].
+    Accessing A(6) actually accesses nums[2].
+    Accessing A(7) actually accesses nums[4].
+    Accessing A(8) actually accesses nums[6].
+    Accessing A(9) actually accesses nums[8].
+    """
 
     // 3-way-partition-to-wiggly in O(n) time with O(1) space.
     int i = 0, j = 0, k = n - 1;
