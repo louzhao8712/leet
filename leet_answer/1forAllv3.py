@@ -7802,6 +7802,49 @@ class Solution(object):
         if root.left:    self.dfs(root.left,vstr +str(root.val)+'->')
         if root.right:   self.dfs(root.right,vstr +str(root.val)+'->')
 #-----------------------------------
+#259. 3Sum Smaller
+"""
+Given an array of n integers nums and a target, find the number of index triplets i, j, k with 0 <= i < j < k < n that satisfy the condition nums[i] + nums[j] + nums[k] < target.
+
+For example, given nums = [-2, 0, 1, 3], and target = 2.
+
+Return 2. Because there are two triplets which sums are less than 2:
+
+[-2, 0, 1]
+[-2, 0, 3]
+
+Follow up:
+Could you solve it in O(n2) runtime? 
+"""
+class Solution(object):
+    def threeSumSmaller(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: int
+        """
+        # sol1 2sum with binary search o(nlogn). Add another layer of loop n. In total o(n2logn)
+        # sol2 2sum with 2 pointer o(n) Add another layer of loop n. In total o(n2)
+        #sort the array
+        nums.sort()
+        res = 0
+        for i in xrange(len(nums)-2): # min i is n-3, because we need two have at least 2 idx n-2, n-1 for twoSumSmaller
+            res += self.twoSumSmaller(nums,i+1,target - nums[i])
+        return res
+
+    def twoSumSmaller(self,nums,startIdx,target):
+        ret = 0
+        left = startIdx
+        right = len(nums) -1
+        while left < right:
+            if nums[left] + nums[right] < target:
+                ret += right - left
+                left +=1
+            else:
+                right -=1
+        return ret
+                
+#-----------------------------------
 #261. Graph Valid Tree
 """
  Given n nodes labeled from 0 to n - 1 and a list of undirected edges (each edge is a pair of nodes), 
@@ -10947,6 +10990,69 @@ class Solution(object):
                 ans.append(x)
                 c[x] -=1
         return ans
+#-----------------------------------
+#360. Sort Transformed Array
+"""
+ Given a sorted array of integers nums and integer values a, b and c. Apply a function of the form f(x) = ax2 + bx + c to each element x in the array.
+
+The returned array must be in sorted order.
+
+Expected time complexity: O(n)
+
+Example:
+
+nums = [-4, -2, 2, 4], a = 1, b = 3, c = 5,
+
+Result: [3, 9, 15, 33]
+
+nums = [-4, -2, 2, 4], a = -1, b = 3, c = 5
+
+Result: [-23, -5, 1, 7]
+
+"""
+class Solution(object):
+    def sortTransformedArray(self, nums, a, b, c):
+        """
+        :type nums: List[int]
+        :type a: int
+        :type b: int
+        :type c: int
+        :rtype: List[int]
+        
+        """
+        #nums is already sorted
+        # if a > 0, the closer of num to center, the smaller the result will be
+        # elif a < 0, he closer of num to center, the bigger the result will be
+        n = len(nums)
+        res = [None for i in xrange(n)]
+        i = 0
+        j = n-1
+        index = n-1 if a >=0 else 0  #the index to fill in res
+        while i <= j:
+            #if a >=0, nums[0] or nums[n-1] are guaranteed the bigger output
+            if a >=0: #index is n-1
+                if self.cal(a,b,c, nums[i]) >= self.cal(a,b,c,nums[j]):
+                    res[index] = self.cal(a,b,c, nums[i])
+                    index -=1 
+                    i +=1
+                else:
+                    res[index] = self.cal(a,b,c, nums[j])
+                    index -=1 
+                    j -= 1
+            else: #index is 0
+                
+                if self.cal(a,b,c, nums[i]) <= self.cal(a,b,c,nums[j]):
+                    res[index] = self.cal(a,b,c, nums[i])
+                    index +=1 
+                    i +=1
+                else:
+                    res[index] = self.cal(a,b,c, nums[j])
+                    index +=1 
+                    j -= 1
+        return res
+
+    def cal(self,a,b,c,num):
+        return a*num*num + b*num +c
 #-----------------------------------
 #366. Find Leaves of Binary Tree
 """
