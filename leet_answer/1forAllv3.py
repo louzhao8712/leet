@@ -7979,6 +7979,132 @@ class Solution(object):
 
         return min(costs[n-1])        
 #-----------------------------------
+#266. Palindrome Permutation
+"""
+Given a string, determine if a permutation of the string could form a palindrome.
+
+For example,
+"code" -> False, "aab" -> True, "carerac" -> True.
+
+Hint:
+
+    Consider the palindromes of odd vs even length. What difference do you notice?
+    Count the frequency of each character.
+    If each character occurs even number of times, then it must be a palindrome. How about character which occurs odd number of times?
+
+"""
+class Solution(object):
+    def canPermutePalindrome(self, s):
+        """
+        :type s: str
+        :rtype: bool
+        """
+        db = {}
+        for x in s:
+            db[x] = db.get(x,0) +1
+        
+        count =0
+        for x in db:
+            if db[x] %2 ==1 : count +=1
+        
+        #only allow at most one odd count item
+        if count > 1: return False
+        else: return True
+#-----------------------------------
+#267. Palindrome Permutation II
+"""
+Given a string s, return all the palindromic permutations (without duplicates) of it. Return an empty list if no palindromic permutation could be form.
+
+For example:
+
+Given s = "aabb", return ["abba", "baab"].
+
+Given s = "abc", return [].
+
+Hint:
+
+    If a palindromic permutation exists, we just need to generate the first half of the string.
+    To generate all distinct permutations of a (half of) string, use a similar approach from: Permutations II or Next Permutation.
+
+"""
+class Solution(object):
+    def generatePalindromes(self, s):
+        """
+        :type s: str
+        :rtype: List[str]
+        """
+        self.odd = []
+        self.even = []
+        if self.canPermutePalindrome(s):
+            res = self.iterative(self.even)
+            if self.odd != []:
+                odd = self.odd[0]
+            else:
+                odd = ""
+            for i in xrange(len(res)):
+                res[i] = "".join(res[i] + [odd] + res[i][::-1])
+        else:
+
+            return []
+        return res
+
+    def canPermutePalindrome(self, s):
+        """
+        :type s: str
+        :rtype: bool
+        """
+        db = {}
+
+        for x in s:
+            db[x] = db.get(x,0) +1
+        
+        count =0
+        for x in db:
+            if db[x] %2 ==1 : 
+                count +=1
+                self.odd.append(x)
+                self.even.extend([x] * ((db[x]-1)/2))
+            else:
+                self.even.extend([x] * ((db[x])/2))
+        
+        #only allow at most one odd count item
+        if count > 1: return False
+        else: return True
+
+    def iterative(self,nums):
+        """
+        :type nums: List[int]
+        :rtype: void Do not return anything, modify nums in-place instead.
+        """
+        #https://discuss.leetcode.com/topic/52275/easy-python-solution-based-on-lexicographical-permutation-algorithm
+
+
+        if nums is None:  return [[]]
+        elif len(nums) <= 1:   return [nums]
+
+        # sort nums first
+        nums.sort()
+
+        result = set([])
+        while True:
+            result.add(tuple([]+nums))
+            # step1: find nums[i] < nums[i + 1], Loop backwards
+            i = 0
+            for i in xrange(len(nums) - 2, -1, -1):
+                if nums[i] < nums[i + 1]:   break
+                elif i == 0:  return [list(x) for x in result]
+            # step2: find nums[i] < nums[j], Loop backwards
+            j = 0
+            for j in xrange(len(nums) - 1, i, -1):
+                if nums[i] < nums[j]:  break
+            # step3: swap betwenn nums[i] and nums[j]
+            nums[i], nums[j] = nums[j], nums[i]
+            # step4: reverse between [i + 1, n - 1]
+            nums[i + 1:len(nums)] = nums[len(nums) - 1:i:-1]
+        return  [list(x) for x in result]
+
+
+#-----------------------------------
 #268. Missing Number
 """
  Given an array containing n distinct numbers taken from 0, 1, 2, ..., n, find the one that is missing from the array.
