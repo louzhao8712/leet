@@ -8235,6 +8235,83 @@ class Solution(object):
                     ret = root.val
         return ret
 #-----------------------------------
+#271. Encode and Decode Strings
+"""
+ Design an algorithm to encode a list of strings to a string. The encoded string is then sent over the network and is decoded back to the original list of strings.
+
+Machine 1 (sender) has the function:
+
+string encode(vector<string> strs) {
+  // ... your code
+  return encoded_string;
+}
+
+Machine 2 (receiver) has the function:
+
+vector<string> decode(string s) {
+  //... your code
+  return strs;
+}
+
+So Machine 1 does:
+
+string encoded_string = encode(strs);
+
+and Machine 2 does:
+
+vector<string> strs2 = decode(encoded_string);
+
+strs2 in Machine 2 should be the same as strs in Machine 1.
+
+Implement the encode and decode methods.
+
+Note:
+
+    The string may contain any possible characters out of 256 valid ascii characters. Your algorithm should be generalized enough to work on any possible characters.
+    Do not use class member/global/static variables to store states. Your encode and decode algorithms should be stateless.
+    Do not rely on any library method such as eval or serialize methods. You should implement your own encode/decode algorithm.
+
+"""
+class Codec:
+    """
+    idea is turn each string to length + : + string
+    Even the original string could have ':', when we decode the long string we know the length, so the ':' in raw data
+    will not affect
+    """
+    def encode(self, strs):
+        """Encodes a list of strings to a single string.
+        
+        :type strs: List[str]
+        :rtype: str
+        """
+        ret = []
+        for s in strs:
+            ret.append('%d:'%len(s) + s)
+        return "".join(ret)
+
+    def decode(self, s):
+        """Decodes a single string to a list of strings.
+        
+        :type s: str
+        :rtype: List[str]
+        """
+        #python string.find('str',startSearchIndex) return the 1st index of 'str'
+        strs = []
+        i = 0
+        while i < len(s):
+            j = s.find(':',i) #the next ':' index
+            # s[i:j] is the number
+            # update i to the start point of next number
+            i = j + int(s[i:j]) + 1
+            strs.append(s[j+1:i])
+        return strs
+        
+        
+
+# Your Codec object will be instantiated and called as such:
+# codec = Codec()
+# codec.decode(codec.encode(strs))
+#-----------------------------------
 #272. Closest Binary Search Tree Value II
 """
  Given a non-empty binary search tree and a target value, find k values in the BST that are closest to the target.
@@ -8667,7 +8744,7 @@ class ZigzagIterator(object):
 
 Examples:
 
-"123", 6 -> ["1+2+3", "1*2*3"] 
+"123", 6 -> ["1+2+3", "1*2*3"]
 "232", 8 -> ["2*3+2", "2+3*2"]
 "105", 5 -> ["1*0+5","10-5"]
 "00", 0 -> ["0+0", "0-0", "0*0"]
@@ -8683,11 +8760,6 @@ class Solution(object):
         :rtype: List[str]
         """
         #https://leetcode.com/discuss/70597/clean-python-dfs-with-comments
-        #num: remaining num string
-        #temp: temporally string with operators added
-        #cur: current result of "temp" string
-        #last: last multiply-level number in "temp". if next operator is "multiply", "cur" and "last" will be updated
-        #res: result to return
         res = []
         self.target = target
         for i in xrange(1,len(num)+1):
@@ -8695,6 +8767,11 @@ class Solution(object):
                 self.dfs(num[i:],num[:i],int(num[:i]),int(num[:i]),res)
         return res
     def dfs(self,num,temp,curr,last,res):
+        #num: remaining num string
+        #temp: temporally string with operators added
+        #cur: current result of "temp" string
+        #last: last multiply-level number in "temp". if next operator is "multiply", "cur" and "last" will be updated
+        #res: result to return
         if not num: 
             if curr ==  self.target:    res.append(temp)
             return
@@ -9126,6 +9203,119 @@ class Solution(object):
         if n == 0 : return False
         else: return True
 #-----------------------------------
+#293. Flip Game
+"""
+ You are playing the following Flip Game with your friend: Given a string that contains only these two characters: + and -, you and your friend take turns to flip two consecutive "++" into "--". The game ends when a person can no longer make a move and therefore the other person will be the winner.
+
+Write a function to compute all possible states of the string after one valid move.
+
+For example, given s = "++++", after one move, it may become one of the following states:
+
+[
+  "--++",
+  "+--+",
+  "++--"
+]
+
+If there is no valid move, return an empty list [].
+"""
+class Solution(object):
+    def generatePossibleNextMoves(self, s):
+        """
+        :type s: str
+        :rtype: List[str]
+        """
+        ret = []
+        for i in xrange(0, len(s)-1):
+            if s[i:i+2] == "++":
+                ret.append(s[:i] + "--" +s [i+2:])
+        return ret
+        
+#-----------------------------------
+#294. Flip Game II
+"""
+ You are playing the following Flip Game with your friend: Given a string that contains only these two characters: + and -, you and your friend take turns to flip two consecutive "++" into "--". The game ends when a person can no longer make a move and therefore the other person will be the winner.
+
+Write a function to determine if the starting player can guarantee a win.
+
+For example, given s = "++++", return true. The starting player can guarantee a win by flipping the middle "++" to become "+--+".
+
+Follow up:
+Derive your algorithm's runtime complexity. 
+"""
+class Solution(object):
+    def canWin(self, s):
+        """
+        :type s: str
+        :rtype: bool
+        """
+        #return self.sol1(s)
+        self.memo = {}
+        return self.sol3(s)
+            
+    def sol1(self,s):
+        #backtracking
+        """
+        The idea is try to replace every "++" in the current string s to "--" and see if the opponent can win or not, if the opponent cannot win, great, we win!
+        
+        For the time complexity, here is what I thought, let's say the length of the input string s is n, there are at most n - 1 ways to replace "++" to "--" (imagine s is all "+++..."), once we replace one "++", there are at most (n - 2) - 1 ways to do the replacement, it's a little bit like solving the N-Queens problem, the time complexity is (n - 1) x (n - 3) x (n - 5) x ..., so it's O(n!!), double factorial.
+        
+        """
+        if s == None or len(s) <2 : return False
+        for i in xrange(len(s)-1):
+            if s[i:i+2] == "++":
+                t = s[:i] + "--" +s [i+2:]  #we can actually replace '--' to '-' here
+                if not self.sol1(t) : #the other one lose
+                    return True
+        return False
+
+    def sol2(self,s):
+        """
+        optimize sol1 with memorization
+        """
+        if s not in self.memo:
+            if s == None or len(s) <2 : return False
+            for i in xrange(len(s)-1):
+                if s[i:i+2] == "++":
+                    t = s[:i] + "-" +s [i+2:]  #we can actually replace '--' to '-' here
+                    if not self.sol1(t) : #the other one lose
+                        self.memo[s] = True
+                        return self.memo[s]
+            self.memo[s] = False
+        return self.memo[s]
+    
+    def sol3(self,s):
+        """
+        instead of using string, preprocess s to extrac ++* to tuple. e.g using tuples like (2, 3) to represent a state instead of strings like "-+++---++--".
+            this will be fast
+            so for a number like 6 '++++++'
+            we can replace it with (0,4),(1,3),(2,2),(3,1),(4,0) , 2 "++" has been replaced with "--"
+            https://discuss.leetcode.com/topic/27291/memoization-3150ms-130ms-44ms-python/2
+        """
+        memo = {}
+        def can(piles):
+            piles = tuple(p for p in piles if p >=2)
+            if piles not in memo:
+                memo[piles] = any(not can(piles[:i] + (j, pile-2-j) + piles[i+1:])
+                                  for i, pile in enumerate(piles)
+                                  for j in range(pile - 1))
+            return memo[piles]
+        
+        return can(map(len, re.findall(r'\+\++', s)))
+    
+    def sol4(self,4):
+        """
+        dp game theory
+        https://discuss.leetcode.com/topic/27282/theory-matters-from-backtracking-128ms-to-dp-0ms/4
+        """
+        g, G = [0], 0
+        for p in map(len, re.split('-+', s)):
+            while len(g) <= p:
+                g += min(set(range(p)) - {a^b for a, b in zip(g, g[-2::-1])}),
+            G ^= g[p]
+        return G > 0
+        
+#-----------------------------------
 #295. Find Median from Data Stream
 """
 Median is the middle value in an ordered integer list. If the size of the list is even, there is no middle value. So the median is the mean of the two middle value.
@@ -9190,6 +9380,61 @@ class MedianFinder:
 # mf.addNum(1)
 # mf.findMedian()
 #-----------------------------------
+#296. Best Meeting Point
+"""
+A group of two or more people wants to meet and minimize the total travel distance. You are given a 2D grid of values 0 or 1, where each 1 marks the home of someone in the group. The distance is calculated using Manhattan Distance, where distance(p1, p2) = |p2.x - p1.x| + |p2.y - p1.y|.
+
+For example, given three people living at (0,0), (0,4), and (2,2):
+
+1 - 0 - 0 - 0 - 1
+|   |   |   |   |
+0 - 0 - 0 - 0 - 0
+|   |   |   |   |
+0 - 0 - 1 - 0 - 0
+
+The point (0,2) is an ideal meeting point, as the total travel distance of 2+2+2=6 is minimal. So return 6.
+
+Hint:
+
+    Try to solve it in one dimension first. How can this solution apply to the two dimension case?
+
+"""
+class Solution(object):
+    def minTotalDistance(self, grid):
+        """
+        :type grid: List[List[int]]
+        :rtype: int
+        """
+        #https://leetcode.com/articles/best-meeting-point/#approach-3-sorting-accepted
+        #BFS from each search point method will TLE
+        
+        
+        # find the median(middle) of all x values
+        # find the median of all y values
+        #(xmedain, ymedian)
+        def median(lst):
+            lst = sorted(lst)
+            if len(lst) < 1:
+                    return None
+            if len(lst) %2 == 1:
+                    return lst[((len(lst)+1)/2)-1]
+            else:
+                    return float(sum(lst[(len(lst)/2)-1:(len(lst)/2)+1]))/2.0
+        
+        xlist = []
+        ylist = []
+        for x in xrange(len(grid)):
+            for y in xrange(len(grid[0])):
+                if grid[x][y]:
+                    xlist.append(x)
+                    ylist.append(y)
+        
+        medx = median(xlist)
+        medy = median(ylist)
+        xtotaldist = sum([ abs(x - medx) for x in xlist])
+        ytotaldist = sum([ abs(y - medy) for y in ylist])
+        return int(xtotaldist+ytotaldist)
+        
 #-----------------------------------
 #297. Serialize and Deserialize Binary Tree
 """
@@ -10023,6 +10268,76 @@ class Solution(object):
                 ret.append(dic[i])
         return ret
 #-----------------------------------
+#317. Shortest Distance from All Buildings
+"""
+You want to build a house on an empty land which reaches all buildings in the shortest amount of distance. You can only move up, down, left and right. You are given a 2D grid of values 0, 1 or 2, where:
+
+    Each 0 marks an empty land which you can pass by freely.
+    Each 1 marks a building which you cannot pass through.
+    Each 2 marks an obstacle which you cannot pass through.
+
+For example, given three buildings at (0,0), (0,4), (2,2), and an obstacle at (0,2):
+
+1 - 0 - 2 - 0 - 1
+|   |   |   |   |
+0 - 0 - 0 - 0 - 0
+|   |   |   |   |
+0 - 0 - 1 - 0 - 0
+
+The point (1,2) is an ideal empty land to build a house, as the total travel distance of 3+3+1=7 is minimal. So return 7.
+
+Note:
+There will be at least one building. If it is not possible to build such house according to the above rules, return -1.
+"""
+class Solution(object):
+    def shortestDistance(self, grid):
+        """
+        :type grid: List[List[int]]
+        :rtype: int
+        """
+        #BFS method
+        #https://discuss.leetcode.com/topic/34702/python-solution-72ms-beats-100-bfs-with-pruning/3
+        m = len(grid)
+        if m == 0 : return -1
+        n = len(grid[0])
+        if n==0: return -1
+        dist = [[ 0 for _ in xrange(n)] for _ in xrange(m)]
+        totalB = 0 #total number in grid
+        for i in xrange(m):
+            for j in xrange(n):
+                if grid[i][j] == 1:
+                    totalB += 1
+        
+        
+        ## do BFS from each building, and decrement all empty place for every building visit
+        ## when grid[i][j] == -totalB, it means that grid[i][j] are already visited from all buildings
+        # dist[i][j] used to record the total distance from this poit i,j to all buildings
+        
+        # (-bIndex) is the most important flag : how many buildings have been processed
+        # because we start from bIndex == 0 == grid[x][y], the empty rooms near the building get processed
+        # grid[x][y]==2 . obstacle is never processed
+        # same bIndex means in the loop of processing the same building
+        def bfs(i,j,bIndex):
+            queue = [(i,j,0)] #x,y distance
+            while queue:
+                i,j,d = queue.pop(0)
+                for x,y in [(i+1,j),(i-1,j),(i,j-1),(i,j+1)]:
+                    if 0<=x<m and 0<=y<n and grid[x][y] == bIndex:
+                        dist[x][y] += d+1 # (i,j) whose distance is d is neighbor of (x,y), so d+1
+                        grid[x][y] -=1 # equivalent to this building has been visited
+                        queue.append((x,y,d+1))
+        
+        bIndex = 0 #how many buildings have been processed
+        for i in xrange(m):
+            for j in xrange(n):
+                if grid[i][j] ==1:
+                    bfs(i,j,bIndex)
+                    bIndex -=1
+        
+        res = [dist[i][j] for i in xrange(m) for j in xrange(n) if grid[i][j] == -totalB]
+        return min(res) if res else -1
+
+#-----------------------------------
 #319. Bulb Switcher
 """
 There are n bulbs that are initially off. You first turn on all the bulbs. Then, you turn off every second bulb. On the third round, you toggle every third bulb (turning on if it's off or turning off if it's on). For the ith round, you toggle every i bulb. For the nth round, you only toggle the last bulb. Find how many bulbs are on after n rounds. 
@@ -10050,6 +10365,39 @@ class Solution(object):
         """
         return int(math.sqrt(n))
 #-----------------------------------
+#320. Generalized Abbreviation
+"""
+Write a function to generate the generalized abbreviations of a word.
+
+Example:
+
+Given word = "word", return the following list (order does not matter):
+
+["word", "1ord", "w1rd", "wo1d", "wor1", "2rd", "w2d", "wo2", "1o1d", "1or1", "w1r1", "1o2", "2r1", "3d", "w3", "4"]
+
+"""
+class Solution(object):
+    def generateAbbreviations(self, word):
+        """
+        :type word: str
+        :rtype: List[str]
+        """
+        """
+        The idea is: for every character, we can keep it or abbreviate it. To keep it, we add it to the current solution and carry on backtracking. To abbreviate it, we omit it in the current solution, but increment the count, which indicates how many characters have we abbreviated. When we reach the end or need to put a character in the current solution, and count is bigger than zero, we add the number into the solution.
+        """
+        ret = []
+        self.dfs(ret,word,0,"",0)
+        return ret
+    
+    def dfs(self,ret,word,pos,cur,count):
+        if pos == len(word):
+            if count > 0: cur += str(count)
+            ret.append(cur)
+        else:
+            self.dfs(ret,word,pos+1,cur,count+1) #omit current character
+            # keep current character, reset count
+            self.dfs(ret,word, pos+1, cur + (str(count) if count >0 else "") + word[pos], 0)
+
 #-----------------------------------
 #322. Coin Change
 """
@@ -11164,6 +11512,77 @@ class Solution(object):
                 ans.append(x)
                 c[x] -=1
         return ans
+#-----------------------------------
+#351. Android Unlock Patterns
+"""
+ Given an Android 3x3 key lock screen and two integers m and n, where 1 ≤ m ≤ n ≤ 9, count the total number of unlock patterns of the Android lock screen, which consist of minimum of m keys and maximum n keys.
+
+Rules for a valid pattern:
+
+    Each pattern must connect at least m keys and at most n keys.
+    All the keys must be distinct.
+    If the line connecting two consecutive keys in the pattern passes through any other keys, the other keys must have previously selected in the pattern. No jumps through non selected key is allowed.
+    The order of keys used matters.
+
+Explanation:
+
+| 1 | 2 | 3 |
+| 4 | 5 | 6 |
+| 7 | 8 | 9 |
+
+Invalid move: 4 - 1 - 3 - 6
+Line 1 - 3 passes through key 2 which had not been selected in the pattern.
+
+Invalid move: 4 - 1 - 9 - 2
+Line 1 - 9 passes through key 5 which had not been selected in the pattern.
+
+Valid move: 2 - 4 - 1 - 3 - 6
+Line 1 - 3 is valid because it passes through key 2, which had been selected in the pattern
+
+Valid move: 6 - 5 - 4 - 1 - 9 - 2
+Line 1 - 9 is valid because it passes through key 5, which had been selected in the pattern.
+
+Example:
+Given m = 1, n = 1, return 9. 
+"""
+class Solution(object):
+    def numberOfPatterns(self, m, n):
+        """
+        :type m: int
+        :type n: int
+        :rtype: int
+        """
+        """
+        The optimization idea is that 1,3,7,9 are symmetric, 2,4,6,8 are also symmetric. Hence we only calculate one among each group and multiply by 4.  
+        """
+        #skip arrary store the value between numx and numy skip[x][y]
+        skip = [[0 for i in xrange(10)] for j in xrange(10)]
+        skip[1][3] = skip[3][1] = 2 #btween 3 and 1 is 2
+        skip[1][7] = skip[7][1] = 4
+        skip[3][9] = skip[9][3] = 6
+        skip[7][9] = skip[9][7] = 8
+        skip[1][9] = skip[9][1] = skip[2][8] = skip[8][2] = skip[3][7] = skip[7][3] = skip[4][6] = skip[6][4] = 5
+        vis = [ False for i in xrange(10)] #whether this number has been visited
+        rst = 0
+        for i in xrange(m,n+1):
+            rst += self.dfs(vis,skip,1,i-1)*4 # methods start from key1  1, 3, 7, 9 are symmetric
+            rst +=  self.dfs(vis,skip,2,i-1)*4 #2,4,5,8 are symmentric
+            rst +=  self.dfs(vis,skip,5,i-1) #5
+        return rst
+
+    def dfs(self,vis,skip,cur,remain):
+        if remain <0: return 0
+        if remain == 0: return 1
+        vis[cur] = True
+        rst = 0
+        for i in xrange(1,10):
+            # if i is not visited and (cur and i are adjacent or the middle number between them
+            # has been visited
+            if (not vis[i]) and (skip[cur][i] == 0 or vis[skip[cur][i]]):
+                rst += self.dfs(vis,skip,i,remain-1)
+        vis[cur] = False
+        return rst
+
 #-----------------------------------
 #360. Sort Transformed Array
 """
