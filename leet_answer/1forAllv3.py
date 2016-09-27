@@ -9364,7 +9364,7 @@ class MedianFinder:
         Initialize your data structure here.
         """
         self.small = [] #maxheap, all the values are revert
-        self.large = [] # python default meanheap
+        self.large = [] # python default minheap
         # size of small N
         # size of large N+ or N
         
@@ -12014,6 +12014,126 @@ class Solution(object):
         if guess(hi)==0: return hi
         
 #-----------------------------------
+#376. Wiggle Subsequence
+"""
+A sequence of numbers is called a wiggle sequence if the differences between successive numbers strictly alternate between positive and negative. The first difference (if one exists) may be either positive or negative. A sequence with fewer than two elements is trivially a wiggle sequence.
+
+For example, [1,7,4,9,2,5] is a wiggle sequence because the differences (6,-3,5,-7,3) are alternately positive and negative. In contrast, [1,4,7,2,5] and [1,7,4,5,5] are not wiggle sequences, the first because its first two differences are positive and the second because its last difference is zero.
+
+Given a sequence of integers, return the length of the longest subsequence that is a wiggle sequence. A subsequence is obtained by deleting some number of elements (eventually, also zero) from the original sequence, leaving the remaining elements in their original order.
+
+Examples:
+
+Input: [1,7,4,9,2,5]
+Output: 6
+The entire sequence is a wiggle sequence.
+
+Input: [1,17,5,10,13,15,10,5,16,8]
+Output: 7
+There are several subsequences that achieve this length. One is [1,17,10,13,10,16,8].
+
+Input: [1,2,3,4,5,6,7,8,9]
+Output: 2
+
+Follow up:
+Can you do it in O(n) time? 
+"""
+class Solution(object):
+    def wiggleMaxLength(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        #https://leetcode.com/articles/wiggle-subsequence/
+        return self.sol3(nums)
+    
+    def sol1(self,nums):
+        #greedy method
+        # https://discuss.leetcode.com/topic/51807/3-lines-o-n-python-with-explanation-proof
+        # if I have 2 increasing number e.g 10  7 11 13, I would rather keep 13 and drop 11 (for better extensibility)
+        # i.e always use the local min and local max
+        # so the key is keep process the next key if it is in the same trend of current key, drop 
+        # the current key
+        # 0 diff should be get rig off
+        # time o(n)
+        n = len(nums)
+        if n <= 1: return n
+        res = [nums[0]]
+        # trend 1 inc, -1, dec
+        for i in xrange(1,n):
+            if nums[i] == nums[0]: continue
+            if nums[i] > nums[0] : trend =1
+            else: trend = -1
+            res.append(nums[i])
+            break
+
+        for j in xrange(i+1,n):
+            if nums[j] == res[-1] : continue #skip same value
+            if trend == 1: #prev is inc
+                if nums[j] < res[-1] :
+                    res.append(nums[j])
+                    trend = -1
+                else:
+                    res.pop()
+                    res.append(nums[j])
+            else: #prev is dec
+                if nums[j] > res[-1] :
+                    res.append(nums[j])
+                    trend = 1
+                else:
+                    res.pop()
+                    res.append(nums[j])   
+        return len(res)
+    
+    def sol2(self,nums):
+        """
+        Any element in the array could correspond to only one of the three possible states:
+
+    up position, it means nums[i]>nums[i−1]
+    down position, it means nums[i]<nums[i−1]
+    equals to position, nums[i]==nums[i−1]
+
+        The updates are done as:
+        
+        If nums[i]>nums[i−1, that means it wiggles up. The element before it must be a down position. So up[i]=down[i−1]+1, down[i] remains the same as down[i−1]. If nums[i]<nums[i−1], that means it wiggles down. The element before it must be a up position. So down[i]=up[i−1]+1, up[i]up[i]up[i] remains the same as up[i−1]. If nums[i]==nums[i−1], that means it will not change anything becaue it didn't wiggle at all. So both down[i]] and up[i] remain the same as down[i−1] and up[i−1]].
+        
+        At the end, we can find the larger out of up[length−1] and down[length−1] to find the max. wiggle subsequence length, where lengthlengthlength refers to the number of elements in the given array.
+        """
+        #up[i] means last one is up, and the max wiggle sequence length end at nums[i]
+        # o(N) time
+        n = len(nums)
+        if n <=1 : return n
+        up = [0 for _ in xrange(n)]
+        down = [0 for _ in xrange(n)]
+        up[0] = down[0] =1
+        for i in xrange(1,n):
+            if nums[i] > nums[i-1]:
+                up[i] = down[i-1] +1
+                down[i] = down[i-1]
+            elif nums[i] < nums[i-1]:
+                down[i] = up[i-1] +1
+                up[i] = up[i-1]
+            else:
+                up[i] = up[i-1]
+                down[i] = down[i-1]
+        return max(up[-1],down[-1])
+        
+    def sol3(self,nums):
+        # improvement of sol2, we only need to recored most recent up and down no need 
+        # for the whole array
+        n = len(nums)
+        if n <=1 : return n
+
+        up = down=1
+        for i in xrange(1,n):
+            if nums[i] > nums[i-1]:
+                up = down +1
+            elif nums[i] < nums[i-1]:
+                down = up +1
+
+        return max(up,down)
+
+#-----------------------------------
 #377. Combination Sum IV
 """
  Given an integer array with all positive numbers and no duplicates, find the number of possible combinations that add up to a positive integer target.
@@ -12055,6 +12175,71 @@ class Solution(object):
                 if x +y <= target:
                     dp[x+y] += dp[x]
         return dp[target]
+#-----------------------------------
+#384. Shuffle an Array
+"""
+Shuffle a set of numbers without duplicates.
+
+Example:
+
+// Init an array with set 1, 2, and 3.
+int[] nums = {1,2,3};
+Solution solution = new Solution(nums);
+
+// Shuffle the array [1,2,3] and return its result. Any permutation of [1,2,3] must equally likely to be returned.
+solution.shuffle();
+
+// Resets the array back to its original configuration [1,2,3].
+solution.reset();
+
+// Returns the random shuffling of array [1,2,3].
+solution.shuffle();
+
+"""
+import random
+class Solution(object):
+
+    def __init__(self, nums):
+        """
+        
+        :type nums: List[int]
+        :type size: int
+        """
+        self.origin = [] + nums #a copy of values
+        self.curr = nums
+        
+
+    def reset(self):
+        """
+        Resets the array to its original configuration and return it.
+        :rtype: List[int]
+        """
+        self.curr = [] + self.origin #a copy, so that when self.curr update, self.orgin won't get affected
+        return self.curr
+        
+
+    def shuffle(self):
+        """
+        Returns a random shuffling of the array.
+        :rtype: List[int]
+        """
+        #Fisher Yates
+
+        n = len(self.curr)
+        for i in xrange(n-1,0,-1):
+            j = random.choice(range(i+1)) #choose j from 0 to i
+            #while j == i:
+            #    j = random.choice(range(i+1))
+            self.curr[i], self.curr[j] = self.curr[j], self.curr[i]
+        return self.curr
+        
+        
+
+
+# Your Solution object will be instantiated and called as such:
+# obj = Solution(nums)
+# param_1 = obj.reset()
+# param_2 = obj.shuffle()
 #-------hash table----------------------------
 #388. Longest Absolute File Path
 """
@@ -12111,6 +12296,40 @@ class Solution(object):
                 #depth + 1 because the current folder name len is for next layer folder/file
                 pathlen[depth +1] = pathlen[depth] + len(name) + 1 #1 is for '/'
         return maxlen
+#-----------------------------------
+#389. Find the Difference
+"""
+ Given two strings s and t which consist of only lowercase letters.
+
+String t is generated by random shuffling string s and then add one more letter at a random position.
+
+Find the letter that was added in t.
+
+Example:
+
+Input:
+s = "abcd"
+t = "abcde"
+
+Output:
+e
+
+Explanation:
+'e' is the letter that was added.
+
+"""
+#Native approach -- hash table
+class Solution(object):
+    def findTheDifference(self, s, t):
+        """
+        :type s: str
+        :type t: str
+        :rtype: str
+        """
+        res = 0
+        for x in s+t:
+            res ^= ord(x)
+        return chr(res)
 #-----------------------------------
 #398. Random Pick Index
 """
