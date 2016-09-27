@@ -2472,6 +2472,10 @@ class Solution(object):
         :type nums: List[int]
         :rtype: void Do not return anything, modify nums in-place instead.
         """
+        self.sol2(nums)
+
+    def sol1(self,nums):
+        #inplace onepass but not stable
         if len(nums) <=1 : return
         p0 = 0; p1 = len(nums)-1; i =0
         while i <= p1:
@@ -2484,6 +2488,20 @@ class Solution(object):
                 i+=1
             else:
                 i += 1
+    
+    def sol2(self,nums):
+        #stable method, 2 path
+        num0=num1=num2=0
+        for i in xrange(len(nums)):
+            if nums[i] == 0:    num0 +=1
+            elif nums[i]== 1:   num1 += 1
+            elif nums[i]==2:    num2 +=1
+        for i in xrange(num0):
+            nums[i] = 0
+        for i in xrange(num0,num0+num1):
+            nums[i]=1
+        for i in xrange(num0+num1,num0+num1+num2):
+            nums[i] =2
 #-----------------------------------
 #76. Minimum Window Substring
 """
@@ -3544,7 +3562,7 @@ class Solution(object):
                 
                 curr.right = curr.left
                 curr.left = None
-                    
+
             curr = curr.right
 """
 #### Flatten BST to (Doubly) linked list
@@ -6270,6 +6288,8 @@ class WordDictionary(object):
         initialize your data structure here.
         """
         self.root = TrieNode()
+        # follow up time complexity
+        # what happens if there are thousands different letters
 
     def addWord(self, word):
         """
@@ -7505,8 +7525,6 @@ class Solution(object):
 #-----------------------------------
 #251. Flatten 2D Vector
 """
-251. Flatten 2D Vector
-
     Total Accepted: 13860
     Total Submissions: 38064
     Difficulty: Medium
@@ -11174,6 +11192,60 @@ class Solution(object):
             ans += ans[x & (x - 1)] + 1,
         return ans        
 #-----------------------------------
+#339. Nested List Weight Sum
+"""
+Given a nested list of integers, return the sum of all integers in the list weighted by their depth.
+
+Each element is either an integer, or a list -- whose elements may also be integers or other lists.
+
+Example 1:
+Given the list [[1,1],2,[1,1]], return 10. (four 1's at depth 2, one 2 at depth 1)
+
+Example 2:
+Given the list [1,[4,[6]]], return 27. (one 1 at depth 1, one 4 at depth 2, and one 6 at depth 3; 1 + 4*2 + 6*3 = 27) 
+"""
+# """
+# This is the interface that allows for creating nested lists.
+# You should not implement it, or speculate about its implementation
+# """
+#class NestedInteger(object):
+#    def isInteger(self):
+#        """
+#        @return True if this NestedInteger holds a single integer, rather than a nested list.
+#        :rtype bool
+#        """
+#
+#    def getInteger(self):
+#        """
+#        @return the single integer that this NestedInteger holds, if it holds a single integer
+#        Return None if this NestedInteger holds a nested list
+#        :rtype int
+#        """
+#
+#    def getList(self):
+#        """
+#        @return the nested list that this NestedInteger holds, if it holds a nested list
+#        Return None if this NestedInteger holds a single integer
+#        :rtype List[NestedInteger]
+#        """
+
+class Solution(object):
+    def depthSum(self, nestedList):
+        """
+        :type nestedList: List[NestedInteger]
+        :rtype: int
+        """
+        def dfs(tempList,depth):
+            ret = 0
+            for item in tempList:
+                if item.isInteger(): 
+                    ret += item.getInteger() * depth
+                else:
+                    ret += dfs(item.getList(),depth+1)
+            return ret
+        
+        return dfs(nestedList,1)
+
 #-----------------------------------
 #341. Flatten Nested List Iterator
 """
@@ -11484,7 +11556,7 @@ class Solution(object):
         
     def sol1(self,nums1,nums2):
         """
-        sorting + 2pointers since we don't care about the output sequece
+        sorting + 2pointers since we don't care about the output sequence
         """
         nums1 = sorted(nums1)
         nums2 = sorted(nums2)
@@ -11506,6 +11578,7 @@ class Solution(object):
         if len(nums1) > len(nums2):
             nums1,nums2 = nums2,nums1
         c= collections.Counter(nums1)
+        #nums[1] is on disk
         ans = []
         for x in nums2:
             if c[x] >0:
@@ -11709,6 +11782,80 @@ class Solution(object):
         node.left = None
         node.right = None
         return level
+
+#-----------------------------------
+#370. Range Addition
+"""
+Assume you have an array of length n initialized with all 0's and are given k update operations.
+
+Each operation is represented as a triplet: [startIndex, endIndex, inc] which increments each element of subarray A[startIndex ... endIndex] (startIndex and endIndex inclusive) with inc.
+
+Return the modified array after all k operations were executed.
+
+Example:
+
+Given:
+
+    length = 5,
+    updates = [
+        [1,  3,  2],
+        [2,  4,  3],
+        [0,  2, -2]
+    ]
+
+Output:
+
+    [-2, 0, 3, 5, 3]
+
+Explanation:
+
+Initial state:
+[ 0, 0, 0, 0, 0 ]
+
+After applying operation [1, 3, 2]:
+[ 0, 2, 2, 2, 0 ]
+
+After applying operation [2, 4, 3]:
+[ 0, 2, 5, 5, 3 ]
+
+After applying operation [0, 2, -2]:
+[-2, 0, 3, 5, 3 ]
+Hint:
+
+    Thinking of using advanced data structures? You are thinking it too complicated.
+    For each update operation, do you really need to update all elements between i and j?
+    Update only the first and end element is sufficient.
+    The optimal time complexity is O(k + n) and uses O(1) extra space.
+
+"""
+class Solution(object):
+    def getModifiedArray(self, length, updates):
+        """
+        :type length: int
+        :type updates: List[List[int]]
+        :rtype: List[int]
+        """
+        #https://leetcode.com/articles/range-addition/
+        #native approach worst case o(nk), time exceed limit
+        # apporach range caching
+        
+        # only need to update start and end+1
+        # e.g for [1,  3,  2]
+        # letA[1] =2 ,means all index after and include 1 need to  +2
+        # let A[3+1] = -2, means all index >=4 need to -2 to compendate the 2
+        # Then to a  cumulative sum for this array
+        res = [0 for _ in xrange(length)]
+        for x in updates:
+            start,end,val = x
+            if start > end : return False
+            if 0<=start < length:
+                res[start] += val
+            if 0<= end <length-1:
+                res[end+1] -= val
+        
+        for i in xrange(1,len(res)):
+            res[i] += res[i-1]
+        return res
 
 #-----------------------------------
 #371. Sum of Two Integers
