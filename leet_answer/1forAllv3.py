@@ -11657,6 +11657,53 @@ class Solution(object):
         return rst
 
 #-----------------------------------
+#357. Count Numbers with Unique Digits
+"""
+Given a non-negative integer n, count all numbers with unique digits, x, where 0 ≤ x < 10n.
+
+Example:
+Given n = 2, return 91. (The answer should be the total numbers in the range of 0 ≤ x < 100, excluding [11,22,33,44,55,66,77,88,99])
+
+Hint:
+
+    A direct way is to use the backtracking approach.
+    Backtracking should contains three states which are (the current number, number of steps to get that number and a bitmask which represent which number is marked as visited so far in the current number). Start with state (0,0,0) and count all valid number till we reach number of steps equals to 10n.
+    This problem can also be solved using a dynamic programming approach and some knowledge of combinatorics.
+    Let f(k) = count of numbers with unique digits with length equals k.
+    f(1) = 10, ..., f(k) = 9 * 9 * 8 * ... (9 - k + 2) [The first factor is 9 because a number cannot start with 0].
+
+"""
+class Solution(object):
+    def countNumbersWithUniqueDigits(self, n):
+        """
+        :type n: int
+        :rtype: int
+        """
+        return self.sol1(n)
+
+    def sol1(self,n):
+        #dp method
+        #  0 ≤ x < 10n
+        # f[x] num of unique number with length x+1
+        #f[0] =10
+        # f[1] = 9*9, then 9*9*8 then 9*9*8*7 until f[9] = 9*9*8*7*..*1, f[11] and above is 0
+        # n ==0 means one digit
+        if n == 0: return 1
+        f = [0 for i in xrange(10)]
+        f[0] = 10
+        f[1] = 9*9
+        for i in xrange(2,10):
+            f[i] = f[i-1]* (10-i)
+        # save them to lookup table
+        curSum = [0 for i in xrange(10)]
+        curSum[0] =f[0]
+        for i in xrange(1,10):
+            curSum[i] = curSum[i-1] + f[i]
+        
+        if n <= 10: return curSum[n-1]
+        else: return curSum[9]
+
+#-----------------------------------
 #360. Sort Transformed Array
 """
  Given a sorted array of integers nums and integer values a, b and c. Apply a function of the form f(x) = ax2 + bx + c to each element x in the array.
@@ -11719,6 +11766,48 @@ class Solution(object):
 
     def cal(self,a,b,c,num):
         return a*num*num + b*num +c
+#-----------------------------------
+#361. Bomb Enemy
+"""
+Given a 2D grid, each cell is either a wall 'W', an enemy 'E' or empty '0' (the number zero), return the maximum enemies you can kill using one bomb.
+The bomb kills all the enemies in the same row and column from the planted point until it hits the wall since the wall is too strong to be destroyed.
+Note that you can only put the bomb at an empty cell.
+
+Example:
+
+For the given grid
+
+0 E 0 0
+E 0 W E
+0 E 0 0
+
+return 3. (Placing a bomb at (1,1) kills 3 enemies)
+
+"""
+class Solution(object):
+    def maxKilledEnemies(self, grid):
+        #Walk through the matrix. At the start of each non-wall-streak (row-wise or column-wise), count the number of hits in that streak and remember it. O(mn) time, O(n) space.
+        if not grid: return 0
+        m, n = len(grid), len(grid[0])
+        result = 0
+        colhits = [0] * n
+        for i, row in enumerate(grid):
+            for j, cell in enumerate(row):
+                if j == 0 or row[j-1] == 'W':
+                    rowhits = 0
+                    k = j
+                    while k < n and row[k] != 'W':
+                        rowhits += row[k] == 'E'
+                        k += 1
+                if i == 0 or grid[i-1][j] == 'W':
+                    colhits[j] = 0
+                    k = i
+                    while k < m and grid[k][j] != 'W':
+                        colhits[j] += grid[k][j] == 'E'
+                        k += 1
+                if cell == '0':
+                    result = max(result, rowhits + colhits[j])
+        return result
 #-----------------------------------
 #366. Find Leaves of Binary Tree
 """
