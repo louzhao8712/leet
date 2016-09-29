@@ -101,6 +101,7 @@ class Solution3(object):
 There are two sorted arrays nums1 and nums2 of size m and n respectively. 
 Find the median of the two sorted arrays. The overall run time complexity should be O(log (m+n)).
 """
+# O(log (m+n)
 class Solution4(object):
     def helper(self,A,B,K):
         # index 0 system, kth item is array[k-1]
@@ -497,6 +498,7 @@ Given an array S of n integers, are there elements a, b, c in S
 such that a + b + c = 0? Find all unique triplets in the array which gives the sum of zero.
 """
 # sort + 2 pointers
+# o(n^2)
 class Solution(object):
     def threeSum(self, A):
         """
@@ -2689,7 +2691,7 @@ class Solution(object):
 
             ce = lo + (hi-lo)/2
             if nums[ce] == target : return True
-            if nums[ce] > nums[lo]:
+            if  nums[lo] < nums[ce] :
                 if target < nums[ce] and target >= nums [lo]:
                     hi = ce
                 else:
@@ -10094,8 +10096,39 @@ class Solution(object):
         :type B: List[List[int]]
         :rtype: List[List[int]]
         """
-        return self.sol1(A,B)
-
+        return self.sol3(A,B)
+    
+    def sol3(self, A, B):
+        """
+        :type A: List[List[int]]
+        :type B: List[List[int]]
+        :rtype: List[List[int]]
+        """
+        # two hash table. Pro hash table is preprocessing to ignore all 0
+        # so then we to the sum those points get skipped
+        if A is None or B is None: return None
+        m, n = len(A), len(A[0])
+        if len(B) != n:
+            raise Exception("A's column number must be equal to B's row number.")
+        l = len(B[0])
+        table_A, table_B = {}, {}
+        for i, row in enumerate(A):
+            for j, ele in enumerate(row):
+                if ele:
+                    if i not in table_A: table_A[i] = {}
+                    table_A[i][j] = ele
+        for i, row in enumerate(B):
+            for j, ele in enumerate(row):
+                if ele:
+                    if i not in table_B: table_B[i] = {}
+                    table_B[i][j] = ele
+        C = [[0 for j in range(l)] for i in range(m)]
+        for i in table_A:
+            for k in table_A[i]:
+                if k not in table_B: continue
+                for j in table_B[k]:
+                    C[i][j] += table_A[i][k] * table_B[k][j]
+        return C
 
     def sol2(self, A, B):
         """
@@ -10122,7 +10155,7 @@ class Solution(object):
         return C
         
     def sol1(self,A,B):
-        # time limit exceed
+        # time limit exceed, notable
         lrA = len(A) #row
         lcA = len(A[0])
         lrB = len(B)
@@ -10137,8 +10170,7 @@ class Solution(object):
                         if eleB: C[i][j] += eleA * eleB
 
         return C
- 
-        
+
 #-----------------------------------
 #312. Burst Balloons
 """
