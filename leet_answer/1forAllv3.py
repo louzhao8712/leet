@@ -10318,6 +10318,98 @@ class Solution(object):
                 ret.append(dic[i])
         return ret
 #-----------------------------------
+#315. Count of Smaller Numbers After Self
+"""
+ You are given an integer array nums and you have to return a new counts array. The counts array has the property where counts[i] is the number of smaller elements to the right of nums[i].
+
+Example:
+
+Given nums = [5, 2, 6, 1]
+
+To the right of 5 there are 2 smaller elements (2 and 1).
+To the right of 2 there is only 1 smaller element (1).
+To the right of 6 there is 1 smaller element (1).
+To the right of 1 there is 0 smaller element.
+
+Return the array [2, 1, 1, 0]. 
+"""
+class Node(object):
+    def __init__(self,val):
+        self.val = val
+        self.leftSum = 0
+        self.count = 0 #duplication
+        self.left = None
+        self.right = None
+
+class Solution(object):
+    def countSmaller(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: List[int]
+        """
+        #return self.sol1(nums)
+        return self.sol2(nums)
+       
+    def sol1(self,nums):
+        # https://discuss.leetcode.com/topic/31405/9ms-short-java-bst-solution-get-answer-when-building-bst
+        # binary search tree
+        # each node maintain two value (sum_of_nodes_in_left_bottom, duplication_of_curr_node)
+        # i,e, (sumLeft, duplication)
+        # process nums from back to begining
+        # When we try to insert a number, the total number of smaller number would be adding dup and sum of the nodes where we turn right
+        # when insert node, update (sumleft, duplication)
+        # turn right because those upper nodes are small
+        # worst case o(n^2) like linked list, best case o(nlgn)
+        n = len(nums)
+        if n == 0: return []
+        ret = [None for _ in xrange(n)]
+        
+        root= Node(nums[-1]) 
+
+        for i in xrange(n-1,-1,-1):
+            ret[i] = self.insert(root,nums[i])
+        return ret
+    
+    def insert(self,node,num):
+        sumval = 0 #total number of smaller number would be adding dup and sum of the nodes where we turn right
+        while node.val!=num:
+            if node.val > num : # node go to the left
+                if node.left == None:
+                    node.left = Node(num)
+                node.leftSum +=1
+                node = node.left
+            else:
+                sumval += node.leftSum + node.count
+                if node.right == None:
+                    node.right = Node(num)
+                node = node.right
+            
+        node.count +=1
+        #the 1st time this node get inserted,leftSum is 0, however if later on this node get inserted again and
+        # has leftSum we need to include them as well
+        return sumval + node.leftSum 
+        
+    
+    def sol2(self,nums):
+        #The smaller numbers on the right of a number are exactly those that jump from its right to its left during a stable sort. So I do mergesort with added tracking of those right-to-left jump
+        #https://discuss.leetcode.com/topic/31162/mergesort-solution
+        def sort(enum):
+            half = len(enum) / 2
+            if half:
+                left, right = sort(enum[:half]), sort(enum[half:])
+                for i in range(len(enum))[::-1]:
+                    if not right or left and left[-1][1] > right[-1][1]:
+                        smaller[left[-1][0]] += len(right)
+                        enum[i] = left.pop()
+                    else:
+                        enum[i] = right.pop()
+            return enum
+        smaller = [0] * len(nums)
+        sort(list(enumerate(nums))) #enumerate will turn a list to (index,value) pair
+        return smaller
+
+
+#-----------------------------------
 #317. Shortest Distance from All Buildings
 """
 You want to build a house on an empty land which reaches all buildings in the shortest amount of distance. You can only move up, down, left and right. You are given a 2D grid of values 0, 1 or 2, where:
