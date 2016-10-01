@@ -106,3 +106,104 @@ class UnionFind(object):
             self.parents[find_y] = find_x
             self.sizes[find_x] += self.sizes[find_y]
             self.sizes[find_y] = 0
+
+#200. Number of Islands
+"""Given a 2d grid map of '1's (land) and '0's (water), count the number of islands.
+An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically.
+You may assume all four edges of the grid are all surrounded by water.
+Example 1:
+
+11110
+11010
+11000
+00000
+
+Answer: 1
+
+Example 2:
+
+11000
+11000
+00100
+00011
+
+Answer: 3
+"""
+class UnionFind(object):
+    
+    def __init__(self, grid):
+        # i*self.col + j
+        self.row = len(grid)
+        self.col = len(grid[0])
+        self.count = 0
+        self.parents = range( self.row*self.col ) #covert 2D grid to 1-D array
+        for i in xrange(self.row):
+            for j in xrange(self.col):
+                if grid[i][j] == '1': self.count += 1 # max possibility of island
+        self.sizes = [1] *(self.row*self.col )
+
+
+    def find(self, x):
+        while x!= self.parents[x]:
+            self.parents[x] = self.parents[self.parents[x]]
+            x = self.parents[x]
+        return x 
+    
+    def union(self, x, y):
+        
+        find_x = self.find(x)
+        find_y = self.find(y)
+        if find_x == find_y:  return 
+        if find_x == find_y:
+            return True
+        if self.sizes[find_x] <= self.sizes[find_y]:
+            self.parents[find_x] = find_y
+            self.sizes[find_y] += self.sizes[find_x]
+            self.sizes[find_x] = 0
+        else:
+            self.parents[find_y] = find_x
+            self.sizes[find_x] += self.sizes[find_y]
+            self.sizes[find_y] = 0
+        
+        self.count -= 1 #important! found one connection
+
+
+
+class Solution(object):
+    def numIslands(self, grid):
+        """
+        :type grid: List[List[str]]
+        :rtype: int
+        """
+        # for python, if input variable is array, it is mutable, i.e the value get changed after the function
+        # call
+        self.row = len(grid)
+        if self.row ==0 : return 0
+        self.col = len(grid[0])
+        if self.col == 0: return 0
+        return self.sol2(grid)
+        
+    def sol2(self,grid):
+        #union find
+        m = len(grid)
+        n = len(grid[0])
+        
+        union_find = UnionFind(grid)
+        for i in xrange(m):
+            for j in xrange(n):
+                if grid[i][j] == '0': continue
+                p = i*n + j
+                q = 0
+                if i> 0 and grid[i-1][j] == '1':
+                    q = p -n
+                    union_find.union(p,q)
+                if i < m-1 and grid[i+1][j] == '1':
+                    q = p+n
+                    union_find.union(p,q)
+                if j >0 and grid[i][j-1] == '1':
+                    q = p-1
+                    union_find.union(p,q)
+                if j < n-1 and grid[i][j+1] == '1':
+                    q = p+1
+                    union_find.union(p,q)
+        return union_find.count 

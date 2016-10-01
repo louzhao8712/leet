@@ -5840,22 +5840,39 @@ class UnionFind(object):
         self.row = len(grid)
         self.col = len(grid[0])
         self.count = 0
-        self.parents = range( self.row*self.col) #covert 2D grid to 1-D array
+        self.parents = range( self.row*self.col ) #covert 2D grid to 1-D array
         for i in xrange(self.row):
             for j in xrange(self.col):
                 if grid[i][j] == '1': self.count += 1 # max possibility of island
-        
+        self.sizes = [1] *(self.row*self.col )
+
+
     def find(self, x):
-        if self.parents[x] == x:   return x
-        else:   return self.find(self.parents[x])
+        while x!= self.parents[x]:
+            self.parents[x] = self.parents[self.parents[x]]
+            x = self.parents[x]
+        return x 
     
     def union(self, x, y):
         
         find_x = self.find(x)
         find_y = self.find(y)
-        if find_x == find_y:  return True
-        self.parents[find_x] = find_y
+        if find_x == find_y:  return 
+        if find_x == find_y:
+            return True
+        if self.sizes[find_x] <= self.sizes[find_y]:
+            self.parents[find_x] = find_y
+            self.sizes[find_y] += self.sizes[find_x]
+            self.sizes[find_x] = 0
+        else:
+            self.parents[find_y] = find_x
+            self.sizes[find_x] += self.sizes[find_y]
+            self.sizes[find_y] = 0
+        
         self.count -= 1 #important! found one connection
+
+
+
 class Solution(object):
     def numIslands(self, grid):
         """
@@ -5864,23 +5881,12 @@ class Solution(object):
         """
         # for python, if input variable is array, it is mutable, i.e the value get changed after the function
         # call
-        return self.sol1(grid)
-    
-    def sol1(self,grid):
         self.row = len(grid)
-        if self.row ==0: return 0
+        if self.row ==0 : return 0
         self.col = len(grid[0])
-        ret = 0
-        for i in xrange(self.row):
-            for j in xrange(self.col):
-                if grid[i][j] == "1":
-                    ##dfs solution
-                    #self.dfs(grid,i,j)
-                    #bfs solution
-                    self.bfs(grid,i,j)
-                    ret +=1
-        # ideally we should recover the grid
-        return ret
+        if self.col == 0: return 0
+        return self.sol2(grid)
+        
     def sol2(self,grid):
         #union find
         m = len(grid)
@@ -5904,9 +5910,24 @@ class Solution(object):
                 if j < n-1 and grid[i][j+1] == '1':
                     q = p+1
                     union_find.union(p,q)
-        return union_find.count
+        return union_find.count 
+                
+     
 
     #------------------------------------------------    
+    def sol1(self,grid):
+        ret = 0
+        for i in xrange(self.row):
+            for j in xrange(self.col):
+                if grid[i][j] == "1":
+                    ##dfs solution
+                    #self.dfs(grid,i,j)
+                    #bfs solution
+                    self.bfs(grid,i,j)
+                    ret +=1
+        # ideally we should recover the grid
+        return ret
+        
     def dfs(self,grid,i,j):
         if grid[i][j] == "0" : return
         if grid[i][j] == "1":
@@ -5915,7 +5936,6 @@ class Solution(object):
             if i < self.row-1 : self.dfs(grid,i+1,j)
             if j >= 1 : self.dfs(grid,i,j-1)
             if j < self.col-1: self.dfs(grid,i,j+1)
-
     def bfs(self,grid,i,j):
         queue = [] # each ceil in grid labledd as i*self.col + j
         self.visit(grid,i,j,queue)
