@@ -41,7 +41,7 @@ class Solution(object):
             #2 nodes in e already share parent
             #if they are connected, there is a circle
             parent[x] = y
-        return len(edges) == n-1
+        return len(edges) == n-1 #an extra check for valid input
 
 #------union find-----------------------------
 #323. Number of Connected Components in an Undirected Graph

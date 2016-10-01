@@ -5833,6 +5833,29 @@ Example 2:
 
 Answer: 3
 """
+class UnionFind(object):
+    
+    def __init__(self, grid):
+        # i*self.col + j
+        self.row = len(grid)
+        self.col = len(grid[0])
+        self.count = 0
+        self.parents = range( self.row*self.col) #covert 2D grid to 1-D array
+        for i in xrange(self.row):
+            for j in xrange(self.col):
+                if grid[i][j] == '1': self.count += 1 # max possibility of island
+        
+    def find(self, x):
+        if self.parents[x] == x:   return x
+        else:   return self.find(self.parents[x])
+    
+    def union(self, x, y):
+        
+        find_x = self.find(x)
+        find_y = self.find(y)
+        if find_x == find_y:  return True
+        self.parents[find_x] = find_y
+        self.count -= 1 #important! found one connection
 class Solution(object):
     def numIslands(self, grid):
         """
@@ -5858,7 +5881,32 @@ class Solution(object):
                     ret +=1
         # ideally we should recover the grid
         return ret
+    def sol2(self,grid):
+        #union find
+        m = len(grid)
+        n = len(grid[0])
         
+        union_find = UnionFind(grid)
+        for i in xrange(m):
+            for j in xrange(n):
+                if grid[i][j] == '0': continue
+                p = i*n + j
+                q = 0
+                if i> 0 and grid[i-1][j] == '1':
+                    q = p -n
+                    union_find.union(p,q)
+                if i < m-1 and grid[i+1][j] == '1':
+                    q = p+n
+                    union_find.union(p,q)
+                if j >0 and grid[i][j-1] == '1':
+                    q = p-1
+                    union_find.union(p,q)
+                if j < n-1 and grid[i][j+1] == '1':
+                    q = p+1
+                    union_find.union(p,q)
+        return union_find.count
+
+    #------------------------------------------------    
     def dfs(self,grid,i,j):
         if grid[i][j] == "0" : return
         if grid[i][j] == "1":
@@ -5867,6 +5915,7 @@ class Solution(object):
             if i < self.row-1 : self.dfs(grid,i+1,j)
             if j >= 1 : self.dfs(grid,i,j-1)
             if j < self.col-1: self.dfs(grid,i,j+1)
+
     def bfs(self,grid,i,j):
         queue = [] # each ceil in grid labledd as i*self.col + j
         self.visit(grid,i,j,queue)
