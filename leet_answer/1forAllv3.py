@@ -6027,7 +6027,9 @@ class Solution(object):
     def recursive(self,head,newHead):
         if head == None: return newHead
         nd = head.next
-        head.next = newHead
+        head.next = newHead #head.next point to previous new head
+                            # head now become new head
+                            #nd become head
         return self.recursive(nd,head)
 
     def iter2(self,head):
@@ -11642,6 +11644,46 @@ class Solution(object):
             r -= 1
         return "".join(ls)
 #-----------------------------------
+#346. Moving Average from Data Stream
+"""
+Given a stream of integers and a window size, calculate the moving average of all integers in the sliding window.
+
+For example,
+
+MovingAverage m = new MovingAverage(3);
+m.next(1) = 1
+m.next(10) = (1 + 10) / 2
+m.next(3) = (1 + 10 + 3) / 3
+m.next(5) = (10 + 3 + 5) / 3
+
+"""
+class MovingAverage(object):
+
+    def __init__(self, size):
+        """
+        Initialize your data structure here.
+        :type size: int
+        """
+        self.size = size
+        self.queue = collections.deque()
+
+        
+
+    def next(self, val):
+        """
+        :type val: int
+        :rtype: float
+        """
+        if len(self.queue) == self.size:
+            self.queue.popleft()
+        self.queue.append(val)
+        return float(sum(self.queue))/len(self.queue)
+        
+
+
+# Your MovingAverage object will be instantiated and called as such:
+# obj = MovingAverage(size)
+# param_1 = obj.next(val)
 #-----------------------------------
 #347. Top K Frequent Elements
 """
@@ -12188,6 +12230,92 @@ class Solution(object):
         node.left = None
         node.right = None
         return level
+
+#-----------------------------------
+#369. Plus One Linked List
+"""
+Given a non-negative number represented as a singly linked list of digits, plus one to the number.
+
+The digits are stored such that the most significant digit is at the head of the list.
+
+Example:
+
+Input:
+1->2->3
+
+Output:
+1->2->4
+
+"""
+# Definition for singly-linked list.
+# class ListNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution(object):
+    def plusOne(self, head):
+        """
+        :type head: ListNode
+        :rtype: ListNode
+        """
+        return self.sol2(head)
+
+    def sol2(self,head):
+        #two pointer method
+        dummy = ListNode(0) #important to handle case 9->9->9
+        dummy.next = head
+        i = dummy #the MSB going to be added if exist a cary
+        j = dummy
+        while j.next:
+            j = j.next
+            if j.val != 9:
+                i = j
+        #so after this i.next must be all 9 or None
+        # j is now the last value
+        
+        if j.val != 9:
+            j.val +=1
+        else:
+            #add 1 from i and update the rest in the right
+            i.val +=1
+            i = i.next
+            while i:
+                i.val = 0
+                i = i.next
+        if dummy.val == 0 : return dummy.next
+        else: return dummy #9->9 become 1->0->0
+
+    def sol1(self,head):
+        #O(3n)
+        #reverse and plus one and reverse back
+        head = self.reverseLinkedList(head)
+        
+        #add 2 numbers leetcode 2
+        l1 = head
+        l2 = ListNode(1)
+        
+        dumy = ListNode(None)
+        curr = dumy
+        carry = 0
+        while l1 or l2 or carry:
+            v1 = l1.val if l1 else 0
+            v2 = l2.val if l2 else 0
+            val = (v1 + v2 +carry)%10
+            carry = (v1 + v2 +carry)/10
+            curr.next = ListNode(val)
+            curr = curr.next
+            if l1: l1 = l1.next
+            if l2: l2 = l2.next
+        return self.reverseLinkedList(dumy.next)
+    def reverseLinkedList(self,head):
+        prev = None
+        while head:
+            nd = head.next
+            head.next = prev
+            prev = head
+            head = nd
+        return prev
 
 #-----------------------------------
 #370. Range Addition
