@@ -9915,6 +9915,123 @@ class NumMatrix(object):
                  - self.sums[row1][col2 + 1] - self.sums[row2 + 1][col1]
 
 #-----------------------------------
+#305. Number of Islands II
+"""
+A 2d grid map of m rows and n columns is initially filled with water. We may perform an addLand operation which turns the water at position (row, col) into a land. Given a list of positions to operate, count the number of islands after each addLand operation. An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.
+
+Example:
+
+Given m = 3, n = 3, positions = [[0,0], [0,1], [1,2], [2,1]].
+Initially, the 2d grid grid is filled with water. (Assume 0 represents water and 1 represents land).
+
+0 0 0
+0 0 0
+0 0 0
+
+Operation #1: addLand(0, 0) turns the water at grid[0][0] into a land.
+
+1 0 0
+0 0 0   Number of islands = 1
+0 0 0
+
+Operation #2: addLand(0, 1) turns the water at grid[0][1] into a land.
+
+1 1 0
+0 0 0   Number of islands = 1
+0 0 0
+
+Operation #3: addLand(1, 2) turns the water at grid[1][2] into a land.
+
+1 1 0
+0 0 1   Number of islands = 2
+0 0 0
+
+Operation #4: addLand(2, 1) turns the water at grid[2][1] into a land.
+
+1 1 0
+0 0 1   Number of islands = 3
+0 1 0
+
+We return the result as an array: [1, 1, 2, 3]
+
+Challenge:
+
+Can you do it in time complexity O(k log mn), where k is the length of the positions?
+"""
+class UnionFind(object):
+    
+    def __init__(self, m,n):
+        # i*self.col + j
+
+
+        self.parents = range( m*n) #covert 2D grid to 1-D array
+        self.sizes = [0] *(m*n)
+        self.count = 0
+
+    def add(self,p):
+        self.parents[p] = p
+        self.sizes[p] =1
+        self.count +=1
+        
+    def find(self, x):
+        if x == self.parents[x] : return x
+        else: return self.find(self.parents[x])
+
+
+    def union(self, x, y):
+        
+        find_x = self.find(x)
+        find_y = self.find(y)
+        if find_x == find_y:  return 
+        if find_x == find_y:
+            return True
+        if self.sizes[find_x] <= self.sizes[find_y]:
+            self.parents[find_x] = find_y
+            self.sizes[find_y] += self.sizes[find_x]
+            self.sizes[find_x] = 0
+        else:
+            self.parents[find_y] = find_x
+            self.sizes[find_x] += self.sizes[find_y]
+            self.sizes[find_y] = 0
+        self.count-=1
+
+
+
+class Solution(object):
+    def numIslands2(self, m, n, positions):
+        """
+        :type m: int
+        :type n: int
+        :type positions: List[List[int]]
+        :rtype: List[int]
+        """
+
+        # initially filled with water
+        if m == 0 or n == 0: return []
+        grid = [[ 0 for _ in xrange(n)] for _ in xrange(m)]
+        ret = []
+        union_find = UnionFind(m,n)
+        for position in positions:
+            i,j = position
+            grid[i][j] = 1
+            p = i*n + j
+            q = 0
+            union_find.add(p)
+            if i> 0 and grid[i-1][j] == 1:
+                q = p -n
+                union_find.union(p,q)
+            if i < m-1 and grid[i+1][j] == 1:
+                q = p+n
+                union_find.union(p,q)
+            if j >0 and grid[i][j-1] == 1:
+                q = p-1
+                union_find.union(p,q)
+            if j < n-1 and grid[i][j+1] == 1:
+                q = p+1
+                union_find.union(p,q)
+ 
+            ret.append(union_find.count)
+        return ret
 #-----------------------------------
 #-----------------------------------
 #307. Range Sum Query - Mutable
@@ -12924,3 +13041,54 @@ class Solution(object):
 
     def pick(self, target):
         return random.choice([k for k, v in enumerate(self.nums) if v == target])
+        
+#-----------------------------------
+#404 Find the sum of all left leaves in a given binary tree.
+"""
+Example:
+    3
+   / \
+  9  20
+    /  \
+   15   7
+
+There are two left leaves in the binary tree, with values 9 and 15 respectively. Return 24.
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def sumOfLeftLeaves(self, root):
+        """
+        :type root: TreeNode
+        :rtype: int
+        """
+        return self.sol2(root)
+        
+    def sol1(self,root):
+        #recursive method
+        
+        if not root: return 0
+        if root.left and not root.left.left and not root.left.right: #found a left leave root.left
+            return root.left.val + self.sol1(root.right)
+        return self.sol1(root.left) + self.sol1(root.right) #root.left is not a left leave
+        
+    def sol2(self,root):
+        #inorder traverse
+        ret = 0
+        stack = []
+        while root or stack:
+            if root:
+                if root.left and not root.left.left and not root.left.right:
+                    ret += root.left.val
+                stack.append(root)
+                root = root.left
+            else:
+                top = stack.pop()
+                root = top.right
+        return ret
+            
