@@ -377,10 +377,12 @@ class Solution10(object):
         dp = [[False for j in range(len(p) + 1)] for i in range(len(s) + 1)]
         dp[0][0] = True
         #!! very important to set dp[0][j]
+        # set val from dp[0][2], because dp[0][1] will always Fase
         # this is for the case like p == "a*"
         for j in range(1,len(p) + 1):
                 if p[j-1] == '*' and j >= 2:
                         dp[0][j] = dp[0][j - 2]
+        # No need to set dp[i][0]. because it will be false for i>=1
         for i in xrange(1,ls+1):
             for j in xrange(1,lp+1):
                 if p[j - 1] == '.' or s[i-1] == p[j-1]:   ## first case
@@ -573,27 +575,34 @@ class Solution(object):
         :type digits: str
         :rtype: List[str]
         """
-        if digits == None or digits.strip() == "" : return []
-        self.dict = {'2':['a','b','c'],
-                '3':['d','e','f'],
-                '4':['g','h','i'],
-                '5':['j','k','l'],
-                '6':['m','n','o'],
-                '7':['p','q','r','s'],
-                '8':['t','u','v'],
-                '9':['w','x','y','z']
-                }
-        self.ret = []
-        self.dfs(0,'',digits)
-        return self.ret
+        if not digits: return []
+        self.dict = [' ', ' ', 'abc', 'def', 'ghi', 'jkl', 'mno', 'pqrs', 'tuv', 'wxyz']
+        
+        #-----------sol1------------
+        #self.ret = []
+        #self.dfs(0,"",digits)
+        #return self.ret
+        return self.sol2(digits)
+    
     def dfs(self,count,vstr,digits):
+        # recursive method
         if count == len(digits):
             self.ret.append(vstr)
             return
-        else:
-            for item in self.dict[digits[count]]:
-                self.dfs(count+1,vstr+item,digits)
+        for item in self.dict[int(digits[count])]:
+            self.dfs(count+1,vstr +item,digits)
 
+    def sol2(self,digits):
+        #iterative
+        res = [""]
+        for digit in digits:
+            tempres = []
+            charlist = self.dict[int(digit)]
+            for char in charlist:
+                for str in res:
+                    tempres.append(str+char)
+            res = tempres
+        return res
 #-----------------------------------
 #18. 4Sum
 """
@@ -12180,6 +12189,85 @@ class Solution(object):
         else: return curSum[9]
 
 #-----------------------------------
+#359. Logger Rate Limiter
+"""
+Design a logger system that receive stream of messages along with its timestamps, each message should be printed if and only if it is not printed in the last 10 seconds.
+
+Given a message and a timestamp (in seconds granularity), return true if the message should be printed in the given timestamp, otherwise returns false.
+
+It is possible that several messages arrive roughly at the same time.
+
+Example:
+
+Logger logger = new Logger();
+
+// logging string "foo" at timestamp 1
+logger.shouldPrintMessage(1, "foo"); returns true; 
+
+// logging string "bar" at timestamp 2
+logger.shouldPrintMessage(2,"bar"); returns true;
+
+// logging string "foo" at timestamp 3
+logger.shouldPrintMessage(3,"foo"); returns false;
+
+// logging string "bar" at timestamp 8
+logger.shouldPrintMessage(8,"bar"); returns false;
+
+// logging string "foo" at timestamp 10
+logger.shouldPrintMessage(10,"foo"); returns false;
+
+// logging string "foo" at timestamp 11
+logger.shouldPrintMessage(11,"foo"); returns true;
+
+"""
+class Logger(object):
+
+    def __init__(self):
+        """
+        Initialize your data structure here.
+        """
+        self.db = {} #msg: timestamp
+        
+
+    def shouldPrintMessage(self, timestamp, message):
+        """
+        Returns true if the message should be printed in the given timestamp, otherwise returns false.
+        If this method returns false, the message will not be printed.
+        The timestamp is in seconds granularity.
+        :type timestamp: int
+        :type message: str
+        :rtype: bool
+        """
+        #ideally should cleanup old item in  self.db 
+        if message not in self.db:
+            self.db[message] = timestamp
+            return True
+        else:
+            if timestamp - self.db[message] >=10:
+                self.db[message] = timestamp
+                return True
+            else:
+                return False
+                
+    #better one, only store for the good timestamp and message
+    """
+    Instead of logging print times, I store when it's ok for a message to be printed again.
+    Should be slightly faster, because I don't always have to add or subtract (e.g., timestamp < log[message] + 10) 
+    but only do in the true case. Also, it leads to a shorter/simpler longest line of code.
+    """
+    def __init__(self):
+        self.ok = {}
+
+    def shouldPrintMessage(self, timestamp, message):
+        if timestamp < self.ok.get(message, 0):
+            return False
+        self.ok[message] = timestamp + 10
+        return True
+
+# Your Logger object will be instantiated and called as such:
+# obj = Logger()
+# param_1 = obj.shouldPrintMessage(timestamp,message)
+#-----------------------------------
 #360. Sort Transformed Array
 """
  Given a sorted array of integers nums and integer values a, b and c. Apply a function of the form f(x) = ax2 + bx + c to each element x in the array.
@@ -12827,6 +12915,49 @@ class Solution(object):
                     dp[x+y] += dp[x]
         return dp[target]
 #-----------------------------------
+#378. Kth Smallest Element in a Sorted Matrix
+"""
+Given a n x n matrix where each of the rows and columns are sorted in ascending order, find the kth smallest element in the matrix.
+
+Note that it is the kth smallest element in the sorted order, not the kth distinct element.
+
+Example:
+
+matrix = [
+   [ 1,  5,  9],
+   [10, 11, 13],
+   [12, 13, 15]
+],
+k = 8,
+
+return 13.
+
+Note:
+You may assume k is always valid, 1 ≤ k ≤ n2.
+"""
+class Solution(object):
+    def kthSmallest(self, matrix, k):
+        """
+        :type matrix: List[List[int]]
+        :type k: int
+        :rtype: int
+        """
+        #matrix is guaranteed nxn
+        #k is guaranteed
+        n = len(matrix)
+        if n == 0: return None
+        count = 0
+        heap =[(matrix[0][0],0,0)]
+        while count < k:
+            val,i,j = heapq.heappop(heap)
+            count +=1
+            if count == k: return val
+            if j == 0 and i < n-1:
+                heapq.heappush(heap,(matrix[i+1][j],i+1,j))
+            if j <n-1:
+                heapq.heappush(heap,(matrix[i][j+1],i,j+1))
+
+#-----------------------------------
 #383. Ransom Note
 """
 Given  an  arbitrary  ransom  note  string  and  another  string  containing  letters from  all  the  magazines,  write  a  function  that  will  return  true  if  the  ransom   note  can  be  constructed  from  the  magazines ;  otherwise,  it  will  return  false.   
@@ -13014,6 +13145,76 @@ class Solution(object):
             res ^= ord(x)
         return chr(res)
 #-----------------------------------
+#392. Is Subsequence
+"""
+ Given a string s and a string t, check if s is subsequence of t.
+
+You may assume that there is only lower case English letters in both s and t. t is potentially a very long (length ~= 500,000) string, and s is a short string (<=100).
+
+A subsequence of a string is a new string which is formed from the original string by deleting some (can be none) of the characters without disturbing the relative positions of the remaining characters. (ie, "ace" is a subsequence of "abcde" while "aec" is not).
+
+Example 1:
+s = "abc", t = "ahbgdc"
+
+Return true.
+
+Example 2:
+s = "axc", t = "ahbgdc"
+
+Return false.
+
+Follow up:
+If there are lots of incoming S, say S1, S2, ... , Sk where k >= 1B, and you want to check one by one to see if T has its subsequence. In this scenario, how would you change your code?
+"""
+import collections
+import bisect
+class Solution(object):
+    def isSubsequence(self, s, t):
+        """
+        :type s: str
+        :type t: str
+        :rtype: bool
+        """
+        return self.sol2(s,t)
+
+    def sol1(self,s,t):
+        #2 pointer method
+        #greedy
+        #O(len(t)) for one search
+        #O (k*t) for k search
+        if len(s) ==0: return True
+        if len(s) > len(t) : return False
+        sp,tp = 0,0 #two pointer
+        while tp < len(t):
+            if s[sp] == t[tp]:
+                sp +=1
+            if sp == len(s): return True
+            tp +=1
+        return False
+        
+      
+    def createMap(self,t):
+        # create a map. key is char. value is index of apperance in acending order. 
+        posMap = collections.defaultdict(list)
+        for i, char in enumerate(t):
+            posMap[char].append(i)
+        return posMap
+        
+    def sol2(self,s,t):
+        #For follow up question it's better to use binary search
+        # O(s*log(t))
+        posMap = self.createMap(t)
+        # lowBound is the minimum index the current char has to be at.
+        lowBound = 0
+        for char in s:
+            if char not in posMap: return False
+            charIndexList = posMap[char]
+            # try to find an index that is larger than or equal to lowBound
+            i = bisect.bisect_left(charIndexList, lowBound)
+            if i == len(charIndexList): return False
+            lowBound = charIndexList[i] + 1
+        return True
+#-----------------------------------
 #398. Random Pick Index
 """
  Given an array of integers with possible duplicates, randomly output the index of a given target number. You can assume that the given target number must exist in the array.
@@ -13042,6 +13243,66 @@ class Solution(object):
     def pick(self, target):
         return random.choice([k for k, v in enumerate(self.nums) if v == target])
         
+#-----------------------------------
+#401. Binary Watch
+"""
+A binary watch has 4 LEDs on the top which represent the hours (0-11), and the 6 LEDs on the bottom represent the minutes (0-59).
+
+Each LED represents a zero or one, with the least significant bit on the right.
+For example, the above binary watch reads "3:25".
+
+Given a non-negative integer n which represents the number of LEDs that are currently on, return all possible times the watch could represent.
+
+Example:
+
+Input: n = 1
+Return: ["1:00", "2:00", "4:00", "8:00", "0:01", "0:02", "0:04", "0:08", "0:16", "0:32"]
+
+Note:
+
+    The order of output does not matter.
+    The hour must not contain a leading zero, for example "01:00" is not valid, it should be "1:00".
+    The minute must be consist of two digits and may contain a leading zero, for example "10:2" is not valid, it should be "10:02".
+
+"""
+class Solution(object):
+    def readBinaryWatch(self, num):
+        """
+        :type num: int
+        :rtype: List[str]
+        """
+        # from 10 bits choose n bits 
+        bits = range(10)
+        count = 0
+        ret = []
+        
+        def dfs(count,startIdx, vlist):
+            if count == num:
+                ret.append(vlist)
+                return
+            for i in xrange(startIdx,len(bits)):
+
+                dfs(count+1,i+1,vlist +[bits[i]])
+            
+        dfs(0,0,[])
+        output = []
+        for item in ret:
+            oneStr = self.processList(item)
+            if oneStr: output.append(oneStr)
+        return output
+
+    def processList(self,inList):
+        mask = 0b0
+        for digit in inList:
+            mask |= (1 << digit)
+
+        miniute = 0b111111 & mask
+        hour = (0b1111000000 &mask) >> 6
+        if hour >=12 : return False
+        if miniute >= 60: return False
+        if miniute < 10: return str(hour) + ":0" + str(miniute)
+        else: return str(hour) + ":" + str(miniute)
+
 #-----------------------------------
 #404 Find the sum of all left leaves in a given binary tree.
 """
