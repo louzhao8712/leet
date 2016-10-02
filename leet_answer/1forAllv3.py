@@ -12142,6 +12142,43 @@ class Twitter(object):
 # obj.follow(followerId,followeeId)
 # obj.unfollow(followerId,followeeId)
 #-----------------------------------
+#356. Line Reflection
+"""
+Given n points on a 2D plane, find if there is such a line parallel to y-axis that reflect the given points.
+
+Example 1:
+
+Given points = [[1,1],[-1,1]], return true.
+
+Example 2:
+
+Given points = [[1,1],[-1,-1]], return false.
+
+Follow up:
+Could you do better than O(n2)?
+
+Hint:
+
+    Find the smallest and largest x-value for all points.
+    If there is a line then it should be at y = (minX + maxX) / 2.
+    For each point, make sure that it has a reflected point in the opposite side.
+
+"""
+class Solution(object):
+    def isReflected(self, points):
+        """
+        :type points: List[List[int]]
+        :rtype: bool
+        """
+        """
+        #https://discuss.leetcode.com/topic/47843/1-line-ruby-2-lines-python
+        Reflect the points by replacing every x with minX+maxX-x and then check whether you get the same points. Why minX+maxX-x? I actually thought of it as minX+(maxX-x), i.e., first the subtraction (maxX-x). That's how far x is away from the max, so instead go that distance from the min.
+        """
+        if not points: return True
+        X = min(points)[0] + max(points)[0]
+        return {(x, y) for x, y in points} == {(X - x, y) for x, y in points} #{(x,y)} is set
+        
+#-----------------------------------
 #357. Count Numbers with Unique Digits
 """
 Given a non-negative integer n, count all numbers with unique digits, x, where 0 ≤ x < 10n.
@@ -12435,6 +12472,52 @@ class Solution(object):
         node.left = None
         node.right = None
         return level
+
+#-----------------------------------
+#368. Largest Divisible Subset
+"""
+ Given a set of distinct positive integers, find the largest subset such that every pair (Si, Sj) of elements in this subset satisfies: Si % Sj = 0 or Sj % Si = 0.
+
+If there are multiple solutions, return any subset is fine.
+
+Example 1:
+
+nums: [1,2,3]
+
+Result: [1,2] (of course, [1,3] will also be ok)
+
+Example 2:
+
+nums: [1,2,4,8]
+
+Result: [1,2,4,8]
+
+"""
+class Solution(object):
+    def largestDivisibleSubset(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: List[int]
+        """
+        #dp method
+        dp = {-1:set()} #x: the largest subset with x as the largest element in nums
+        # Since divisibility is transitive, a multiple x of some divisor d is also a multiple of all elements in S[d], so it's not necessary to explicitly test divisibility of x by all elements in S[d]. Testing x % d suffices
+        nums.sort()
+        retLen = -1
+        retKey = -1
+        for x in nums:
+            maxlen = -1
+            candidatekey = -1
+            for key in dp.keys():
+                if x%key == 0 and len(dp[key]) > maxlen:
+                    maxlen = len(dp[key])
+                    candidatekey = key
+                # return any subset is fine. 
+            dp[x] = dp[candidatekey] | set([x])
+            if len(dp[x]) > retLen:
+                retKey = x
+                retLen = len(dp[x])
+        return list(dp[retKey])
 
 #-----------------------------------
 #369. Plus One Linked List
@@ -13054,6 +13137,37 @@ class Solution(object):
 # obj = Solution(nums)
 # param_1 = obj.reset()
 # param_2 = obj.shuffle()
+#-------hash table----------------------------
+#387. First Unique Character in a String
+"""
+ Given a string, find the first non-repeating character in it and return it's index. If it doesn't exist, return -1.
+
+Examples:
+
+s = "leetcode"
+return 0.
+
+s = "loveleetcode",
+return 2.
+
+Note: You may assume the string contain only lowercase letters. 
+"""
+class Solution(object):
+    def firstUniqChar(self, s):
+        """
+        :type s: str
+        :rtype: int
+        """
+        #hash table and o(n)
+
+        freq = [0 for i in xrange(256)] #at most 256 different character
+        for x in s:
+            freq[ord(x)-ord('a')] +=1
+        for index,x in enumerate(s):
+            if freq[ord(x)-ord('a')] ==1:
+                return index
+        return -1
+
 #-------hash table----------------------------
 #388. Longest Absolute File Path
 """
