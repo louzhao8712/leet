@@ -203,7 +203,7 @@ class Solution5(object):
         
     def sol1(self,s):
         # solution1 O(n**2) and o(1) space
-        # imporvement of brute force
+        # improvement of brute force
         ret = ''
         for i in xrange(len(s)):
             # s1 and s2 because the palindrome string center can be i or bewtween i and i+1
@@ -2021,8 +2021,8 @@ class Solution(object):
     def sol1(self,m,n):
         if m < 1 or n < 1 : return None
         import math
-        a = max(m-1,n-1)
-        b= min(m-1,n-1)
+        a = m-1
+        b=  m-1
         tot = m+n-2
         #Ctot-a
         return math.factorial(tot)/(math.factorial(b) *math.factorial(a))
@@ -2289,6 +2289,22 @@ class Solution(object):
                 hi = center
         if hi **2 <= x : return hi
         else: return lo
+
+    def sol3(self,x)
+        if x == 0 : return 0
+        if x <0 : return None
+        lo=1
+        hi = x/2 +1
+        while lo +1 < hi:
+            center = (lo + hi)/2
+            if center **2 == x:
+                return center
+            elif center **2 < x:
+                lo = center
+            else:
+                hi = center
+        if  hi*hi -x > 0: return lo
+        else: return hi
 #-----------------------------------
 #70. Climbing Stairs
 """
@@ -2554,6 +2570,36 @@ class Solution(object):
         :type t: str
         :rtype: str
         """
+        return self.sol2(s,t)
+
+    def sol2(self,s,t):
+        #same as sol1 but more concize
+        #https://discuss.leetcode.com/topic/20692/12-lines-python
+        """
+        The current window is s[i:j] and the result window is s[I:J]. 
+        In need[c] I store how many times I need character c (can be negative) and missing tells how many characters are still missing. 
+        In the loop, first add the new character to the window. Then, if nothing is missing, 
+        remove as much as possible from the window start and then update the result.
+        """
+        missing = len(t)
+        need = collections.Counter(t)  # format like {'a':2,'b':1}
+        i = I = J = 0
+        for j,c in enumerate(s,start = 1): #!!! j start from index 1 because t[:j] not include j
+
+            if need[c] >0 : missing -= 1 # need[c] <= 0 means duplication
+            need[c] -=1 # here if c not in need, Counter will automatically add it and make the value -e
+
+            if not missing : # missing == 0, all elements have been found
+                while i <j and need[s[i]] <0 : #
+                    need[s[i]] +=1 
+                    #no need to update missing again, because we at most increase to need[s[i]] == 0
+                    # we only move i when we found extra s[i] in the outer for loop
+                    i += 1
+                if not J or j-i <= J-I:
+                    I,J=i,j
+        return s[I:J]
+
+    def sol1(self,s,t):
         ret = ""
         ls = len(s); lt = len(t)
         if ls == 0 or lt == 0 or ls < lt : return ret
@@ -2573,7 +2619,8 @@ class Solution(object):
                 while count == lt:
                     if s[prev] in tb:
                         tb[s[prev]] += 1
-                        if tb[s[prev]] > 0: #s[prev] no more duplication
+                        if tb[s[prev]] > 0:
+                            #s[prev] no more duplication, a substring can start from here
                            if minLen > ( i - prev +1):
                                minLen = i - prev +1
                                minStart = prev
@@ -2613,16 +2660,43 @@ class Solution(object):
         :type nums: List[int]
         :rtype: List[List[int]]
         """
+        #nums.sort()
         self.ln = len(nums)
         self.ans = []
-        self.dfs(nums,0,[])
-        return self.ans
-
+        #----sol1-----------
+        #self.dfs(nums,0,[])
+        #return self.ans
+        #--- sol2--------
+        return self.sol3(nums)
+        
+        
+    #sol1
     def dfs(self,nums,depth,vlist):
         self.ans.append(vlist)
         if depth == self.ln:  return
         for i in xrange(len(nums)):
             self.dfs(nums[i+1:],depth+1,vlist+[nums[i]])
+        
+    #bit Manipulation   
+    def sol2(self,nums):
+        nums.sort()
+        res =[]
+        for i in xrange(1<<self.ln): 
+            #at most 1<<self.ln answer, because each bit can be on/off 2 state
+            tmp = []
+            for j in xrange(self.ln): #loop the bits
+                if i& (1<<j):
+                    tmp.append(nums[j])
+            res.append(tmp)
+        return res
+
+    #iterative
+    def sol3(self,nums):
+        res = [[]]
+        for num in sorted(nums):
+            res += [item + [num] for item in res]
+        return res
+
 #-----------------------------------
 #79. Word Search
 """
@@ -2668,6 +2742,131 @@ class Solution(object):
                 if dfs(i,j,0):
                     return True
         return False
+
+#dfs without extra visited[][] table, modify the board[i][j] to "#" directly
+class Solution(object):
+    def exist(self, board, word):
+        def dfs(r,l,depth):
+            if depth == len(word): return True
+            if r<0 or r >=rowl or l <0 or l >=coll  or (board[r][l]!=word[depth]):
+                return False
+            tmp = board[r][l]
+            board[r][l] = '#' #node has been visited
+            match = dfs(r-1,l,depth+1) or \
+                     dfs(r+1,l,depth+1) or \
+                     dfs(r,l-1,depth+1) or \
+                      dfs(r,l+1,depth+1)
+            board[r][l] = tmp 
+            return match
+         
+        rowl = len(board)
+        coll = len(board[0])
+
+        for i in xrange(rowl):
+            for j in xrange(coll):
+                if dfs(i,j,0):
+                    return True
+        return False
+#-----solution2 dfs with Trie------------
+class Solution(object):
+    def exist(self, board, word):
+        """
+        :type board: List[List[str]]
+        :type words: List[str]
+        :rtype: List[str]
+        """
+        rowl = len(board)
+        coll = len(board[0])
+        visited =[ [False for i in xrange(coll)]for i in xrange(rowl)]
+        trie = Trie()
+
+        trie.insert(word)
+
+        ans = []
+
+        def dfs(word,node,x,y):
+            node = node.childs.get(board[x][y])
+            if node is None: return
+            
+            visited[x][y] = True
+            for z in [(1,0),(0,1),(-1,0),(0,-1)]:
+                nx, ny = x + z[0], y + z[1]
+                if nx >= 0 and nx < rowl and ny >= 0 and ny < coll and not visited[nx][ny]:
+                    dfs(word + board[nx][ny], node, nx, ny)            
+
+            visited[x][y] = False 
+            if node.isWord: return True
+            else:           return False
+
+        for x in xrange(rowl):
+            for y in xrange(coll):
+               if dfs(board[x][y],trie.root,x,y): return True
+        return False
+
+class TrieNode(object):
+    def __init__(self):
+        """
+        Initialize your data structure here.
+        """
+        self.childs = {}
+        self.isWord = False
+        
+
+class Trie(object):
+
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, word):
+        """
+        Inserts a word into the trie.
+        :type word: str
+        :rtype: void
+        """
+        p = self.root
+        for x in word:
+            if x not in p.childs:
+                child = TrieNode()
+                p.childs[x] = child
+            p = p.childs[x]
+        p.isWord = True        
+
+    def search(self, word):
+        """
+        Returns if the word is in the trie.
+        :type word: str
+        :rtype: bool
+        """
+        p = self.root
+        for x in word:
+            p = p.childs.get(x)
+            if p == None:
+                return False
+        return p.isWord
+
+    def delete(self, word):
+        node = self.root
+        queue = []
+        for letter in word:
+            queue.append((letter, node))
+            child = node.childs.get(letter)
+            if child is None:
+                return False
+            node = child
+        if not node.isWord:
+            return False
+        if len(node.childs): # this path has other owrd
+            node.isWord = False
+        else:
+            while queue:
+                tmp = queue.pop()
+                letter = tmp[0]
+                node = tmp[1]
+                del node.childs[letter]
+                if len(node.childs) or node.isWord:
+                    break
+        return True
+
 #-----------------------------------
 #80. Remove Duplicates from Sorted Array II
 """
@@ -2686,15 +2885,29 @@ class Solution(object):
         :type nums: List[int]
         :rtype: int
         """
+        return self.sol2(nums)
+
+    def sol1(self,nums):
         ln = len(nums)
         if ln <=2 : return ln
         pos =1
         for i in xrange(2,ln):
             if nums[i] != nums[pos] or nums[i]!= nums[pos-1]:
-                #the condition is only used to move pos
                 pos += 1
-            nums[pos] = nums[i]
+                nums[pos] = nums[i]
         return pos + 1
+    
+    def sol2(self,nums):
+        ln = len(nums)
+        if ln <=2 : return ln
+        pos =2
+        for i in xrange(2,ln):
+            if nums[i] > nums[pos-2]:
+                #as long as nums[i]!=nums[pos-2], copy to pos, 
+                #we don't care whether nums[pos-1] == nums[i]
+                nums[pos] = nums[i]
+                pos+=1
+        return pos  
 #-----------------------------------
 #81. Search in Rotated Sorted Array II
 """
@@ -2834,7 +3047,7 @@ class Solution(object):
         left(i,j) = max(left(i-1,j), cur_left), cur_left can be determined from the current row
         right(i,j) = min(right(i-1,j), cur_right), cur_right can be determined from the current row
         height(i,j) = height(i-1,j) + 1, if matrix[i][j]=='1';
-        height(i,j) = 0, if matrix[i][j]=='0 
+        height(i,j) = 0, if matrix[i][j]== 0 
         """
         ret = 0
         h = len(matrix)
