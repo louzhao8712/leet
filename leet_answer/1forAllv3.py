@@ -1369,7 +1369,7 @@ class Solution(object):
         """
         #return self.greedy(s,p)
         return self.dpmethod(s,p)
-        
+
     def dpmethod(self,s,p):
         #Let d(i, j) = true if s[0, i - 1] matches p[0, j - 1] (i, j are string lengths).
         #Initialize:
@@ -1386,9 +1386,9 @@ class Solution(object):
         for i in xrange(lp):
             if p[i]!="*": count+=1
         if count > ls : return False
-        
+
         dp = [[False for j in range(lp + 1)] for i in range(ls + 1)]  
-        
+
         dp[0][0] = True  
         for j in range(1,len(p) + 1):  
                 if p[j-1] == '*':  
@@ -1410,7 +1410,7 @@ class Solution(object):
         # 再不行， *占两位
         # s for string, p for pattern
         #ss is used to save the place in s when * happened in p
-        # start is the place in p when * happened
+        # star is the place in p when * happened
         pPointer = sPointer = ss = 0
         star = -1
 
@@ -1420,7 +1420,8 @@ class Solution(object):
                     pPointer +=1
                     sPointer +=1
                     continue
-                elif p[pPointer] == "*" :
+                elif p[pPointer] == "*" : #if there are multiple "*", update here
+                                          #always use the latest one
                     star = pPointer
                     ss = sPointer
                     pPointer +=1 #don't use *for now
@@ -1434,8 +1435,10 @@ class Solution(object):
                 ss += 1
                 sPointer = ss
                 continue
+            #reach this step means no "*" found
             return False
 
+        #check if there any extra characters after "*" in p has not been used
         while pPointer < len(p) and p[pPointer] == "*":
             # we don't need entire P and can already match S
             # the rest of P need to be "*"
@@ -1629,6 +1632,11 @@ class Solution(object):
         for key in tb:
             res.append(sorted(tb[key]))
         return res
+#follow up
+# to speed up we need to avoid the the sorting
+# use number as key, assign prime number to 'a-z'
+# Use the product of each string as key
+# but will overflow for long string
 #-----------------------------------
 #50. Pow(x, n)
 """
@@ -1641,8 +1649,10 @@ class Solution(object):
         :type n: int
         :rtype: float
         """
+        #because no matter n is odd or even, if we keep n/2 eventually will == 1
+        # and reach the step of x*self.myPow(x*x,n/2), the place we get output x
         if n == 0: return 1
-        elif n < 0 : return 1/self.myPow(x,-n)
+        elif n < 0 : return 1/float(self.myPow(x,-n))
         elif n%2: return x*self.myPow(x*x,n/2)
         else: return self.myPow(x*x,n/2)
 #-----------------------------------
@@ -1859,21 +1869,33 @@ class Solution(object):
         :type newInterval: Interval
         :rtype: List[Interval]
         """
+        return self.sol2(inters,newI)
+        
+    def sol2(self,inters,newI):
+        #o(n) solution
+        #Collect the intervals strictly left or right of the new interval, then merge the new one with the middle ones (if any) before inserting it between left and right ones.
+        s,e = newI.start,newI.end
+        left = [i for i in inters if i.end <s]
+        right = [i for i in inters if i.start >e]
+        if left + right != inters: # then there are some intervals need to merge with newI
+            s = min(s,inters[len(left)].start) #inters[len(left)] the 1st element in the merge area
+            e= max(e,inters[-len(right)-1].end) #inters[-len(right)-1], the last element in the merge area
+        return left + [Interval(s,e)] +right
+        
+    
+    def sol1(self, inters, newI):
+        # same method as merge interval, but not efficient, o(nlgn)
         inters.append(newI)
         inters.sort(key= lambda x:x.start)
         n = len(inters)
-        res = []
-        for i in xrange(n):
-            if res == []:
-                res.append(inters[i])
+        res = [inters[0]]
+        for i in xrange(1,n):
+            if res[-1].start <= inters[i].start <= res[-1].end:
+                res[-1].end = max(res[-1].end, inters[i].end)
             else:
-                if res[-1].start <= inters[i].start <= res[-1].end:
-                    res[-1].end = max(res[-1].end, inters[i].end)
-                else:
-                    res.append(inters[i])
+                res.append(inters[i])
         return res
-        
-        
+
 #-----------------------------------
 #59. Spiral Matrix II
 """
