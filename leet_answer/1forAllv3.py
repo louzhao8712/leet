@@ -3003,7 +3003,7 @@ class Solution(object):
                 lastIndex = 0
                 while stackH and height[i] < stackH[-1]:
                     lastIndex = stackI.pop()
-                    tmpArea = stackH.pop() * (i-lastIndex)
+                    tmpArea = stackH.pop() * (i-lastIndex) #i is not included in the area
                     maxArea = max(maxArea,tmpArea)
                 if stackH == [] or stackH[-1] < height[i]:
                     stackH.append(height[i])
@@ -3093,8 +3093,8 @@ class Solution(object):
         
             ret = max(ret,self.largestRectangleArea(a))
         return ret
-        
-        
+
+
     def largestRectangleArea(self, height):
         """
         :type height: List[int]
@@ -3103,7 +3103,7 @@ class Solution(object):
         # use stacks to store height and index
         # if height[i] > stack top, push in
         # if height[i] == stack top,ignore
-        # if height[i] < stacktop, pop and calculate tmp area untill stack top <= height[i]
+        # if height[i] < stacktop, pop and calculate tmp area until stack top <= height[i]
         stackH = []
         stackI = [] #index
         maxArea = 0
@@ -3115,12 +3115,12 @@ class Solution(object):
                 lastIndex = 0
                 while stackH and height[i] < stackH[-1]:
                     lastIndex = stackI.pop()
-                    tmpArea = stackH.pop() * (i-lastIndex)
+                    tmpArea = stackH.pop() * (i-lastIndex) #i is not included in the area
                     maxArea = max(maxArea,tmpArea)
                 if stackH == [] or stackH[-1] < height[i]:
                     stackH.append(height[i])
                     stackI.append(lastIndex) #very important !! 
-        n =len(height) 
+        n =len(height) #n is not included in the area
         while stackH:
             tmpArea = stackH.pop() * (n -stackI.pop())
             maxArea = max(maxArea,tmpArea)
@@ -3196,6 +3196,25 @@ class Solution(object):
         if depth == self.ln:  return
         for i in xrange(len(nums)):
             self.dfs(nums[i+1:],depth+1,vlist+[nums[i]])
+#iterative method
+"""
+if S[i] is same to S[i - 1], then it needn't to be added to all of the subset, 
+just add it to the last l subsets which are created by adding S[i - 1]
+"""
+class Solution:
+    # @param num, a list of integer
+    # @return a list of lists of integer
+    def subsetsWithDup(self, S):
+        res = [[]]
+        S.sort()
+        for i in range(len(S)):
+            if i == 0 or S[i] != S[i - 1]:
+                l = len(res)
+            #if s[i] == s[i-1] l is not updated
+            #then range(len(res) - l, len(res)) is the items just created by s[i-1]
+            for j in range(len(res) - l, len(res)):
+                res.append(res[j] + [S[i]])
+        return res
 #-----------------------------------
 #91. Decode Ways
 """
@@ -3215,6 +3234,7 @@ class Solution(object):
         return self.sol2(s)
         
     def sol1(self,s):
+        #dp[i] is the ways to decode s[0:i]
         n = len(s)
         if n == 0: return 0
         if s[0] == '0' : return 0
@@ -3225,12 +3245,25 @@ class Solution(object):
             if s[i-1]!= '0' : tmp += curr
             if s[i-2] == '1' or (s[i-2] == '2' and int(s[i-1]) <= 6):
                 tmp += prev
-                
             prev = curr
             curr = tmp
         return curr
         
         
+    def sol2(self,s):
+        if s=="" or s[0]=='0': return 0
+        dp=[1,1] #dp[n] ways for string with length(n)
+        for i in range(2,len(s)+1):
+            if int(s[i-2:i]) in range(11,20)+range(21,27): #2 way to decode
+                dp.append(dp[i-1]+dp[i-2])
+            elif int(s[i-2:i])==10 or int(s[i-2:i])==20: #1 way and depends on i-2
+                dp.append(dp[i-2])
+            elif s[i-1]!='0': #1 way and depends on i-1
+                dp.append(dp[i-1])
+            else:
+                return 0
+        return dp[len(s)]
+
     def sol2(self,s):
         #dp[i]表示前i-1个数字的DW dp[i] is the ways to decode s[0:i]
         if s=="" or s[0]=='0': return 0
@@ -3981,7 +4014,7 @@ class Solution(object):
         """
         curr = root
         while curr:
-            prev = None # next level we tried to connext
+            prev = None # next level we tried to connect
             fistNodeNext = None
             while curr: # working on the connection of one layer
                 if not fistNodeNext:
@@ -4366,10 +4399,14 @@ Your algorithm should run in O(n) complexity.
 """
 class Solution(object):
     def longestConsecutive(self, nums):
+
         """
         :type nums: List[int]
         :rtype: int
         """
+        return self.sol2(nums)
+
+    def sol1(self,nums):
         # use extra space hashtable to save space
         visit = {x: False for x in nums} #Flase means not visitd
         maxLen =0
@@ -4381,11 +4418,27 @@ class Solution(object):
                 visit[i] = sum
                 
                 maxLen =  max(maxLen,sum)
-                # only update the boundary. because all the elements in side the
-                #interval has already been visited. Boundary is the interface
+                
                 visit[i-left] = sum
                 visit[i+right] = sum
-                
+        return maxLen
+
+    def sol2(self,nums):
+        #https://discuss.leetcode.com/topic/15383/simple-o-n-with-explanation-just-walk-each-streak
+        # store nums in set([]) first o(n)
+        # find the start point m of each streak, i.e m-1 not in set
+        # increase m+1,m+2, unitl reach the right end
+        # update the length
+        # worst case O(2n)
+        nums = set(nums)
+        best = 0
+        for n in nums:
+            if n-1 not in nums:
+                m = n+1
+                while m in nums:
+                    m+=1
+                best = max(best,m-n)
+        return best
 
         return maxLen
 #-------dfs----------------------------

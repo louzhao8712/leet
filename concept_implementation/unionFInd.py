@@ -106,7 +106,7 @@ class UnionFind(object):
             self.parents[find_y] = find_x
             self.sizes[find_x] += self.sizes[find_y]
             self.sizes[find_y] = 0
-
+#------union find-----------------------------
 #200. Number of Islands
 """Given a 2d grid map of '1's (land) and '0's (water), count the number of islands.
 An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically.
@@ -165,7 +165,7 @@ class UnionFind(object):
             self.sizes[find_x] += self.sizes[find_y]
             self.sizes[find_y] = 0
         
-        self.count -= 1 #important! found one connection
+        self.count -= 1 #important! 
 
 
 
