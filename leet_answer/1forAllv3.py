@@ -4916,16 +4916,41 @@ class LRUCache(object):
             self.cache.addFirst(self.tb[key])
             self.tb[key].value = value
         else:
-            node = Node(key,value)
-            self.tb[key] = node
-            self.size +=1
-
-            if self.size > self.capacity:
+            while self.size >= self.capacity:
                 self.size -= 1
                 del self.tb[self.cache.tail.key]
                 self.cache.removeLast()
+            node = Node(key,value)
+            self.tb[key] = node
+            self.size +=1
             self.cache.addFirst(node)
-#-----------------------------------
+#---solution2 
+# use c =collections.OrderedDict()
+#       c[key]= val automatically add latest item at the end
+#       c.popitem(last=False) will pop the oldest item
+#       c.pop(key) will pot the item with key
+class LRUCache(object):
+    def __init__(self, capacity):
+        self.dic = collections.OrderedDict()
+        self.remain = capacity
+
+    def get(self, key):
+        if key not in self.dic:
+            return -1
+        v = self.dic.pop(key) 
+        self.dic[key] = v   # set key as the newest one
+        return v
+
+    def set(self, key, value):
+        if key in self.dic:    
+            self.dic.pop(key)
+        else:
+            if self.remain > 0:
+                self.remain -= 1  
+            else:  # self.dic is full
+                self.dic.popitem(last=False) 
+        self.dic[key] = value
+    #-----------------------------------
 #-----------------------------------
 #-----------------------------------
 #149. Max Points on a Line
@@ -5061,22 +5086,6 @@ class Solution(object):
                 lo +=1
         if nums[lo] < nums[hi]: return nums[lo]
         else: return nums[hi]
-
-
-
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-#-----------------------------------
-
-#-----------------------------------
-#-----------------------------------
 #-----------------------------------
 #155. Min Stack
 """
@@ -5240,7 +5249,8 @@ class Solution(object):
         :type n: Maximum number of characters to read (int)
         :rtype: The number of characters read (int)
         """
-        #the actual file that read4 reads from is hidden from us. read4 reads the file and put it in buf4 and chars in buf4 are put into buf
+        #the actual file that read4 reads from is hidden from us. 
+        #read4 reads the file and put it in buf4 and chars in buf4 are put into buf
         idx = 0
         while n > 0:
             # read file to buf4
@@ -6541,7 +6551,7 @@ class Solution(object):
         size = len(nums)
         left,right = 0,size
         ret = 0
-        while left <= right:
+        while left <= right: #this essentially is a sliding window and ret/middle is the window size
             mid = (left+right)/2
             if self.solve(mid,s,nums):
                 ret = mid
@@ -6837,7 +6847,6 @@ class Solution(object):
         if len(nums) < k : return False
         if len(nums)== 0 : return False
         h = []
-        ret = nums[0]
         for i in xrange(len(nums)):
             if i < k:
                 heapq.heappush(h,nums[i])
@@ -6900,11 +6909,10 @@ Notes:
 #   or the end time of the top entry of the live queue.
 #If the new building start time is larger than the top one end time, then process the one in the queue first
 #   (pop them until it is empty or find the first one that ends after the new building);
-#otherswise, if the new building starts before the top one ends, then process the new building
+#otherwise, if the new building starts before the top one ends, then process the new building
 #   (just put them in the queue). After processing, output it to the resulting vector if the height changes.
 #Complexity is the worst case O(NlogN)
 #Very nice idea, keeping smaller buildings alive under larger ones even though they ended already.
-from heapq import *
 from heapq import *
 class Solution(object):
     def getSkyline(self, LRH):
@@ -6917,10 +6925,10 @@ class Solution(object):
         i,n = 0, len(LRH)
         liveHR = [] #the heap
         while i < n or liveHR:
-            if not liveHR or (i<n and LRH[i][0] <= -liveHR[0][1]): #new build's left small then top heap right
+            if not liveHR or (i<n and LRH[i][0] <= -liveHR[0][1]): #new building's left is smaller then top heap right, i.e overlap
                 x = LRH[i][0] #!!! new building's left
                 while i < n and LRH[i][0] == x:
-                    #push all new building has same height, sort by height, then right
+                    #push all new building has same left, sort by height, then right
                     # if the new building is low, the height variable won't get updated
                     heappush(liveHR,(-LRH[i][2],-LRH[i][1]))
                     i+=1
@@ -6928,10 +6936,11 @@ class Solution(object):
                 x = -liveHR[0][1] # save the heap top right
                 while liveHR and -liveHR[0][1] <=x: #remove all the building on the left of the top building
                     heappop(liveHR)
-            if liveHR: height = -liveHR[0][0]
+            if liveHR:  height = -liveHR[0][0]
             else:       height = 0 #floor case
             if not skyline or height != skyline[-1][1]: 
-                #wehn a samll new builing add to the heap, even x get updated, the height is still the old tall building. so height == skyline[-1][1]
+                #when a small new building add to the heap, 
+                # even x get updated, the height is still the old tall building. so height == skyline[-1][1]
                 skyline.append([x,height]) 
         return skyline
 
@@ -6984,6 +6993,40 @@ class Solution(object):
                 db.popitem(last=False)
         return False
 #-----------------------------------
+#221. Maximal Square
+"""
+ Given a 2D binary matrix filled with 0's and 1's, find the largest square containing only 1's and return its area.
+
+For example, given the following matrix:
+
+1 0 1 0 0
+1 0 1 1 1
+1 1 1 1 1
+1 0 0 1 0
+
+Return 4. 
+"""
+#dp solution
+class Solution(object):
+    def maximalSquare(self, matrix):
+        """
+        :type matrix: List[List[str]]
+        :rtype: int
+        """
+        h = len(matrix)
+        if h == 0 : return 0
+        w = len(matrix[0])
+        dp = [[0 for i in xrange(w)] for j in xrange(h)] # max length of square end at [x,y]
+        ans = 0
+        for x in xrange(h):
+            for y in xrange(w):
+                dp[x][y] = int(matrix[x][y])
+                if dp[x][y] and x and y:
+                    dp[x][y] = min(dp[x-1][y-1],dp[x-1][y],dp[x][y-1]) +1
+                ans = max(ans,dp[x][y])
+                
+        return ans * ans
+        
 #-----------------------------------
 #224. Basic Calculator
 """
@@ -9908,15 +9951,15 @@ class Solution(object):
         return self.sol3(root)
         
     def sol1(self,root):
-        #top down approadch
-        #use dfs, pass root.val to next layer and compare, take the advantage of consective
+        #top down approach
+        #use dfs, pass root.val to next layer and compare, take the advantage of consecutive
         # next layer target can only be root.val +1
         if root == None: return 0
         self.maxlen = 0
         def dfs(root,target,curlen):
             if root == None: return
             if root.val == target: curlen +=1
-            else: curlen = 1
+            else: curlen = 1 #the beauty is this value is always1 for a new start
             self.maxlen = max(self.maxlen,curlen)
             dfs(root.left,root.val+1,curlen)
             dfs(root.right,root.val+1,curlen)
@@ -9924,8 +9967,8 @@ class Solution(object):
         return self.maxlen
 
     def sol2(self,root):
-        #top down approadch
-        #use dfs, pass root.val to next layer and compare, take the advantage of consective
+        #top down approach
+        #use dfs, pass root.val to next layer and compare, take the advantage of consecutive
         # next layer target can only be root.val +1
         #similar to sol2, avoid using global maxlen
         if root == None: return 0
@@ -9938,7 +9981,7 @@ class Solution(object):
         return dfs(root,root.val,0)
 
     def sol3(self,root):
-        #bottom up dfs. not recommened
+        #bottom up dfs. not recommend
         self.maxlen = 0
         def dfs(root):
             if root == None: return 0
@@ -12698,6 +12741,107 @@ class Solution(object):
                     result = max(result, rowhits + colhits[j])
         return result
 #-----------------------------------
+#364. Nested List Weight Sum II
+"""
+Given a nested list of integers, return the sum of all integers in the list weighted by their depth.
+
+Each element is either an integer, or a list -- whose elements may also be integers or other lists.
+
+Different from the previous question where weight is increasing from root to leaf, now the weight is defined from bottom up. i.e., the leaf level integers have weight 1, and the root level integers have the largest weight.
+
+Example 1:
+Given the list [[1,1],2,[1,1]], return 8. (four 1's at depth 1, one 2 at depth 2)
+
+Example 2:
+Given the list [1,[4,[6]]], return 17. (one 1 at depth 3, one 4 at depth 2, and one 6 at depth 1; 1*3 + 4*2 + 6*1 = 17) 
+"""
+# """
+# This is the interface that allows for creating nested lists.
+# You should not implement it, or speculate about its implementation
+# """
+#class NestedInteger(object):
+#    def __init__(self, value=None):
+#        """
+#        If value is not specified, initializes an empty list.
+#        Otherwise initializes a single integer equal to value.
+#        """
+#
+#    def isInteger(self):
+#        """
+#        @return True if this NestedInteger holds a single integer, rather than a nested list.
+#        :rtype bool
+#        """
+#
+#    def add(self, elem):
+#        """
+#        Set this NestedInteger to hold a nested list and adds a nested integer elem to it.
+#        :rtype void
+#        """
+#
+#    def setInteger(self, value):
+#        """
+#        Set this NestedInteger to hold a single integer equal to value.
+#        :rtype void
+#        """
+#
+#    def getInteger(self):
+#        """
+#        @return the single integer that this NestedInteger holds, if it holds a single integer
+#        Return None if this NestedInteger holds a nested list
+#        :rtype int
+#        """
+#
+#    def getList(self):
+#        """
+#        @return the nested list that this NestedInteger holds, if it holds a nested list
+#        Return None if this NestedInteger holds a single integer
+#        :rtype List[NestedInteger]
+#        """
+
+class Solution(object):
+    def depthSumInverse(self, nestedList):
+        """
+        :type nestedList: List[NestedInteger]
+        :rtype: int
+        """
+        return self.sol2(nestedList)
+        
+    def sol2(self, nestedList):
+        #no depth, no dfs
+        # Instead of multiplying by depth, add integers multiple times (by going level by level and adding the unweighted sum to the weighted sum after each level).
+        unweighted = weighted = 0
+        while nestedList:
+            nextLevel = []
+            for item in nestedList:
+                if item.isInteger():
+                    unweighted += item.getInteger()
+                else:
+                    nextLevel.extend(item.getList())
+            weighted += unweighted  #here unweighted is added multiple time
+            nestedList = nextLevel
+        return weighted
+
+    def so1(self, nestedList):
+        self.maxlen = 0
+        
+        def dfs(tempList,depth):
+            ret = []
+            for item in tempList:
+                if item.isInteger(): 
+                    ret.append((depth,item.getInteger() ))
+                    self.maxlen = max(depth,self.maxlen)
+                else:
+                    ret.extend(dfs(item.getList(),depth+1))
+            return ret
+        
+        res = dfs(nestedList,1)
+        output = 0
+        for item in res:
+            depth,val = item
+            output += (self.maxlen +1 -depth)*val
+        return output
+                
+#-----------------------------------
 #366. Find Leaves of Binary Tree
 """
 Given a binary tree, collect a tree's nodes as if you were doing this: Collect and remove all leaves, repeat until the tree is empty.
@@ -13616,6 +13760,46 @@ class Solution(object):
             if i == len(charIndexList): return False
             lowBound = charIndexList[i] + 1
         return True
+#-----------------------------------
+#394. Decode String
+"""
+ Given an encoded string, return it's decoded string.
+
+The encoding rule is: k[encoded_string], where the encoded_string inside the square brackets is being repeated exactly k times. Note that k is guaranteed to be a positive integer.
+
+You may assume that the input string is always valid; No extra white spaces, square brackets are well-formed, etc.
+
+Furthermore, you may assume that the original data does not contain any digits and that digits are only for those repeat numbers, k. For example, there won't be input like 3a or 2[4].
+
+Examples:
+
+s = "3[a]2[bc]", return "aaabcbc".
+s = "3[a2[c]]", return "accaccacc".
+s = "2[abc]3[cd]ef", return "abcabccdcdcdef".
+
+"""
+class Solution(object):
+    def decodeString(self, s):
+        """
+        :type s: str
+        :rtype: str
+        """
+        #https://discuss.leetcode.com/topic/57121/share-my-python-stack-simple-solution-easy-to-understand
+        stack = [["",1]] #string and weight, "" here is just a place holder
+        num = ""
+        for ch in s:
+            if ch.isdigit():
+              num += ch
+            elif ch == '[':
+                stack.append(["", int(num)])
+                num = ""
+            elif ch == ']':
+                st, k = stack.pop()
+                stack[-1][0] += st*k
+            else:
+                stack[-1][0] += ch
+        return stack[0][0]
+
 #-----------------------------------
 #398. Random Pick Index
 """
