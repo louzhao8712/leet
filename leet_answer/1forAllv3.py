@@ -7013,6 +7013,35 @@ class Solution(object):
         :type matrix: List[List[str]]
         :rtype: int
         """
+        return self.sol2(matrix)
+
+    def sol2(self,matrix):
+        #1d dp
+        #https://leetcode.com/articles/maximal-square/
+        h = len(matrix)
+        if h == 0 : return 0
+        w = len(matrix[0])
+        dp = [0 for i in xrange(w)] # max length of square end at [x,y]
+        ans = 0
+        # first usefult prev is int(matrix[0][0])
+        prev = 0
+        for x in xrange(h):
+            for y in xrange(w):
+                tmp = dp[y]
+                if matrix[x][y] == '0':
+                    dp[y]= 0
+                else:
+                    if  x and y:
+                        dp[y] = min(dp[y-1],dp[y],prev) +1
+                    else:
+                        dp[y] = 1
+                    ans = max(ans,dp[y])
+                prev = tmp
+
+        return ans * ans        
+        
+    def sol1(self,matrix):
+        #2d dp
         h = len(matrix)
         if h == 0 : return 0
         w = len(matrix[0])
@@ -8047,14 +8076,42 @@ class Solution(object):
         """
         if intervals == []: return 0
         intervals.sort(key =lambda x: x.start)
-        meetingRooms = [intervals[0].end] # sort by end time, which is a heap
+        meetingRooms = [intervals[0].end]
+        # sort by end time, which is a heap
+        # so the top is the 1st available room
         for item in intervals[1:]:
-            if item.start < meetingRooms[0]: #minheap top, the 1st availabe room
-                heappush(meetingRooms,item.end)
+            if item.start < meetingRooms[0]: #minheap top, the 1st available room
+                heappush(meetingRooms,item.end) #need a new room
             else: #add meeting in the same room
                 top = heappop(meetingRooms)
                 heappush(meetingRooms,item.end)
         return len(meetingRooms)
+    def sol2(self,intervals):
+        #https://discuss.leetcode.com/topic/20912/my-python-solution-with-explanation/2
+        # Very similar with what we do in real life. Whenever you want to start a meeting, 
+        # you go and check if any empty room available (available > 0) and
+        # if so take one of them ( available -=1 ). Otherwise,
+        # you need to find a new room someplace else ( numRooms += 1 ).  
+        # After you finish the meeting, the room becomes available again ( available += 1 ).    
+        #nlgn without using the heap
+        starts = [i.start for i in intervals]
+        ends = [i.end for i in intervals]
+        starts.sort()
+        ends.sort()
+        s = e = 0 # pointer point to curr start and curr end
+        numRooms = 0
+        available = 0
+        while s < len(starts):
+            if starts[s] < ends[e]: #this is the place to process a new meeting
+                if available == 0: #no room available
+                    numRooms +=1
+                else:
+                    available -=1
+                s +=1
+            else: #here is the place to clean up previous meeting
+                available +=1 #release the room of previous meeting
+                e +=1
+        return numRooms
 #-----------------------------------
 #254. Factor Combinations
 """
@@ -8601,12 +8658,11 @@ class Solution(object):
         # graph is the like the childs array in leetcode Course Schedult
         for pair in zip(words, words[1:]): #zip can eliminate the extra item in one list
             for x, y in zip(*pair):
-                bkp()
                 if x != y:
                     graph[x].append(y)
                     degrees[y] += 1
                     break
-                    
+
         queue = filter(lambda x: degrees[x] == 0, degrees.keys())
         ret = ""
         while queue:
@@ -8860,7 +8916,7 @@ class Solution(object):
                 word += lv1[token] + ' '
             word = word.strip()
             if word:
-                word += ' ' + lv4[digits - 1] if digits else ''
+                word += ' ' + lv4[digits - 1] if digits else '' #process for thousand,million,billion
                 words.insert(0,word)
             digits += 1
         return ' '.join(words) or 'Zero'
@@ -8886,7 +8942,8 @@ class Solution(object):
         return self.solution3(citations)
 
     def solution2(self,citations):
-        #extra space methid
+        #extra space method
+        #o(n) time o(n) space
         n = len(citations)
         cnt = [ 0 for i in xrange(n+1)]
         for c in citations:
@@ -9021,18 +9078,12 @@ class Solution(object):
         :type n: int
         :rtype: int
         """
-        #O(n) solution
-        if n <= 1: return -1
-        stack = range(n)
-        while len(stack)>1:
-            if knows(stack[-1],stack[-2]): #stack[-1] is normal people
-                stack.pop()
-            else: #stack[-2] is normal
-                end = stack.pop()
-                stack.pop()
-                stack.append(end)
+        candidate = 0
+        for i in xrange(n):
+            if knows(candidate, i):
+                candidate = i
         
-        candidate = stack[0]
+
         # someone must know the candidate
         # and candidate cannot know anyone
         count = 0
@@ -9245,12 +9296,11 @@ class Solution(object):
         :type nums: List[int]
         :rtype: void Do not return anything, modify nums in-place instead.
         """
-        p0 = 0
-        p1 = 0
+        p0 = 0 #preplace
+        p1 = 0 #pmove
         for i in xrange(len(nums)):
             if nums[i] != 0 : 
-                p1 = i
-                nums[p1],nums[p0] = nums[p0],nums[p1]
+                nums[i],nums[p0] = nums[p0],nums[i]
                 p0 +=1
 
 #-----------------------------------
@@ -9374,6 +9424,30 @@ class Solution(object):
                 self.res = root
             self.prev = root
             self.recursive(root.right)
+    def sol2(self,root,p):
+        #iterative for any binary tree
+        self.prev = None
+        stack = []
+        while root or stack:
+            if root:
+                stack.append(root)
+                root = root.left
+            else:
+                top = stack.pop()
+                if self.prev == p: return top
+                self.prev = top
+                root = top.right
+        return None
+    def sol3(self, root, p):
+        #iterative for BST, the best!
+        succ = None
+        while root:
+            if p.val < root.val:
+                succ = root
+                root = root.left
+            else:
+                root = root.right
+        return succ
 #-----------------------------------
 #286. Walls and Gates
 """
