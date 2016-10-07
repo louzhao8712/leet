@@ -2586,15 +2586,15 @@ class Solution(object):
         i = I = J = 0
         for j,c in enumerate(s,start = 1): #!!! j start from index 1 because t[:j] not include j
 
-            if need[c] >0 : missing -= 1 # need[c] <= 0 means duplication
-            need[c] -=1 # here if c not in need, Counter will automatically add it and make the value -e
+            if need[c] >0 : missing -= 1 # need[c] <0 means duplication, ==0 means found all required c
+            need[c] -=1 # here if c not in need, Counter will automatically add it and make the value -1
 
             if not missing : # missing == 0, all elements have been found
                 while i <j and need[s[i]] <0 : #
                     need[s[i]] +=1 
                     #no need to update missing again, because we at most increase to need[s[i]] == 0
                     # we only move i when we found extra s[i] in the outer for loop
-                    i += 1
+                    i += 1 #this step will remove nums[i] from result
                 if not J or j-i <= J-I:
                     I,J=i,j
         return s[I:J]
@@ -2616,16 +2616,15 @@ class Solution(object):
             if s[i] in tb: 
                 if tb[s[i]] > 0 : count += 1
                 tb[s[i]] -= 1 #important, negative means duplication
-                while count == lt:
+                while count == lt and prev <=i:
                     if s[prev] in tb:
-                        tb[s[prev]] += 1
-                        if tb[s[prev]] > 0:
+                        if tb[s[prev]] == 0:
                             #s[prev] no more duplication, a substring can start from here
                            if minLen > ( i - prev +1):
                                minLen = i - prev +1
                                minStart = prev
                            count -=1        
-                    
+                        tb[s[prev]] += 1 
                     prev += 1
                 
         if minLen == float('inf'): return ""
@@ -3484,7 +3483,7 @@ class Solution(object):
         pointer prev as a global variable to mark the address of previous node in the
         list.
         """
-        #inroder method
+        #in order method
         if node == None : return True
         if not self.sol2(node.left): return False
         if self.prev!= None and self.prev.val >= node.val : return False
@@ -6083,38 +6082,60 @@ You are a professional robber planning to rob houses along a street. Each house 
 
 Given a list of non-negative integers representing the amount of money of each house, determine the maximum amount of money you can rob tonight without alerting the police.
 """
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
 class Solution(object):
-    def rob(self, nums):
+    def isValidBST(self, root):
         """
-        :type nums: List[int]
-        :rtype: int
+        :type root: TreeNode
+        :rtype: bool
         """
-        return self.sol2(nums)
+        #return self.dfs(root,-1*float('inf'),float('inf'))
         
-    def sol2(self,nums):
-        n = len(nums)
-        if n == 0 : return 0
-        if n <=2 : return max(nums)
-        odd = nums[0]
-        even = max(nums[1],nums[0])
-        for i in xrange(2,n):
-            if i%2 == 0:
-                odd = max(odd+nums[i],even)
+        #self.prev = None
+        #return self.sol2(root)
+        
+        return self.sol3(root)
+    
+    def sol3(self,root):
+        #inorder iterative
+        stack = []
+        prev = None
+        while root or stack:
+            if root:
+                stack.append(root)
+                root = root.left
             else:
-                even = max(even+nums[i],odd)
-        return max(odd,even)
+                top = stack.pop()
+                if prev and prev.val >= top.val: return False
+                prev = top
+                root = top.right
+        return True
+    def dfs(self,root,min,max):
+        if root == None: return True
+        if root.val <= min or root.val >= max: return False
+        return   self.dfs(root.left,min,root.val) and  self.dfs(root.right,root.val,max)
         
-    def sol1(self,nums):
-        n = len(nums)
-        if n == 0 : return 0
-        if n <=2 : return max(nums)
-        dp = [0 for i in xrange(n)]
-        dp[0] = nums[0]
-        dp[1] = max(nums[1],nums[0])
+    def sol2(self,node):
+        """
+        If we use in-order traversal to serialize a binary search tree, we can
+        get a list of values in ascending order. It can be proved with the
+        definition of BST. And here I use the reference of TreeNode
+        pointer prev as a global variable to mark the address of previous node in the
+        list.
+        """
+        #inroder method
+        if node == None : return True
+        if not self.sol2(node.left): return False
+        if self.prev!= None and self.prev.val >= node.val : return False
+        self.prev = node
+        return self.sol2(node.right)
         
-        for i in xrange(2,n):
-            dp[i] = max(dp[i-1],dp[i-2]+nums[i])
-        return dp[n-1]
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
@@ -10214,6 +10235,11 @@ class Solution(object):
         return ans
 
     def bfs(self,s):
+        #time complexity  o(n x 2^(n-1))
+        """
+        Time complexity: you have a length n string, every character have 2 states "keep/remove", that is 2^n states and check valid is O(n). All together O(n*2^n). This means there is a lot of duplicates. Ideally it should be O(C(n, k) + n) where k is the number of chars needs remove. 
+        Use a O(n) time to preprocess and get the value k
+        """
         ans = []
         queue = [s]
         done = False
@@ -11364,7 +11390,8 @@ class Solution(object):
         j-i is equal to the length of subarray of original array. we want to find the max(j - i)
         for any sum[j] we need to find if there is a previous sum[i] such that sum[j] - sum[i] = k
         Instead of scanning from 0 to j -1 to find such i, we use hashmap to do the job in constant time.
-        However, there might be duplicate value of of sum[i] we should avoid overriding its index as we want the max j - i, so we want to keep i as left as possible.
+        However, there might be duplicate value of of sum[i] we should avoid overriding its index 
+        as we want the max j - i, so we want to keep i as left as possible.
         """
         ret = 0
         tb = collections.defaultdict(list) #sumToi : index_i
@@ -11645,11 +11672,11 @@ class Solution(object):
         """
         # a is the min element
         # b is the second min close to a
-        a,b = None,None
+        a,b = float('inf'),float('inf')
         for i in xrange(len(nums)):
-            if a is None or nums[i] <= a:
+            if  nums[i] <= a:
                 a = nums[i]
-            elif b is None or nums[i] <=b:
+            elif nums[i] <=b:
                 b = nums[i]
             else:
                 return True
@@ -13496,6 +13523,38 @@ class Solution(object):
         :type target: int
         :rtype: int
         """
+        return self.sol3(nums, target)    
+    
+    def sol3(self,nums,target):
+        #dfs method, recursive
+        # the hashtable is mandatory to speed up, it's kind of semi dp
+        db = {}
+        def dfs(target):
+            count = 0
+            if target <0 : return 0
+            if target == 0: return 1
+            if target in db : return db[target]
+            
+            for num in nums:
+                count += dfs(target -num)
+            db[target] = count
+            return count
+            
+        return dfs(target)
+
+    def sol2(self,nums, target):
+        #dp method
+        nums.sort()
+        dp = [0 for _ in xrange(target+1)]
+        for x in xrange(target +1):
+            for y in nums:
+                if y >x: break  #num y is to big tp get temp tartget x
+                elif y ==x: dp[x] +=1
+                elif y <x: dp[x] += dp[x-y]
+        return dp[target]
+        
+    def sol1(self,nums, target):
+        #dp method1
         dp = [0 for _ in xrange(target+1)]
         dp[0] = 1
         for x in xrange(target +1):
