@@ -712,6 +712,44 @@ class Solution(object):
         if stack != [] : return False
         return True
 #-----------------------------------
+#21. Merge Two Sorted Lists
+"""
+Merge two sorted linked lists and return it as a new list. 
+The new list should be made by splicing together the nodes of the first two lists.
+"""
+# Definition for singly-linked list.
+# class ListNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution(object):
+    def mergeTwoLists(self, l1, l2):
+        """
+        :type l1: ListNode
+        :type l2: ListNode
+        :rtype: ListNode
+        """
+        dumy = ListNode(None)
+        curr = dumy
+        while l1 and l2:
+            if l1.val < l2.val:
+                curr.next = l1
+                curr = curr.next
+                l1 = l1.next
+            else:
+                curr.next = l2
+                curr = curr.next
+                l2 = l2.next  
+        while l1:
+                curr.next = l1
+                curr = curr.next
+                l1 = l1.next    
+        while l2:
+                curr.next = l2
+                curr = curr.next
+                l2 = l2.next  
+        return dumy.next
 #-----------------------------------
 #22. Generate Parentheses
 """
@@ -1603,6 +1641,29 @@ class Solution(object):
             for j in self.recursive(nums[:i]+nums[i+1:]):
                 res.append([nums[i]]+j)
         return res
+#-----------------------------------
+#48. Rotate Image
+"""
+You are given an n x n 2D matrix representing an image.
+
+Rotate the image by 90 degrees (clockwise).
+
+Follow up:
+Could you do this in-place?
+"""
+class Solution(object):
+    def rotate(self, matrix):
+        """
+        :type matrix: List[List[int]]
+        :rtype: void Do not return anything, modify matrix in-place instead.
+        """
+        n = len(matrix)
+        for i in xrange(n):
+            for j in xrange(i+1,n):
+                matrix[i][j],matrix[j][i] = matrix[j][i],matrix[i][j]
+        for i in xrange(n):
+            matrix[i].reverse()
+        
 #-----------------------------------
 #49. Group Anagrams
 """
@@ -3157,6 +3218,72 @@ class Solution(object):
         
 
 #-----------------------------------
+#89. Gray Code
+"""
+The gray code is a binary numeral system where two successive values differ in only one bit.
+
+Given a non-negative integer n representing the total number of bits in the code, print the sequence of gray code. A gray code sequence must begin with 0.
+
+For example, given n = 2, return [0,1,3,2]. Its gray code sequence is:
+
+00 - 0
+01 - 1
+11 - 3
+10 - 2
+
+Note:
+For a given n, a gray code sequence is not uniquely defined.
+
+For example, [0,2,3,1] is also a valid gray code sequence according to the above definition.
+
+For now, the judge is able to judge based on one instance of gray code sequence. Sorry about that.
+"""
+class Solution(object):
+    def grayCode(self, n):
+        """
+        :type n: int
+        :rtype: List[int]
+        """
+        # solution1 dfs
+        #self.n = n
+        #self.res = [0]
+        #self.dfs(0)
+        #return self.res
+        
+        return self.sol3(n)
+    def sol2(self,n):
+        #solition 2 bit manipulation
+        size = 1 << n
+        ret = []
+        for i in xrange(size):
+            ret.append((i>>1)^i)
+            #the highest bit does not change, 0^1 still 1
+        return ret
+        
+    def sol3(self,n):
+        #same concept as the dfs one, but iterative
+        res = [0]
+        for depth in xrange(n):
+            flipper = 1 << depth
+            for j in xrange(len(res)-1,-1,-1):
+                res.append(res[j]|flipper)
+        return res
+    
+    def dfs(self,depth):
+        # n = 1:     0  |   1
+        #n = 2:   00    01 | 11   10
+        #n = 3: 000  001 011 010 | 110 111 101 100
+
+        #红线左边的为上一行序列从左往右每个码前加 0，
+        #红线右边的为上一行序列从右往左每个码前加 1。
+        if depth == self.n : return
+        flipper = 1 << depth
+        for j in xrange(len(self.res)-1,-1,-1):
+            self.res.append(self.res[j]|flipper)
+        self.dfs(depth+1)
+        
+
+#-----------------------------------
 #90. Subsets II
 """
  Given a collection of integers that might contain duplicates, nums, return all possible subsets.
@@ -3491,7 +3618,30 @@ class Solution(object):
         return self.sol2(node.right)
 #-----------------------------------
 #-----------------------------------
-#-----------------------------------
+#100. Same Tree
+"""
+ Given two binary trees, write a function to check if they are equal or not.
+
+Two binary trees are considered equal if they are structurally identical and the nodes have the same value
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def isSameTree(self, p, q):
+        """
+        :type p: TreeNode
+        :type q: TreeNode
+        :rtype: bool
+        """
+        if p== None and q == None : return True
+        if p == None or q == None or p.val!=q.val : return False
+        return self.isSameTree(p.left,q.left) and self.isSameTree(p.right,q.right)
+        
 #-----------------------------------
 #101. Symmetric Tree
 """
@@ -4596,6 +4746,12 @@ class Solution(object):
         return res
 #-----------------------------------
 #-----------------------------------
+#138. Copy List with Random Pointer
+"""
+ A linked list is given such that each node contains an additional random pointer which could point to any node in the list or null.
+
+Return a deep copy of the list. 
+"""
 #-----------------------------------
 #139. Word Break
 """
@@ -5396,12 +5552,20 @@ class Solution(object):
         
     def sol2(self,headA,headB):
         """
-        
-    Maintain two pointers pA and pB initialized at the head of A and B, respectively. Then let them both traverse through the lists, one node at a time.
-    When pA reaches the end of a list, then redirect it to the head of B (yes, B, that's right.); similarly when pB reaches the end of a list, redirect it the head of A.
-    If at any point pA meets pB, then pA/pB is the intersection node.
-    To see why the above trick would work, consider the following two lists: A = {1,3,5,7,9,11} and B = {2,4,9,11}, which are intersected at node '9'. Since B.length (=4) < A.length (=6), pB would reach the end of the merged list first, because pB traverses exactly 2 nodes less than pA does. By redirecting pB to head A, and pA to head B, we now ask pB to travel exactly 2 more nodes than pA would. So in the second iteration, they are guaranteed to reach the intersection node at the same time.
-    If two lists have intersection, then their last nodes must be the same one. So when pA/pB reaches the end of a list, record the last element of A/B respectively. If the two last elements are not the same one, then the two lists have no intersections.
+        Maintain two pointers pA and pB initialized at the head of A and B, respectively.
+        Then let them both traverse through the lists, one node at a time.
+        When pA reaches the end of a list, then redirect it to the head of B (yes, B, that's right.); 
+        similarly when pB reaches the end of a list, redirect it the head of A.
+        If at any point pA meets pB, then pA/pB is the intersection node.
+        To see why the above trick would work, consider the following two lists: 
+        A = {1,3,5,7,9,11} and B = {2,4,9,11}, which are intersected at node '9'. 
+        Since B.length (=4) < A.length (=6), pB would reach the end of the merged list first, 
+        because pB traverses exactly 2 nodes less than pA does. 
+        By redirecting pB to head A, and pA to head B, we now ask pB to travel exactly 2 more nodes than pA would. 
+        So in the second iteration, they are guaranteed to reach the intersection node at the same time.
+        If two lists have intersection, then their last nodes must be the same one.
+        So when pA/pB reaches the end of a list, record the last element of A/B respectively. 
+        If the two last elements are not the same one, then the two lists have no intersections.
         """
         if not headA or not headB: return None
         pa = headA
@@ -5426,9 +5590,7 @@ class Solution(object):
             pb = pb.next
         
         return False   
-        
-        
-    
+
     def sol1(self,headA,headB):
         if not headA or not headB: return None
         lenA = self.getlen(headA)
@@ -6007,6 +6169,11 @@ class Solution(object):
             nums[x] ^= nums[start + end - x - 1]
             nums[start + end - x - 1] ^= nums[x]
             nums[x] ^= nums[start + end - x - 1]
+"""
+Follow up, check string s2 is a rotate version of s1
+First make sure s1 and s2 are of the same length. 
+Then check to see if s2 is a substring of s1 concatenated with s1:
+"""
 #-----------------------------------
 #-----------------------------------
 #191. Number of 1 Bits
@@ -7078,6 +7245,70 @@ class Solution(object):
         return ans * ans
         
 #-----------------------------------
+#223. Rectangle Area
+"""
+Find the total area covered by two rectilinear rectangles in a 2D plane.
+
+Each rectangle is defined by its bottom left corner and top right corner as shown in the figure.
+Rectangle Area
+
+Assume that the total area is never beyond the maximum possible value of int.
+
+
+r1 leftbottom (A,B)
+r1 rightupper (C,D)
+
+r2 leftbottom (E,F)
+r2 rightupper
+Credits:
+
+"""
+class Solution(object):
+    def computeArea(self, A, B, C, D, E, F, G, H):
+        """
+        :type A: int
+        :type B: int
+        :type C: int
+        :type D: int
+        :type E: int
+        :type F: int
+        :type G: int
+        :type H: int
+        :rtype: int
+        """
+        # find the intersection
+        if min(C,G) > max(A,E) and min(D,H) > max(B,F):
+            sec =(min(C,G) - max(A,E))*(min(D,H)-max(B,F))
+        else:
+            sec = 0
+        return (C-A)*(D-B) + (G-E)*(H-F) - sec
+# geeksforgeetk find two rectangular overlap
+#include<bits/stdc++.h>
+"""
+l1: Top Left coordinate of first rectangle.
+r1: Bottom Right coordinate of first rectangle.
+l2: Top Left coordinate of second rectangle.
+r2: Bottom Right coordinate of second rectangle.
+"""
+struct Point
+{
+    int x, y;
+};
+ 
+// Returns true if two rectangles (l1, r1) and (l2, r2) overlap
+bool doOverlap(Point l1, Point r1, Point l2, Point r2)
+{
+    // If one rectangle is on left side of other
+    if (l1.x > r2.x || l2.x > r1.x)
+        return false;
+ 
+    // If one rectangle is above other
+    if (l1.y < r2.y || l2.y < r1.y)
+        return false;
+ 
+    return true;
+}
+#-----------------------------------
 #224. Basic Calculator
 """
 Implement a basic calculator to evaluate a simple expression string.
@@ -7527,6 +7758,7 @@ class Solution(object):
         :type k: int
         :rtype: List[int]
         """
+        #time complexity o(n)
         dq = []
         ans = []
         
@@ -7988,10 +8220,6 @@ class Solution(object):
 #-----------------------------------
 #251. Flatten 2D Vector
 """
-    Total Accepted: 13860
-    Total Submissions: 38064
-    Difficulty: Medium
-
 Implement an iterator to flatten a 2d vector.
 
 For example,
@@ -11601,7 +11829,8 @@ class Solution(object):
 #-----------------------------------
 #333. Largest BST Subtree
 """
-Given a binary tree, find the largest subtree which is a Binary Search Tree (BST), where largest means subtree with largest number of nodes in it.
+Given a binary tree, find the largest subtree which is a Binary Search Tree (BST), 
+where largest means subtree with largest number of nodes in it.
 
 Note:
 A subtree must include all of its descendants.
@@ -11618,7 +11847,8 @@ The return value is the subtree's size, which is 3.
 
 Hint:
 
-    You can recursively use algorithm similar to 98. Validate Binary Search Tree at each node of the tree, which will result in O(nlogn) time complexity.
+    You can recursively use algorithm similar to 98. 
+    Validate Binary Search Tree at each node of the tree, which will result in O(nlogn) time complexity.
 
 Follow up:
 Can you figure out ways to solve it with O(n) time complexity? 
@@ -11638,8 +11868,8 @@ class Solution(object):
         """
         #use dfs
         #return 4 values
-        #N largest num of sub BST for visited trace
-        #n total number of nodes if BST,otherwise -flot('inf'). The beauty is -inf + x == -inf
+        #N largest num of sub BST for visited trace, i.e.current result
+        #n total number of nodes if BST,otherwise -float('inf'). The beauty is -inf + x == -inf
         #    so if left or right is not BST, the tree of node is also not
         #min, min value of visited tree
         #max, max value of visited tree
