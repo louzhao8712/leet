@@ -2654,7 +2654,7 @@ class Solution(object):
                 while i <j and need[s[i]] <0 : #
                     need[s[i]] +=1 
                     #no need to update missing again, because we at most increase to need[s[i]] == 0
-                    # we only move i when we found extra s[i] in the outer for loop
+                    # we only move i when we found extra s[i] in the outer for loop, need[s[i]] now become negative in the outloop
                     i += 1 #this step will remove nums[i] from result
                 if not J or j-i <= J-I:
                     I,J=i,j
@@ -9782,6 +9782,70 @@ class Solution(object):
                 rooms[row][col+1] = rooms[row][col] +1
                 queue.append([row,col+1])
 #-----------------------------------
+#287. Find the Duplicate Numbe
+"""
+ Given an array nums containing n + 1 integers where each integer is between 1 and n (inclusive), prove that at least one duplicate number must exist. Assume that there is only one duplicate number, find the duplicate one.
+
+Note:
+
+    You must not modify the array (assume the array is read only).
+    You must use only constant, O(1) extra space.
+    Your runtime complexity should be less than O(n2).
+    There is only one duplicate number in the array, but it could be repeated more than once.
+
+"""
+class Solution(object):
+    def findDuplicate(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        return self.solution2(nums)
+    
+    def solution2(self,nums):
+        #binary search
+        #http://bookshadow.com/weblog/2015/09/28/leetcode-find-duplicate-number/
+        n = len(nums)
+        low =1
+        high = n-1
+        while low < high:
+            mid = (low+high)/2
+            cnt = sum(x<=mid for x in nums) # [x<=mid for x in nums] is like [True,False,True] format
+            if cnt > mid:
+                high = mid
+            else:
+                low = mid+1
+        return low
+    
+    
+    def solution1(self,nums):
+        #http://bookshadow.com/weblog/2015/09/28/leetcode-find-duplicate-number/
+         # The "tortoise and hare" step.  We start at the end of the array and try
+        # to find an intersection point in the cycle.
+        slow = 0
+        fast = 0
+    
+        # Keep advancing 'slow' by one step and 'fast' by two steps until they
+        # meet inside the loop.
+        while True:
+            slow = nums[slow]
+            fast = nums[nums[fast]]
+    
+            if slow == fast:
+                break
+    
+        # Start up another pointer from the end of the array and march it forward
+        # until it hits the pointer inside the array.
+        finder = 0
+        while True:
+            slow   = nums[slow]
+            finder = nums[finder]
+    
+            # If the two hit, the intersection index is the duplicate element.
+            if slow == finder:
+                return slow       
+        
+#-----------------------------------
 #288. Unique Word Abbreviation
 """
 An abbreviation of a word follows the form <first letter><number><last letter>. Below are some examples of word abbreviations:
@@ -10213,7 +10277,7 @@ class Codec:
                 vals.append('#')
         vals= []
         doit(root)
-        return " ".join(vals)
+        return " ".join(vals) #add space here for purpose 
 
     def deserialize(self, data):
         def doit():
@@ -11915,7 +11979,9 @@ class Solution(object):
 #-----------------------------------
 #335. Self Crossing
 """
- You are given an array x of n positive numbers. You start at point (0,0) and moves x[0] metres to the north, then x[1] metres to the west, x[2] metres to the south, x[3] metres to the east and so on. In other words, after each move your direction changes counter-clockwise.
+ You are given an array x of n positive numbers. You start at point (0,0) and moves x[0] metres to the north,
+ then x[1] metres to the west, x[2] metres to the south, x[3] metres to the east and so on. 
+ In other words, after each move your direction changes counter-clockwise.
 
 Write a one-pass algorithm with O(1) extra space to determine, if your path crosses itself, or not.
 
@@ -12598,7 +12664,7 @@ class Solution(object):
         the longer one is on disk
         using collections.Counter
         """
-        if len(nums1) > len(nums2):
+        if len(nums1) < len(nums2):
             nums1,nums2 = nums2,nums1
         c= collections.Counter(nums1)
         #nums[1] is on disk
