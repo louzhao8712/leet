@@ -1064,7 +1064,7 @@ class Solution(object):
 
         # step1: find the longest non increasing suffix
         #find nums[i] < nums[i + 1], Loop backwards
-        i = -1
+        i = -1 # i =-1 will cover the case of 54321, swap the whole string
         for t in xrange(len(nums) - 2, -1, -1):
             if nums[t] < nums[t+1]:  
                 i=t
@@ -2651,8 +2651,9 @@ class Solution(object):
             need[c] -=1 # here if c not in need, Counter will automatically add it and make the value -1
 
             if not missing : # missing == 0, all elements have been found
+                #if s[i] is not part of t, then need[s[i]] must <0 when missing ==0
                 while i <j and need[s[i]] <0 : #
-                    need[s[i]] +=1 
+                    need[s[i]] +=1
                     #no need to update missing again, because we at most increase to need[s[i]] == 0
                     # we only move i when we found extra s[i] in the outer for loop, need[s[i]] now become negative in the outloop
                     i += 1 #this step will remove nums[i] from result
@@ -3982,15 +3983,12 @@ class Solution(object):
         curr = root
         while curr:
             if curr.left:
-                if curr.right: #connect the rightmost node in curr.left to curr.right
-                    next = curr.left
-                    while next.right:
-                        next = next.right
-                    next.right = curr.right
-                
+                next = curr.left
+                while next.right:
+                    next = next.right
+                next.right = curr.right
                 curr.right = curr.left
                 curr.left = None
-
             curr = curr.right
 """
 #### Flatten BST to (Doubly) linked list
@@ -4413,6 +4411,24 @@ class Solution(object):
         p0 =0; p1=len(s)-1
         while p0<p1:
             if s[p0]!=s[p1]:
+                return False
+            p0+=1
+            p1-=1
+        return True
+
+    def sol2(self,s):
+        #inplace method
+        if s == None: return None
+        p0 =0
+        p1 = len(s)-1
+        while p0 <p1:
+            if not s[p0].isalnum(): 
+                p0+=1
+                continue
+            if not s[p1].isalnum(): 
+                p1 -=1
+                continue    
+            if s[p0].lower() != s[p1].lower():
                 return False
             p0+=1
             p1-=1
@@ -7108,7 +7124,7 @@ class Solution(object):
         :type buildings: List[List[int]]
         :rtype: List[List[int]]
         """
-        
+        #time complexity o(nlgn)
         skyline = []
         i,n = 0, len(LRH)
         liveHR = [] #the heap
