@@ -2909,14 +2909,14 @@ class Trie(object):
         node = self.root
         queue = []
         for letter in word:
-            queue.append((letter, node))
+            queue.append((letter, node)) #letter is a child of the node
             child = node.childs.get(letter)
             if child is None:
                 return False
             node = child
         if not node.isWord:
             return False
-        if len(node.childs): # this path has other owrd
+        if len(node.childs): # this path has other word
             node.isWord = False
         else:
             while queue:
@@ -3617,6 +3617,20 @@ class Solution(object):
         if self.prev!= None and self.prev.val >= node.val : return False
         self.prev = node
         return self.sol2(node.right)
+    def sol3(self,root):
+        #inorder iterative
+        stack = []
+        prev = None
+        while root or stack:
+            if root:
+                stack.append(root)
+                root = root.left
+            else:
+                top = stack.pop()
+                if prev and prev.val >= top.val: return False
+                prev = top
+                root = top.right
+        return True
 #-----------------------------------
 #-----------------------------------
 #100. Same Tree
@@ -6369,8 +6383,7 @@ class UnionFind(object):
         find_x = self.find(x)
         find_y = self.find(y)
         if find_x == find_y:  return 
-        if find_x == find_y:
-            return True
+
         if self.sizes[find_x] <= self.sizes[find_y]:
             self.parents[find_x] = find_y
             self.sizes[find_y] += self.sizes[find_x]
@@ -13874,6 +13887,25 @@ class Solution(object):
                 if x +y <= target:
                     dp[x+y] += dp[x]
         return dp[target]
+"""
+A similar problem
+
+Find subsequence in an array which sums up to given target 
+
+看了下没有非负数的做法，基本想法是如果有这么一个区间 a 的和是 target，那么 s - s == target，其中 s = a + a + … + a. 
+于是可以顺序计算 s: s, s, …, s, 并用一个 hashmap 记录之前遇到的 s 的值，这样就可以随时查找 s = s - target 是否已经在这个 hashmap 中了：
+s[0] = a[0] 
+map[s[0]] = 0 // s[i] => i
+for j = 1 to n-1:
+    s[j] = s[j-1] + a[j]
+    map[s[j]] = j
+    if map has key (s[j] - target)
+        i = map[s[j]-target]+1
+        find_solution(a[i..j])
+
+链接: https://instant.1point3acres.com/thread/190097
+来源: 一亩三分地
+"""
 #-----------------------------------
 #378. Kth Smallest Element in a Sorted Matrix
 """
@@ -14245,6 +14277,62 @@ class Solution(object):
                 stack[-1][0] += ch
         return stack[0][0]
 
+#-----------------------------------
+#397. Integer Replacement
+"""
+ Given a positive integer n and you can do operations as follow:
+
+    If n is even, replace n with n/2.
+    If n is odd, you can replace n with either n + 1 or n - 1.
+
+What is the minimum number of replacements needed for n to become 1?
+
+Example 1:
+
+Input:
+8
+
+Output:
+3
+
+Explanation:
+8 -> 4 -> 2 -> 1
+
+Example 2:
+
+Input:
+7
+
+Output:
+4
+
+Explanation:
+7 -> 8 -> 4 -> 2 -> 1
+or
+7 -> 6 -> 3 -> 2 -> 1
+
+"""
+class Solution(object):
+    def integerReplacement(self, n):
+        """
+        :type n: int
+        :rtype: int
+        """
+        count = 0
+        while n!=1 :
+            if n&1 == 0:
+                #even number
+                n= n >>1
+            elif n ==3 or ((n >>1) & 1) == 0:
+                # for odd number scenario 1
+                # n == 3 is the only exception
+                # if the last 2 digits is 01, remove one digits
+                # otherwise increase one digit
+                n -=1
+            else:
+                n +=1
+            count +=1
+        return count
 #-----------------------------------
 #398. Random Pick Index
 """
