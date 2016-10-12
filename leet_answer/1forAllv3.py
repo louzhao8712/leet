@@ -1717,6 +1717,90 @@ class Solution(object):
         elif n%2: return x*self.myPow(x*x,n/2)
         else: return self.myPow(x*x,n/2)
 #-----------------------------------
+#51. N-Queens
+"""
+The n-queens puzzle is the problem of placing n queens on an n×n chessboard such that no two queens attack each other.
+
+Given an integer n, return all distinct solutions to the n-queens puzzle.
+
+Each solution contains a distinct board configuration of the n-queens' placement, where 'Q' and '.' both indicate a queen and an empty space respectively.
+
+For example,
+There exist two distinct solutions to the 4-queens puzzle:
+
+[
+ [".Q..",  // Solution 1
+  "...Q",
+  "Q...",
+  "..Q."],
+
+ ["..Q.",  // Solution 2
+  "Q...",
+  "...Q",
+  ".Q.."]
+]
+
+"""
+class Solution(object):
+    def solveNQueens(self, n):
+        """
+        :type n: int
+        :rtype: List[List[str]]
+        """
+        return self.solution1(n)
+        
+    def solution1(self,n):
+        #dfs only method
+        # http://www.cnblogs.com/zuoyuan/p/3747249.html
+        # N皇后问题有个技巧的关键在于棋盘的表示方法，这里使用一个数组就可以表达了。比如board=[1, 3, 0, 2]，这是4皇后问题的一个解，意思是：在第0行，皇后放在第1列；在第1行，皇后放在第3列；在第2行，皇后放在第0列；在第3行
+        def check(x,y): #check in row x, queen can be put at col y
+            for i in xrange(x): #check previous rows:
+                if board[i] == y or (x-i) == abs(y-board[i]):
+                    return False
+            return True
+        
+        def dfs(x,vlist):
+            if x == n: self.res.append(vlist)
+            for i in xrange(n): #i here is col
+                if check(x,i):
+                    board[x] = i
+                    s = "." * n
+                    dfs(x+1,vlist+[s[:i]+'Q'+s[i+1:]])
+        board = [-1 for i in xrange(n)] # board here is like a hash table
+        self.res = []
+        dfs(0,[])
+        return self.res
+#-----------------------------------
+#52. N-Queens II
+"""
+Follow up for N-Queens problem.
+
+Now, instead outputting board configurations, return the total number of distinct solutions.
+
+"""
+class Solution(object):
+    def totalNQueens(self, n):
+        """
+        :type n: int
+        :rtype: int
+        """
+        def check(x,y): #check in row x, queen can be put at col y
+            for i in xrange(x): #check previous rows:
+                if board[i] == y or (x-i) == abs(y-board[i]):
+                    return False
+            return True
+        
+        def dfs(x):
+            if x == n:               self.res+=1
+            for i in xrange(n):
+                if check(x,i):
+                    board[x] = i
+                    dfs(x+1)
+        board = [-1 for i in xrange(n)]
+        self.res = 0
+        dfs(0)
+        return self.res       
+#-----------------------------------
 #53. Maximum Subarray
 """
  Find the contiguous subarray within an array (containing at least one number) which has the largest sum.
