@@ -3775,6 +3775,30 @@ class Solution(object):
             if queue: queue.append('end')
 
 #-----------------------------------
+#104. Maximum Depth of Binary Tree
+"""
+Given a binary tree, find its maximum depth.
+
+The maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def maxDepth(self, root):
+        """
+        :type root: TreeNode
+        :rtype: int
+        """
+        def dfs(node):
+            if node == None: return 0
+            return 1 + max(dfs(node.left),dfs(node.right))
+        return dfs(root)
+
 #-----------------------------------
 #105. Construct Binary Tree from Preorder and Inorder Traversal
 """
@@ -3949,6 +3973,47 @@ class Solution(object):
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
+#112. Path Sum
+"""
+ Given a binary tree and a sum, determine if the tree has a root-to-leaf path such that adding up all the values along the path equals the given sum.
+For example:
+Given the below binary tree and sum = 22,
+
+              5
+             / \
+            4   8
+           /   / \
+          11  13  4
+         /  \      \
+        7    2      1
+
+return true, as there exist a root-to-leaf path 5->4->11->2 which sum is 22.
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def hasPathSum(self, root, sum):
+        """
+        :type root: TreeNode
+        :type sum: int
+        :rtype: bool
+        """
+        """
+        :type root: TreeNode
+        :type sum: int
+        :rtype: List[List[int]]
+        """
+
+        if root == None: return False
+        if root.left == None and root.right == None:
+            return root.val == sum
+        return self.hasPathSum(root.left,sum-root.val) or self.hasPathSum(root.right,sum-root.val)
+
 #-----------------------------------
 #-----------------------------------
 #114 Flatten Binary Tree to Linked List
@@ -4317,6 +4382,20 @@ class Solution(object):
                 else:
                     sum[c] = min(sum[c],sum[c+1]) + T[r][c]
         return sum[0]
+    def sol1(self,T):
+        # method1, dp with the same space of triangle
+        lent = len(T)
+        dp = [[] for i in xrange(lent)]
+        dp[0] = T[0]
+        for i in xrange(1,lent):
+            for j in xrange(len(T[i])):
+                if j == 0  : 
+                    dp[i].append (dp[i-1][j] + T[i][j])
+                elif  j ==len(T[i]) -1:
+                    dp[i].append (dp[i-1][j-1] + T[i][j])
+                else:
+                    dp[i].append( min(dp[i-1][j-1],dp[i-1][j])+T[i][j])
+        return min(dp[-1])
 #-----------------------------------
 #121. Best Time to Buy and Sell Stock
 """
@@ -4403,6 +4482,51 @@ class Solution(object):
         for i in xrange(lenA):
             ret = max(ret,f[i]+g[i])
         return ret
+#-----------------------------------
+#124. Binary Tree Maximum Path Sum
+"""
+ Given a binary tree, find the maximum path sum.
+
+For this problem, a path is defined as any sequence of nodes from some starting node to any node in the tree along the parent-child connections. The path does not need to go through the root.
+
+For example:
+Given the below binary tree,
+
+       1
+      / \
+     2   3
+
+Return 6.
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+
+class Solution(object):
+    def maxPathSum(self, root):
+        """
+        :type root: TreeNode
+        :rtype: int
+        """
+        def dfs(node):
+            if node == None: return 0
+            currsum = node.val
+            leftres = dfs(node.left)
+            if leftres > 0: currsum += leftres
+            rightres = dfs(node.right)
+            if rightres >0 : currsum += rightres
+            if currsum > self.res: self.res = currsum
+            
+            return max(node.val,max(node.val+leftres,node.val+rightres))
+
+        self.res = -float('inf')
+        dfs(root)
+        return self.res
+
 #-----------------------------------
 #125. Valid Palindrome
 """
@@ -4620,6 +4744,52 @@ class Solution(object):
         return best
 
         return maxLen
+#---------------------------------------
+#129. Sum Root to Leaf Numbers
+"""
+Given a binary tree containing digits from 0-9 only, each root-to-leaf path could represent a number.
+
+An example is the root-to-leaf path 1->2->3 which represents the number 123.
+
+Find the total sum of all root-to-leaf numbers.
+
+For example,
+
+    1
+   / \
+  2   3
+
+The root-to-leaf path 1->2 represents the number 12.
+The root-to-leaf path 1->3 represents the number 13.
+
+Return the sum = 12 + 13 = 25. 
+"""
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def sumNumbers(self, root):
+        """
+        :type root: TreeNode
+        :rtype: int
+        """
+
+        if root == None : return 0
+        self.res = 0
+        self.dfs(root,0)
+        return self.res
+    
+    def dfs(self,root,currSum):
+        if root.left == None and root.right == None:
+            self.res+= currSum*10+root.val
+            return
+        #vlist.append(str(root.val))
+        if root.left:    self.dfs(root.left,currSum*10+root.val)
+        if root.right:   self.dfs(root.right,currSum*10+root.val)
 #-------dfs----------------------------
 #131. Palindrome Partitioning
 """
