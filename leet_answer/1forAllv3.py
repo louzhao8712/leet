@@ -5267,6 +5267,17 @@ class Solution(object):
         # reverse mirror preorder
         self.ans.reverse()
 
+    def iterative2(self,root):
+        stack = []
+        while root or stack:
+            if root:
+                self.ans.insert(0,root.val)
+                stack.append(root)
+                root = root.right
+            else:
+                top = stack.pop()
+                root = node.left
+
     def recursive(self,root):
         if root:
             
