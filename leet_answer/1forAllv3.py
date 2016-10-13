@@ -389,7 +389,7 @@ class Solution10(object):
                     dp[i][j] = dp[i - 1][j - 1]
                 elif p[j-1] == "*" :
                     if p[j-2] == '.' or s[i-1] == p[j-2]:
-                        dp[i][j] = dp[i][j-2] or dp[i-1][j]  #delete x*to match or the * is used for repeate
+                        dp[i][j] = dp[i][j-2] or dp[i-1][j]  #delete x*to match or the * is used for repeat
                     else:
                         dp[i][j] = dp[i][j-2]  #delete the x* to match
         return dp[-1][-1]
@@ -6544,60 +6544,40 @@ You are a professional robber planning to rob houses along a street. Each house 
 
 Given a list of non-negative integers representing the amount of money of each house, determine the maximum amount of money you can rob tonight without alerting the police.
 """
-# Definition for a binary tree node.
-# class TreeNode(object):
-#     def __init__(self, x):
-#         self.val = x
-#         self.left = None
-#         self.right = None
-
 class Solution(object):
-    def isValidBST(self, root):
+    def rob(self, nums):
         """
-        :type root: TreeNode
-        :rtype: bool
+        :type nums: List[int]
+        :rtype: int
         """
-        #return self.dfs(root,-1*float('inf'),float('inf'))
-        
-        #self.prev = None
-        #return self.sol2(root)
-        
-        return self.sol3(root)
-    
-    def sol3(self,root):
-        #inorder iterative
-        stack = []
-        prev = None
-        while root or stack:
-            if root:
-                stack.append(root)
-                root = root.left
+        return self.sol2(nums)
+
+    def sol2(self,nums):
+        n = len(nums)
+        if n == 0 : return 0
+        if n <=2 : return max(nums)
+        odd = 0
+        even = 0
+        for i in xrange(n):
+            if i%2 == 0:
+                odd = max(odd+nums[i],even)
             else:
-                top = stack.pop()
-                if prev and prev.val >= top.val: return False
-                prev = top
-                root = top.right
-        return True
-    def dfs(self,root,min,max):
-        if root == None: return True
-        if root.val <= min or root.val >= max: return False
-        return   self.dfs(root.left,min,root.val) and  self.dfs(root.right,root.val,max)
+                even = max(even+nums[i],odd)
+        return max(odd,even)
+
+    def sol1(self,nums):
+        n = len(nums)
+        if n == 0 : return 0
+        if n <=2 : return max(nums)
+        dp = [0 for i in xrange(n)]
+        dp[0] = nums[0]
+        dp[1] = max(nums[1],nums[0])
         
-    def sol2(self,node):
-        """
-        If we use in-order traversal to serialize a binary search tree, we can
-        get a list of values in ascending order. It can be proved with the
-        definition of BST. And here I use the reference of TreeNode
-        pointer prev as a global variable to mark the address of previous node in the
-        list.
-        """
-        #inroder method
-        if node == None : return True
-        if not self.sol2(node.left): return False
-        if self.prev!= None and self.prev.val >= node.val : return False
-        self.prev = node
-        return self.sol2(node.right)
+        for i in xrange(2,n):
+            dp[i] = max(dp[i-1],dp[i-2]+nums[i])
+        return dp[n-1]
         
+
 #-----------------------------------
 #-----------------------------------
 #-----------------------------------
@@ -12409,7 +12389,11 @@ class Solution(object):
 #-----------------------------------
 #337. House Robber III
 """
- The thief has found himself a new place for his thievery again. There is only one entrance to this area, called the "root." Besides the root, each house has one and only one parent house. After a tour, the smart thief realized that "all houses in this place forms a binary tree". It will automatically contact the police if two directly-linked houses were broken into on the same night.
+ The thief has found himself a new place for his thievery again. 
+ There is only one entrance to this area, called the "root." Besides the root, 
+ each house has one and only one parent house. After a tour, the smart thief realized that 
+ "all houses in this place forms a binary tree". It will automatically contact the police 
+ if two directly-linked houses were broken into on the same night.
 
 Determine the maximum amount of money the thief can rob tonight without alerting the police.
 
