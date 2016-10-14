@@ -9727,7 +9727,8 @@ class ZigzagIterator(object):
             if i < len(v2):  
                 self.l.append(v2[i])  
             i += 1  
-        self.index = 0  
+        self.index = 0  #meaning 1, idx of next element in self.l
+                        #meaning 2, length of items which have been processed
   
     def next(self):  
         """ 
@@ -11418,6 +11419,7 @@ class Solution(object):
 
 #-----------------------------------
 #314. Binary Tree Vertical Order Traversal
+# facebook
 """
 Given a binary tree, return the vertical order traversal of its nodes' values. (ie, from top to bottom, column by column).
 
