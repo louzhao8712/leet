@@ -3092,8 +3092,9 @@ class Solution(object):
                 else:
                     hi = ce
             else:
-                lo +=1
-            
+                while lo+1 < hi and nums[lo] == nums[ce]:
+                    lo +=1
+
         if nums[lo] == target : return True
         elif nums[hi] == target : return True
         return False
@@ -5131,8 +5132,7 @@ class Solution(object):
         self.res = []
         self.dfs(s,wordDict,'')
         return self.res
-        
-        
+
     def dfs(self,s,wordDict,vstr):
         if self.check(s,wordDict):
             if len(s) == 0: 
