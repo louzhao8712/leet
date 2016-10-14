@@ -56,7 +56,7 @@ class Trie(object):
             while queue:
                 tmp = queue.pop()
                 letter = tmp[0]
-                node = tmp[1]
+                node = tmp[1] #this is the father node
                 del node.childs[letter]
                 if len(node.childs) or node.isWord:
                     break

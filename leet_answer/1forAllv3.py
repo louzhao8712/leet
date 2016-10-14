@@ -5754,12 +5754,12 @@ class Solution(object):
             # if no more char in file, return
             if not l:
                 return idx
-    
+
             # if buf can not contain buf4, save to queue
             # l > n, we read more than we need, save the extra to queue
             if l > n:
                 self.queue += buf4[n:l]
-    
+
             # write buf4 into buf directly
             for i in range(min(l, n)):
                 buf[idx] = buf4[i]
@@ -8891,14 +8891,21 @@ class Solution(object):
     def sol1(self,n,edges):
         #union find solution
         parent = range(n)
+        sizes = [1]*n
         def find(x):
             return x if parent[x] == x else find(parent[x])
+
         for e in edges:
             x,y = map(find,e)
             if x == y: return False
-            #2 nodes in e already share parent
-            #if they are connected, there is a circle
-            parent[x] = y
+            if sizes[x] <= sizes[y]:
+                parent[x] = y
+                sizes[y] += sizes[x]
+                sizes[x] = 0
+            else:
+                parent[y] =x
+                sizes[x] += sizes[y]
+                sizes[y] = 0                
         return len(edges) == n-1
         
     def sol2(self,n,edges):
@@ -12652,7 +12659,36 @@ class NestedIterator(object):
             if self.stack and self.stack[-1].isInteger():
                 return True
         return False
+#--dfs-method-
+class NestedIterator(object):
 
+    def __init__(self, nestedList):
+        """
+        Initialize your data structure here.
+        :type nestedList: List[NestedInteger]
+        """
+        def dfs(nestList):
+            result = []
+            for el in nestList:
+                if isinstance(el,int):
+                    result.append(el)
+                else:
+                    result.extend(dfs(el))
+            return result
+        self.list = dfs(nestedList)
+
+    def next(self):
+        """
+        :rtype: int
+        """
+        ret = self.list.pop(0)
+        return ret
+
+    def hasNext(self):
+        """
+        :rtype: bool
+        """
+        return len(self.list) 
 
 # Your NestedIterator object will be instantiated and called as such:
 # i, v = NestedIterator(nestedList), []
