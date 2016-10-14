@@ -6655,7 +6655,7 @@ class Solution(object):
         self.col = len(grid[0])
         if self.col == 0: return 0
         return self.sol2(grid)
-        
+
     def sol2(self,grid):
         #union find
         m = len(grid)
@@ -6667,15 +6667,15 @@ class Solution(object):
                 if grid[i][j] == '0': continue
                 p = i*n + j
                 q = 0
-                if i> 0 and grid[i-1][j] == '1':
-                    q = p -n
-                    union_find.union(p,q)
+                #if i> 0 and grid[i-1][j] == '1':
+                #    q = p -n
+                #    union_find.union(p,q)
                 if i < m-1 and grid[i+1][j] == '1':
                     q = p+n
                     union_find.union(p,q)
-                if j >0 and grid[i][j-1] == '1':
-                    q = p-1
-                    union_find.union(p,q)
+                #if j >0 and grid[i][j-1] == '1':
+                #    q = p-1
+                #    union_find.union(p,q)
                 if j < n-1 and grid[i][j+1] == '1':
                     q = p+1
                     union_find.union(p,q)
