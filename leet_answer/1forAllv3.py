@@ -1698,6 +1698,16 @@ class Solution(object):
 # use number as key, assign prime number to 'a-z'
 # Use the product of each string as key
 # but will overflow for long string
+
+"""
+我觉得，如果是已知字符集，比如ASCII码，那可以用一个256大小的整数数组对一个词的各个字符先计数
+，然后把计数数组从头数到尾，每次遇到非零元素就按"<个数><字符>"的格式拼接出一个新字符串。
+比如: aabacca，就是4a1b2c。这样既可以保证各个anagram group的key的唯一性，又可以做到O(mn)。
+如果只是英语字母，那计数数组的大小就是26。其实我想出这个方法，完全是因为我对bucket sort不熟。。。。
+之前准备的时候，只重点准备了counting sort
+
+
+"""
 #-----------------------------------
 #50. Pow(x, n)
 """
