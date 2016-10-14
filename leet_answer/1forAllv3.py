@@ -5064,10 +5064,9 @@ class Solution(object):
             item = q.pop(0)
             # all items in this queue is suffix
             if item in wordDict: return True
-            prefix = ''
-            for c in item:
-                prefix += c
-                suffix = item[len(prefix):]
+            for i in xrange(len(item)):
+                prefix = item[:i]
+                suffix = item[i:]
                 if prefix in wordDict and suffix not in visitSet:
                     q.append(suffix)
                     visitSet.add(suffix)
@@ -6705,13 +6704,12 @@ class Solution(object):
             if i < self.row-1 : self.dfs(grid,i+1,j)
             if j >= 1 : self.dfs(grid,i,j-1)
             if j < self.col-1: self.dfs(grid,i,j+1)
+
     def bfs(self,grid,i,j):
         queue = [] # each ceil in grid labledd as i*self.col + j
         self.visit(grid,i,j,queue)
         while queue!=[]:
-            pos = queue.pop(0)
-            row = pos/self.col
-            col = pos%self.col
+            row,col = queue.pop(0)
             self.visit(grid,row-1,col,queue)
             self.visit(grid,row+1,col,queue)
             self.visit(grid,row,col-1,queue)
@@ -6720,7 +6718,7 @@ class Solution(object):
     def visit(self,grid,i,j,queue):
         if i<0 or i > (self.row-1) or j <0 or j > (self.col-1) or grid[i][j]!="1": return
         grid[i][j] = "#"
-        queue.append(i*self.col + j)
+        queue.append((i,j))
 #-----------------------------------
 #-----------------------------------
 #202. Happy Number
