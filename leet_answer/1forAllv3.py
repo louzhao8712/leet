@@ -372,6 +372,7 @@ class Solution10(object):
         #       if  p[j - 2] matches s[i - 1],   d(i, j) = deletion: d(i, j - 2) || repetition: d(i - 1, j);
         #       else                                        d(i, j) = deletion: d(i, j - 2);
         #Note: “p[j] matches s[i]” means p[j] == s[i] || p[j] == '.'.
+        # time O(ls*lp)
         ls =len(s)
         lp = len(p)
         dp = [[False for j in range(len(p) + 1)] for i in range(len(s) + 1)]
@@ -5040,6 +5041,34 @@ class Solution(object):
             res  ^= nums[i]
         return res
 #-----------------------------------
+#137. Single Number II
+"""
+ Given an array of integers, every element appears three times except for one. Find that single one.
+
+Note:
+Your algorithm should have a linear runtime complexity. Could you implement it without using extra memory? 
+"""
+class Solution(object):
+    def singleNumber(self, A):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        """
+        What we need to do is to store the number of '1's of every bit. Since each of the 32 bits follow the same rules, we just need to consider 1 bit. We know a number appears 3 times at most, so we need 2 bits to store that. Now we have 4 state, 00, 01, 10 and 11, but we only need 3 of them.
+
+In this solution, 00, 01 and 10 are chosen. Let 'ones' represents the first bit, 'twos' represents the second bit. Then we need to set rules for 'ones' and 'twos' so that they act as we hopes. The complete loop is 00->10->01->00(0->1->2->3/0).
+
+    For 'ones', we can get 'ones = ones ^ A[i]; if (twos == 1) then ones = 0', that can be tansformed to 'ones = (ones ^ A[i]) & ~twos'.
+
+    Similarly, for 'twos', we can get 'twos = twos ^ A[i]; if (ones* == 1) then twos = 0' and 'twos = (twos ^ A[i]) & ~ones'. Notice that 'ones*' is the value of 'ones' after calculation, that is why twos is
+    calculated later
+        """
+        ones = twos = 0
+        for num in A:
+            ones = (ones ^ num) & (~twos)
+            twos = (twos ^ num) & (~ones)
+        return ones
 #-----------------------------------
 #138. Copy List with Random Pointer
 """
@@ -5047,6 +5076,44 @@ class Solution(object):
 
 Return a deep copy of the list. 
 """
+# Definition for singly-linked list with a random pointer.
+# class RandomListNode(object):
+#     def __init__(self, x):
+#         self.label = x
+#         self.next = None
+#         self.random = None
+class Solution(object):
+    def copyRandomList(self, head):
+        """
+        :type head: RandomListNode
+        :rtype: RandomListNode
+        """
+        #insert node after each node
+        if curr == None: return None
+        curr = head
+        while curr:
+            nd = RandomListNode(curr.label)
+            nd.next = curr.next
+            curr.next = nd
+            curr = curr.next.next
+        #copy the random
+        curr = head
+        while curr:
+            if curr.random:
+                curr.next.random= curr.random.next
+            curr = curr.next.next
+
+        newhead = head.next
+        pold = head
+        pnew = newhead
+        while pnew.next:
+            pold.next = pnew.next
+            pold = pold.next
+            pnew.next = pold.next
+            pnew = pnew.next
+        pold.next = None
+        return newhead
+
 #-----------------------------------
 #139. Word Break
 """
@@ -6689,8 +6756,7 @@ class Solution(object):
                     q = p+1
                     union_find.union(p,q)
         return union_find.count 
-                
-     
+
 
     #------------------------------------------------    
     def sol1(self,grid):
@@ -8820,6 +8886,28 @@ class Solution(object):
         #vlist.append(str(root.val))
         if root.left:    self.dfs(root.left,vstr +str(root.val)+'->')
         if root.right:   self.dfs(root.right,vstr +str(root.val)+'->')
+
+    def iterative(self,root):
+        #reuse preorder
+        stack = []
+        pathstack = []
+        p = root
+        while stack or p:
+            if p:
+                if p == root:
+                    path = str(p.val)
+                else:
+                    path += "->" + str(p.val)
+                if p.left == None and p.right == None:
+                    self.res.append(path)
+                stack.append(p)
+                pathstack.append(path)
+                p = p.left
+            else:
+                top = stack.pop()
+                p = top.right
+                path = pathstack.pop()
+
 #-----------------------------------
 #259. 3Sum Smaller
 """
