@@ -14384,6 +14384,67 @@ class Solution(object):
                 heapq.heappush(heap,(matrix[i][j+1],i,j+1))
 
 #-----------------------------------
+#382. Linked List Random Node
+"""
+Given a singly linked list, return a random node's value from the linked list. Each node must have the same probability of being chosen.
+
+Follow up:
+What if the linked list is extremely large and its length is unknown to you? Could you solve this efficiently without using extra space?
+
+Example:
+
+// Init a singly linked list [1,2,3].
+ListNode head = new ListNode(1);
+head.next = new ListNode(2);
+head.next.next = new ListNode(3);
+Solution solution = new Solution(head);
+
+// getRandom() should return either 1, 2, or 3 randomly. Each element should have equal probability of returning.
+solution.getRandom();
+
+"""
+# Definition for singly-linked list.
+# class ListNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution(object):
+    #https://discuss.leetcode.com/topic/53844/buffered-reservoir-sampling
+    def __init__(self, head):
+        """
+        @param head The linked list's head.
+        Note that the head is guaranteed to be not null, so it contains at least one node.
+        :type head: ListNode
+        """
+        self.head = head
+        
+
+    def getRandom(self):
+        """
+        Returns a random node's value.
+        :rtype: int
+        """
+        node = self.head
+        before = 0
+        buffer = [None] * 100
+        while node:
+            now = 0
+            while node and now < 100:
+                buffer[now] = node
+                node = node.next
+                now += 1
+            r = random.randrange(now + before)
+            if r < now:
+                pick = buffer[r]
+            before += now
+        return pick.val        
+
+
+# Your Solution object will be instantiated and called as such:
+# obj = Solution(head)
+# param_1 = obj.getRandom()
+#-----------------------------------
 #383. Ransom Note
 """
 Given  an  arbitrary  ransom  note  string  and  another  string  containing  letters from  all  the  magazines,  write  a  function  that  will  return  true  if  the  ransom   note  can  be  constructed  from  the  magazines ;  otherwise,  it  will  return  false.   
@@ -14794,8 +14855,29 @@ class Solution(object):
         
 
     def pick(self, target):
-        return random.choice([k for k, v in enumerate(self.nums) if v == target])
+        return self.sol2(target)
         
+    def sol2(self,target):
+        #reservoir with size of 1
+        #https://discuss.leetcode.com/topic/58412/reservoir-sampling-solution
+        reservoir = -1
+        cnt = 0 # number of target found
+        nums = self.nums
+        for i in xrange(len(nums)):
+            if nums[i] == target :
+                cnt +=1
+                j = random.randrange(cnt)
+                if j == 0:
+                    reservoir = i
+        return reservoir
+
+    def sol1(self,target):
+        #native solution, does not satisfy the follow up
+        return random.choice([k for k, v in enumerate(self.nums) if v == target])
+
+# Your Solution object will be instantiated and called as such:
+# obj = Solution(nums)
+# param_1 = obj.pick(target)      
 #-----------------------------------
 #401. Binary Watch
 """
