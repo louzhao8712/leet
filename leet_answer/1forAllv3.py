@@ -814,8 +814,7 @@ class Solution(object):
         curr = dummy
         while heap:
             top = heapq.heappop(heap)
-            tmp = ListNode(top[0])
-            curr.next = tmp
+            curr.next = top[1]
             curr = curr.next
             if top[1].next:
                 heapq.heappush(heap,(top[1].next.val,top[1].next))
@@ -3290,6 +3289,9 @@ Given two sorted integer arrays nums1 and nums2, merge nums2 into nums1 as one s
 
 Note:
 You may assume that nums1 has enough space (size that is greater or equal to m + n) to hold additional elements from nums2. The number of elements initialized in nums1 and nums2 are m and n respectively.
+"""
+"""
+Facebook
 """
 class Solution(object):
     def merge(self, nums1, m, nums2, n):
@@ -6551,7 +6553,8 @@ Then check to see if s2 is a substring of s1 concatenated with s1:
 """
 Write a function that takes an unsigned integer and returns the number of ’1' bits it has (also known as the Hamming weight).
 
-For example, the 32-bit integer ’11' has binary representation 00000000000000000000000000001011, so the function should return 3.
+For example, the 32-bit integer ’11' has binary representation 00000000000000000000000000001011, 
+so the function should return 3.
 """
 class Solution(object):
     def hammingWeight(self, n):
@@ -8952,6 +8955,37 @@ class Solution(object):
         return ret
                 
 #-----------------------------------
+#260. Single Number III
+"""
+ Given an array of numbers nums, in which exactly two elements appear only once and all the other elements appear exactly twice. Find the two elements that appear only once.
+
+For example:
+
+Given nums = [1, 2, 1, 3, 2, 5], return [3, 5].
+
+Note:
+
+    The order of the result is not important. So in the above example, [5, 3] is also correct.
+    Your algorithm should run in linear runtime complexity. Could you implement it using only constant space complexity?
+
+"""
+class Solution(object):
+    def singleNumber(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: List[int]
+        """
+        # http://bookshadow.com/weblog/2015/08/17/leetcode-single-number-iii/
+        xor = reduce(lambda x,y: x^y,nums)
+        lowbit = xor & -xor
+        a = b = 0
+        for num in nums:
+            if num & lowbit:
+                a ^= num
+            else:
+                b ^= num
+        return [a,b]
+#-----------------------------------
 #261. Graph Valid Tree
 """
  Given n nodes labeled from 0 to n - 1 and a list of undirected edges (each edge is a pair of nodes), 
@@ -9861,6 +9895,15 @@ Examples:
 
 """
 #dfs solution
+"""
+Below is my thoughts.
+
+T(n) = 3 * T(n-1) + 3 * T(n-2) + 3 * T(n-3) + ... + 3 *T(1);
+T(n-1) = 3 * T(n-2) + 3 * T(n-3) + ... 3 * T(1);
+Thus T(n) = 4T(n-1);
+
+So the time complexity is O(4^n)?
+"""
 class Solution(object):
     def addOperators(self, num, target):
         """
@@ -11824,7 +11867,12 @@ class Solution(object):
         :rtype: List[str]
         """
         """
-        The idea is: for every character, we can keep it or abbreviate it. To keep it, we add it to the current solution and carry on backtracking. To abbreviate it, we omit it in the current solution, but increment the count, which indicates how many characters have we abbreviated. When we reach the end or need to put a character in the current solution, and count is bigger than zero, we add the number into the solution.
+        The idea is: for every character, we can keep it or abbreviate it. To keep it, 
+        we add it to the current solution and carry on backtracking.
+        To abbreviate it, we omit it in the current solution, but increment the count, 
+        which indicates how many characters have we abbreviated. 
+        When we reach the end or need to put a character in the current solution, 
+        and count is bigger than zero, we add the number into the solution.
         """
         ret = []
         self.dfs(ret,word,0,"",0)
@@ -13025,6 +13073,9 @@ class Solution(object):
         :type nums2: List[int]
         :rtype: List[int]
         """
+    def sol1(self,nums1,nums2):
+        return list(set(nums1) & set(nums2))
+    def sol2(self,nums1,nums2):
         return list(set(nums1).intersection(set(nums2)))
 #-----------------------------------
 #350. Intersection of Two Arrays II
