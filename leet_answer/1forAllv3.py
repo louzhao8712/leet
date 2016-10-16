@@ -193,13 +193,13 @@ class Solution5(object):
                 longbegin = i
                 maxlen = 2
         for l in xrange(3,n+1):  #l the length of palindrome string
-            for i in xrange(n-l):
-                j = i+l
+            for i in xrange(n-l+1):
+                j = i+l-1
                 if s[i]==s[j] and d[i+1][j-1]:
                     d[i][j]=True
                     longbegin = i
                     maxlen = l
-        return s[longbegin:longbegin+maxlen]
+        return s[longbegin:longbegin+maxlen] 
         
     def sol1(self,s):
         # solution1 O(n**2) and o(1) space
@@ -1845,7 +1845,7 @@ class Solution(object):
         return ret
 
     def divide(self,nums,start,end):
-        if nums[start] == nums[end]: return nums[start]
+        if start == end: return nums[start]
         mid = (start+end)/2
         leftans = self.divide(nums,start,mid)
         rightans = self.divide(nums,mid+1,end)
