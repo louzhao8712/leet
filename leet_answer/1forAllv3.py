@@ -13417,6 +13417,68 @@ class Solution(object):
         else: return curSum[9]
 
 #-----------------------------------
+#358. Rearrange String k Distance Apart
+"""
+ Given a non-empty string str and an integer k, rearrange the string such that the same characters are at least distance k from each other.
+
+All input strings are given in lowercase letters. If it is not possible to rearrange the string, return an empty string "".
+
+Example 1:
+
+str = "aabbcc", k = 3
+
+Result: "abcabc"
+
+The same letters are at least distance 3 from each other.
+
+Example 2:
+
+str = "aaabc", k = 3 
+
+Answer: ""
+
+It is not possible to rearrange the string.
+
+Example 3:
+
+str = "aaadbbcc", k = 2
+
+Answer: "abacabcd"
+
+Another possible answer is: "abcabcda"
+
+The same letters are at least distance 2 from each other.
+
+"""
+class Solution(object):
+    def rearrangeString(self, str, k):
+        """
+        :type str: str
+        :type k: int
+        :rtype: str
+        """
+        # heap + hashtable
+        heap = [(-freq, char) 
+                for char, freq in collections.Counter(str).items()]
+        heapq.heapify(heap)
+        res = []
+        while len(res) < len(str):
+            if not heap: return ""
+            freq, char = heapq.heappop(heap)
+            stack = []
+            res.append(char)
+            for j in range(k - 1): #need k-1 items before last char
+                if len(res) == len(str): return "".join(res)
+                if not heap: return ""
+                fre, nex = heapq.heappop(heap)
+                res.append(nex)
+                if fre < -1: 
+                    stack.append((fre+1, nex))
+            while stack:
+                heapq.heappush(heap, stack.pop())
+            heapq.heappush(heap, (freq+1, char))
+        return "".join(res)
+#-----------------------------------
 #359. Logger Rate Limiter
 """
 Design a logger system that receive stream of messages along with its timestamps, each message should be printed if and only if it is not printed in the last 10 seconds.
