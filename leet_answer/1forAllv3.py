@@ -10950,7 +10950,8 @@ class Solution(object):
     def bfs(self,s):
         #time complexity  o(n x 2^(n-1))
         """
-        Time complexity: you have a length n string, every character have 2 states "keep/remove", that is 2^n states and check valid is O(n). All together O(n*2^n). This means there is a lot of duplicates. Ideally it should be O(C(n, k) + n) where k is the number of chars needs remove. 
+        Time complexity: you have a length n string, every character have 2 states "keep/remove", that is 2^n states and check valid is O(n).
+        All together O(n*2^n). This means there is a lot of duplicates. Ideally it should be O(C(n, k) + n) where k is the number of chars needs remove. 
         Use a O(n) time to preprocess and get the value k
         """
         ans = []
