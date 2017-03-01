@@ -1100,6 +1100,7 @@ class Solution:
     # @param {string} s
     # @return {integer}
     def longestValidParentheses(self, s):
+        #The first element of stack is used to provide base for next valid string
         #Use a stack to record left paren, right paren and index.
         #If current paren is ')' and stack top is '(' then pop up and update maxLen
         stack, maxLen = [-1], 0
