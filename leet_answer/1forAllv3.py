@@ -15086,3 +15086,81 @@ class Solution(object):
         return ret
     def sol1(self,s):
         return len(s.split())
+#-----------------------------------
+# 451. Sort Characters By Frequency
+"""
+Given a string, sort it in decreasing order based on the frequency of characters.
+
+Example 1:
+
+Input:
+"tree"
+
+Output:
+"eert"
+
+Explanation:
+'e' appears twice while 'r' and 't' both appear once.
+So 'e' must appear before both 'r' and 't'. Therefore "eetr" is also a valid answer.
+Example 2:
+
+Input:
+"cccaaa"
+
+Output:
+"cccaaa"
+
+Explanation:
+Both 'c' and 'a' appear three times, so "aaaccc" is also a valid answer.
+Note that "cacaca" is incorrect, as the same characters must be together.
+Example 3:
+
+Input:
+"Aabb"
+
+Output:
+"bbAa"
+
+Explanation:
+"bbaA" is also a valid answer, but "Aabb" is incorrect.
+Note that 'A' and 'a' are treated as two different characters.
+"""
+from collections import Counter
+import heapq
+class Solution(object):
+    def frequencySort(self, s):
+        """
+        :type s: str
+        :rtype: str
+        """
+        return self.sol3(s)
+
+    def sol3(self,s):
+        db = Counter(s) #character:freq
+        buckets = [""]*(len(s)+1)
+        for key in db:
+            buckets[db[key]] += key
+        ret = ""
+        for i in xrange(len(s),-1,-1):
+            if buckets[i]!="":
+                for x in buckets[i]:
+                    ret += i*x
+        return ret
+        
+    def sol2(self,s):
+        db = Counter(s) #character:freq
+        hp = [] #max heap
+        for key in db:
+            heapq.heappush(hp,(-1*db[key],key))
+        ret = ""
+        while hp:
+            temp = heapq.heappop(hp)
+            ret += -1*temp[0] * temp[1]
+        return ret
+    def sol1(self,s):
+        db = Counter(s)
+        keys = sorted(db, key=db.get, reverse=True)
+        ret = ""
+        for key in keys:
+            ret += db[key]*key
+        return ret
