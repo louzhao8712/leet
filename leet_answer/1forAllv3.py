@@ -5547,6 +5547,34 @@ class Solution(object):
         """
         return " ".join(s.split()[::-1])
 #-----------------------------------
+#152. Maximum Product Subarray
+"""
+Find the contiguous subarray within an array (containing at least one number) which has the largest product.
+
+For example, given the array [2,3,-2,4],
+the contiguous subarray [2,3] has the largest product = 6.
+"""
+class Solution(object):
+    def maxProduct(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        n=len(nums)
+        if n==0: return 0
+        tmpmin = nums[0]
+        tmpmax = nums[0]
+        ret = nums[0]
+        for i in xrange(1,n):
+            a = tmpmin*nums[i]
+            b = tmpmax*nums[i]
+            c = nums[i]
+            tmpmin = min(min(a,b),c)
+            tmpmax = max(max(a,b),c)
+            ret = tmpmax if tmpmax > ret else ret
+        return ret
+
+#-----------------------------------
 #153. Find Minimum in Rotated Sorted Array
 """
 Suppose a sorted array is rotated at some pivot unknown to you beforehand.
@@ -15140,7 +15168,7 @@ class Solution(object):
             if sCounter[s[i-len(p)+1]] == 0:
                 del sCounter[s[i-len(p)+1]]   # remove the count if it is 0
         return res          
-        
+
 #-----------------------------------
 #447. Number of Boomerangs
 """
