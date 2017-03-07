@@ -15087,6 +15087,100 @@ class Solution(object):
     def sol1(self,s):
         return len(s.split())
 #-----------------------------------
+#438 Find All Anagrams in a String
+"""
+Given a string s and a non-empty string p, find all the start indices of p's anagrams in s.
+
+Strings consists of lowercase English letters only and the length of both strings s and p will not be larger than 20,100.
+
+The order of output does not matter.
+
+Example 1:
+
+Input:
+s: "cbaebabacd" p: "abc"
+
+Output:
+[0, 6]
+
+Explanation:
+The substring with start index = 0 is "cba", which is an anagram of "abc".
+The substring with start index = 6 is "bac", which is an anagram of "abc".
+Example 2:
+
+Input:
+s: "abab" p: "ab"
+
+Output:
+[0, 1, 2]
+
+Explanation:
+The substring with start index = 0 is "ab", which is an anagram of "ab".
+The substring with start index = 1 is "ba", which is an anagram of "ab".
+The substring with start index = 2 is "ab", which is an anagram of "ab".
+"""
+from collections import Counter
+class Solution(object):
+    def findAnagrams(self, s, p):
+        """
+        :type s: str
+        :type p: str
+        :rtype: List[int]
+        """
+        #solution 2 pointer + hashtable
+        
+        res = []
+        pCounter = Counter(p)
+        sCounter = Counter(s[:len(p)-1])
+        for i in range(len(p)-1,len(s)):
+            sCounter[s[i]] += 1   # include a new char in the window
+            if sCounter == pCounter:    # This step is O(1), since there are at most 26 English letters 
+                res.append(i-len(p)+1)   # append the starting index
+            sCounter[s[i-len(p)+1]] -= 1   # decrease the count of oldest char in the window
+            if sCounter[s[i-len(p)+1]] == 0:
+                del sCounter[s[i-len(p)+1]]   # remove the count if it is 0
+        return res          
+        
+#-----------------------------------
+#447. Number of Boomerangs
+"""
+Given n points in the plane that are all pairwise distinct, a "boomerang" is a tuple of points (i, j, k) such that the distance between i and j equals the distance between i and k (the order of the tuple matters).
+
+Find the number of boomerangs. You may assume that n will be at most 500 and coordinates of points are all in the range [-10000, 10000] (inclusive).
+
+Example:
+Input:
+[[0,0],[1,0],[2,0]]
+
+Output:
+2
+
+Explanation:
+The two boomerangs are [[1,0],[0,0],[2,0]] and [[1,0],[2,0],[0,0]]
+"""
+class Solution(object):
+    def numberOfBoomerangs(self, points):
+        """
+        :type points: List[List[int]]
+        :rtype: int
+        """
+        res = 0
+        map = {}
+        for i in xrange(len(points)):
+            for j in xrange(len(points)):
+                if i == j : continue
+                dist = self.cal_dist_square(points[i],points[j])
+                map[dist] = map.get(dist,0) +1
+            for val in map.values():
+                res += val*(val-1) #permutation of 2 points
+            map = {}
+        return res
+        
+    def cal_dist_square(self,pa,pb):
+        dx = pa[0]-pb[0]
+        dy = pa[1]-pb[1]
+        return dx**2 + dy **2
+#-----------------------------------
 # 451. Sort Characters By Frequency
 """
 Given a string, sort it in decreasing order based on the frequency of characters.
